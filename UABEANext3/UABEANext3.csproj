@@ -1,0 +1,104 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <!--Avalonia doesen't support TrimMode=link currently,but we are working on that https://github.com/AvaloniaUI/Avalonia/issues/6892 -->
+    <TrimMode>copyused</TrimMode>
+    <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
+  </PropertyGroup>
+  <ItemGroup>
+    <AvaloniaResource Include="Assets\**" />
+    <None Remove=".gitignore" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Assets\Icons\asset-animation-clip.png" />
+    <Content Include="Assets\Icons\asset-animation.png" />
+    <Content Include="Assets\Icons\asset-animator-controller.png" />
+    <Content Include="Assets\Icons\asset-animator-override-controller.png" />
+    <Content Include="Assets\Icons\asset-animator.png" />
+    <Content Include="Assets\Icons\asset-audio-clip.png" />
+    <Content Include="Assets\Icons\asset-audio-listener.png" />
+    <Content Include="Assets\Icons\asset-audio-mixer-group.png" />
+    <Content Include="Assets\Icons\asset-audio-mixer.png" />
+    <Content Include="Assets\Icons\asset-audio-source.png" />
+    <Content Include="Assets\Icons\asset-avatar.png" />
+    <Content Include="Assets\Icons\asset-billboard-renderer.png" />
+    <Content Include="Assets\Icons\asset-billboard.png" />
+    <Content Include="Assets\Icons\asset-box-collider.png" />
+    <Content Include="Assets\Icons\asset-camera.png" />
+    <Content Include="Assets\Icons\asset-canvas-group.png" />
+    <Content Include="Assets\Icons\asset-canvas-renderer.png" />
+    <Content Include="Assets\Icons\asset-canvas.png" />
+    <Content Include="Assets\Icons\asset-capsule-collider.png" />
+    <Content Include="Assets\Icons\asset-compute-shader.png" />
+    <Content Include="Assets\Icons\asset-cubemap.png" />
+    <Content Include="Assets\Icons\asset-flare-layer.png" />
+    <Content Include="Assets\Icons\asset-flare.png" />
+    <Content Include="Assets\Icons\asset-font.png" />
+    <Content Include="Assets\Icons\asset-game-object.png" />
+    <Content Include="Assets\Icons\asset-light.png" />
+    <Content Include="Assets\Icons\asset-lightmap-settings.png" />
+    <Content Include="Assets\Icons\asset-lod-group.png" />
+    <Content Include="Assets\Icons\asset-material.png" />
+    <Content Include="Assets\Icons\asset-mesh-collider.png" />
+    <Content Include="Assets\Icons\asset-mesh-filter.png" />
+    <Content Include="Assets\Icons\asset-mesh-renderer.png" />
+    <Content Include="Assets\Icons\asset-mesh.png" />
+    <Content Include="Assets\Icons\asset-mono-behaviour.png" />
+    <Content Include="Assets\Icons\asset-mono-script.png" />
+    <Content Include="Assets\Icons\asset-nav-mesh-settings.png" />
+    <Content Include="Assets\Icons\asset-particle-system-renderer.png" />
+    <Content Include="Assets\Icons\asset-particle-system.png" />
+    <Content Include="Assets\Icons\asset-rect-transform.png" />
+    <Content Include="Assets\Icons\asset-reflection-probe.png" />
+    <Content Include="Assets\Icons\asset-rigidbody.png" />
+    <Content Include="Assets\Icons\asset-shader-collection.png" />
+    <Content Include="Assets\Icons\asset-shader.png" />
+    <Content Include="Assets\Icons\asset-sprite-renderer.png" />
+    <Content Include="Assets\Icons\asset-sprite.png" />
+    <Content Include="Assets\Icons\asset-terrain-collider.png" />
+    <Content Include="Assets\Icons\asset-terrain.png" />
+    <Content Include="Assets\Icons\asset-texture2d.png" />
+    <Content Include="Assets\Icons\asset-transform.png" />
+    <Content Include="Assets\Icons\asset-unknown.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <!--This helps with theme dll-s trimming.
+	If you will publish your application in self-contained mode with p:PublishTrimmed=true and it will use Fluent theme Default theme will be trimmed from the output and vice versa.
+	https://github.com/AvaloniaUI/Avalonia/issues/5593 -->
+    <TrimmableAssembly Include="Avalonia.Themes.Fluent" />
+    <TrimmableAssembly Include="Avalonia.Themes.Default" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="AssetsTools.NET">
+      <HintPath>..\Libs\AssetsTools.NET.dll</HintPath>
+    </Reference>
+    <Reference Include="AssetsTools.NET.Texture">
+      <HintPath>..\Libs\AssetsTools.NET.Texture.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="AssetRipper.TextureDecoder" Version="1.2.0" />
+    <PackageReference Include="Avalonia" Version="11.0.0-preview5" />
+    <PackageReference Include="Avalonia.Desktop" Version="11.0.0-preview5" />
+    <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
+    <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.0.0-preview5" />
+    <PackageReference Include="Avalonia.ReactiveUI" Version="11.0.0-preview5" />
+    <PackageReference Include="Avalonia.Themes.Simple" Version="11.0.0-preview5" />
+    <PackageReference Include="Dock.Avalonia" Version="11.0.0-preview5" />
+    <PackageReference Include="Dock.Model" Version="11.0.0-preview5" />
+    <PackageReference Include="Dock.Model.Avalonia" Version="11.0.0-preview5" />
+    <PackageReference Include="Dock.Model.ReactiveUI" Version="11.0.0-preview5" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="2.1.3" />
+    <PackageReference Include="XamlNameReferenceGenerator" Version="1.6.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="Views\Tools\SceneExplorerToolView.axaml.cs">
+      <DependentUpon>SceneExplorerToolView.axaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\Tools\WorkspaceExplorerToolView.axaml.cs">
+      <DependentUpon>WorkspaceExplorerToolView.axaml</DependentUpon>
+    </Compile>
+  </ItemGroup>
+</Project>

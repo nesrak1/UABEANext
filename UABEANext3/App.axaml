@@ -1,0 +1,22 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:sys="clr-namespace:System;assembly=netstandard"
+             xmlns:local="using:UABEANext3"
+             x:Class="UABEANext3.App">
+    <Application.DataTemplates>
+        <local:ViewLocator/>
+    </Application.DataTemplates>
+
+    <Application.Styles>
+        <SimpleTheme/>
+        <StyleInclude Source="avares://UABEANext3/Themes/DockSimpleThemeEdit.axaml" />
+        <!--<StyleInclude Source="avares://Dock.Avalonia/Themes/DockSimpleTheme.axaml" />-->
+        <StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Simple.xaml"/>
+        <Style>
+          <Style.Resources>
+            <!-- thicker scrollbar -->
+            <sys:Double x:Key="ScrollBarThumbThickness">14</sys:Double>
+          </Style.Resources>
+        </Style>
+    </Application.Styles>
+</Application>

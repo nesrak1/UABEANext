@@ -1,0 +1,91 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             xmlns:uac="using:UABEANext3.Converters"
+             x:Class="UABEANext3.Views.Documents.AssetDocumentView">
+  <Grid>
+    <Grid.Resources>
+      <uac:AssetTypeIconConverter x:Key="AssetTypeIconConverter" />
+    </Grid.Resources>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="25"/>
+      <RowDefinition Height="*"/>
+    </Grid.RowDefinitions>
+
+    <UniformGrid Grid.Row="0" Rows="1" HorizontalAlignment="Left">
+      <Button MaxWidth="100">
+        <StackPanel Orientation="Horizontal">
+          <Image Source="avares://UABEANext3/Assets/Icons/action-view-info.png" Margin="0,0,3,0" />
+          <TextBlock>View Data</TextBlock>
+        </StackPanel>
+      </Button>
+      <Button MaxWidth="100">
+        <StackPanel Orientation="Horizontal">
+          <Image Source="avares://UABEANext3/Assets/Icons/asset-game-object.png" Margin="0,0,3,0" />
+          <TextBlock>View Scene</TextBlock>
+        </StackPanel>
+      </Button>
+      <Button MaxWidth="100">
+        <StackPanel Orientation="Horizontal">
+          <Image Source="avares://UABEANext3/Assets/Icons/action-export-asset.png" Margin="0,0,3,0" />
+          <TextBlock>Export</TextBlock>
+        </StackPanel>
+      </Button>
+      <Button MaxWidth="100">
+        <StackPanel Orientation="Horizontal">
+          <Image Source="avares://UABEANext3/Assets/Icons/action-import-asset.png" Margin="0,0,3,0" />
+          <TextBlock>Import</TextBlock>
+        </StackPanel>
+      </Button>
+      <Button MaxWidth="100">
+        <StackPanel Orientation="Horizontal">
+          <Image Source="avares://UABEANext3/Assets/Icons/action-plugins.png" Margin="0,0,3,0" />
+          <TextBlock>Plugins</TextBlock>
+        </StackPanel>
+      </Button>
+      <Button MaxWidth="100">
+        <StackPanel Orientation="Horizontal">
+          <Image Source="avares://UABEANext3/Assets/Icons/action-add-asset.png" Margin="0,0,3,0" />
+          <TextBlock>Add</TextBlock>
+        </StackPanel>
+      </Button>
+      <Button MaxWidth="100">
+        <StackPanel Orientation="Horizontal">
+          <Image Source="avares://UABEANext3/Assets/Icons/action-remove-asset.png" Margin="0,0,3,0" />
+          <TextBlock>Remove</TextBlock>
+        </StackPanel>
+      </Button>
+    </UniformGrid>
+
+    <DataGrid Grid.Row="1" AutoGenerateColumns="False" CanUserResizeColumns="True" IsReadOnly="True" Name="dataGrid" Items="{Binding Items}" DoubleTapped="DataGrid_DoubleTapped" Margin="0,0,0,0">
+      <DataGrid.RowTheme>
+        <ControlTheme TargetType="DataGridRow" BasedOn="{StaticResource {x:Type DataGridRow}}">
+          <ControlTheme.Children>
+            <Style Selector="^:nth-child(2n)">
+              <Setter Property="Background" Value="#00FFFFFF" />
+            </Style>
+          </ControlTheme.Children>
+        </ControlTheme>
+      </DataGrid.RowTheme>
+      <DataGrid.Columns>
+        <DataGridTemplateColumn Header=" ">
+            <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                    <Image Source="{Binding Type, Converter={StaticResource AssetTypeIconConverter}}" Width="16" Height="16" />
+                </DataTemplate>
+            </DataGridTemplateColumn.CellTemplate>
+        </DataGridTemplateColumn>
+        
+        <DataGridTextColumn Header="Name" Binding="{Binding DisplayName}"/>
+        <DataGridTextColumn Header="Container" Binding="{Binding Container}"/>
+        <DataGridTextColumn Header="Type" Binding="{Binding TypeName}"/>
+        <!--<DataGridTextColumn Header="File ID" Binding="{Binding FileID}"/>-->
+        <DataGridTextColumn Header="Path ID" Binding="{Binding PathId}"/>
+        <DataGridTextColumn Header="Size" Binding="{Binding Size}"/>
+        <!--<DataGridTextColumn Header="Modified" Binding="{Binding Modified}"/>-->
+      </DataGrid.Columns>
+    </DataGrid>
+  </Grid>
+</UserControl>

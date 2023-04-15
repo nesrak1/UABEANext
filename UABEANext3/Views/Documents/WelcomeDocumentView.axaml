@@ -1,0 +1,13 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="UABEANext3.Views.Documents.WelcomeDocumentView">
+  <TextBox IsReadOnly="True" TextWrapping="Wrap" xml:space="preserve">Welcome to the new UABEAvalonia! This redesign allows for docking and multiple bundles open at once. The design is based off of dnSpy, but is also similar to the layout of AssetStudio or UABE 3.0's update.
+
+UABEAvalonia is under heavy development. If you run into an issue and you don't think you're doing anything wrong, don't hesitate to make an issue on the GitHub page or ask a question in the Discord server. The links are below:
+
+https://github.com/nesrak1/UABEA/issues
+https://discord.gg/hd9VdswwZs</TextBox>
+</UserControl>

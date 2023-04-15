@@ -1,0 +1,33 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:UABEANext3.ViewModels"
+        xmlns:views="using:UABEANext3.Views"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:id="using:Dock.Avalonia"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="UABEANext3.Views.MainWindow"
+        Icon="/Assets/avalonia-logo.ico"
+        Title="UABEAvalonia"
+        ExtendClientAreaToDecorationsHint="True"
+        ExtendClientAreaChromeHints="PreferSystemChrome"
+        id:DockProperties.IsDragEnabled="True" id:DockProperties.IsDropEnabled="True">
+
+    <Design.DataContext>
+        <vm:MainWindowViewModel/>
+    </Design.DataContext>
+    
+    <Panel Margin="{Binding #MainWindow.OffScreenMargin}">
+        <Panel Height="30" HorizontalAlignment="Center" VerticalAlignment="Top">
+            <Label Content="{Binding Path=Title, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"
+                   Margin="4,0,4,0"
+                   FontSize="14"
+                   FontWeight="Normal"
+                   VerticalAlignment="Center"
+                   VerticalContentAlignment="Center" />
+        </Panel>
+        <Panel Margin="{Binding #MainWindow.WindowDecorationMargin}">
+          <views:MainView/>
+        </Panel>
+    </Panel>
+</Window>

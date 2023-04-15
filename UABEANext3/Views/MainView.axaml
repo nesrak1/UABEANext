@@ -1,0 +1,20 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             xmlns:views="using:UABEANext3.Views"
+             xmlns:vm="using:UABEANext3.ViewModels"
+             x:Class="UABEANext3.Views.MainView">
+  <Design.DataContext>
+    <vm:MainWindowViewModel />
+  </Design.DataContext>
+  <Grid RowDefinitions="Auto,*" DragDrop.AllowDrop="True">
+    <Menu Grid.Row="0" Padding="0,6">
+      <MenuItem Header="File">
+        <MenuItem Header="Open" Command="{Binding FileOpen_Menu}"/>
+      </MenuItem>
+    </Menu>
+    <DockControl Layout="{Binding Layout}" Margin="4" Grid.Row="1" />
+  </Grid>
+</UserControl>
