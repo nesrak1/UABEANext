@@ -1,9 +1,13 @@
 ﻿using Avalonia;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
+using AvaloniaEdit.Document;
 using Dock.Model.ReactiveUI.Controls;
 using ReactiveUI;
+using ReactiveUI.Fody.Helpers;
+using System;
 using System.Runtime.InteropServices;
+using System.Text;
 using UABEANext3.AssetWorkspace;
 
 namespace UABEANext3.ViewModels.Tools
@@ -26,11 +30,22 @@ namespace UABEANext3.ViewModels.Tools
             set => this.RaiseAndSetIfChanged(ref _activeImage, value);
         }
 
-        // preview only
+        private TextDocument? _activeDocument;
+        public TextDocument? ActiveDocument
+        {
+            get => _activeDocument;
+            set => this.RaiseAndSetIfChanged(ref _activeDocument, value);
+        }
+
+        [Reactive]
+        public PreviewerToolPreviewType ActivePreviewType { get; set; } = PreviewerToolPreviewType.Image;
+
+        [Obsolete("This is a previewer-only constructor")]
         public PreviewerToolViewModel()
         {
             Workspace = new();
             ActiveImage = null;
+            ActiveDocument = new TextDocument();
 
             Id = TOOL_TITLE.Replace(" ", "");
             Title = TOOL_TITLE;
@@ -40,6 +55,7 @@ namespace UABEANext3.ViewModels.Tools
         {
             Workspace = workspace;
             ActiveImage = null;
+            ActiveDocument = new TextDocument();
 
             Id = TOOL_TITLE.Replace(" ", "");
             Title = TOOL_TITLE;
@@ -57,7 +73,20 @@ namespace UABEANext3.ViewModels.Tools
             {
                 Marshal.Copy(data, 0, frameBuffer.Address, data.Length);
             }
+            ActivePreviewType = PreviewerToolPreviewType.Image;
             ActiveImage = bitmap;
         }
+
+        public void SetText(byte[] text)
+        {
+            ActivePreviewType = PreviewerToolPreviewType.Text;
+            ActiveDocument = new TextDocument(Encoding.UTF8.GetString(text).ToCharArray());
+        }
+    }
+
+    public enum PreviewerToolPreviewType
+    {
+        Image,
+        Text,
     }
 }

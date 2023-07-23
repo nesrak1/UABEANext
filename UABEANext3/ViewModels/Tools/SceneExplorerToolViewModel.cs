@@ -1,6 +1,7 @@
 ﻿using AssetsTools.NET;
 using AssetsTools.NET.Extra;
 using Dock.Model.ReactiveUI.Controls;
+using System;
 using System.Collections.Generic;
 using UABEANext3.AssetWorkspace;
 using UABEANext3.Views.Tools;
@@ -17,7 +18,7 @@ namespace UABEANext3.ViewModels.Tools
         public Workspace Workspace { get; }
         public List<SceneExplorerItem> RootItems { get; }
 
-        // preview only
+        [Obsolete("This is a previewer-only constructor")]
         public SceneExplorerToolViewModel()
         {
             Workspace = new();
@@ -36,6 +37,7 @@ namespace UABEANext3.ViewModels.Tools
             Title = TOOL_TITLE;
         }
 
+        // slow!
         public void LoadHierarchy(AssetsFileInstance fileInst)
         {
             return;

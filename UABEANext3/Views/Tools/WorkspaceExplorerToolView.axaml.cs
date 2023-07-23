@@ -19,6 +19,8 @@ namespace UABEANext3.Views.Tools
 
         private async void SolutionTreeView_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
         {
+            // SelectedItems signals once for every item
+            // wait until all items are added (jank)
             var current = Interlocked.Increment(ref last);
             await Task.Delay(200);
 

@@ -247,6 +247,17 @@ namespace UABEANext3.ViewModels
 
                 previewer.SetImage(textureRgba, texture.m_Width, texture.m_Height);
             }
+            else if (asset.Type == AssetClassID.TextAsset)
+            {
+                var previewer = _factory?.GetDockable<PreviewerToolViewModel>("Previewer");
+
+                var textAssetBf = _workspace.GetBaseField(asset);
+                if (textAssetBf == null)
+                    return;
+
+                byte[] data = textAssetBf["m_Script"].AsByteArray;
+                previewer.SetText(data);
+            }
         }
 
         public static AssetTypeValueField? GetByteArrayTexture(Workspace workspace, AssetInst tex)

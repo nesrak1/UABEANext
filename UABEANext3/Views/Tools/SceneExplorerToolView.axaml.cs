@@ -15,7 +15,7 @@ namespace UABEANext3.Views.Tools
             if (DataContext is SceneExplorerToolViewModel scExpVm)
             {
                 var selectedItem = e.AddedItems.Count > 0 ? e.AddedItems[0] : null;
-                if (selectedItem is SceneExplorerItem explorerItem)
+                if (selectedItem is SceneExplorerItem explorerItem && explorerItem.Asset != null)
                 {
                     scExpVm.InvokeSelectedSceneItemChanged(explorerItem.Asset);
                 }

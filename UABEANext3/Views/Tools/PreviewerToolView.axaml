@@ -3,10 +3,25 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             xmlns:avedit="clr-namespace:AvaloniaEdit;assembly=AvaloniaEdit"
+             xmlns:m="using:UABEANext3.ViewModels.Tools"
+             xmlns:v="using:UABEANext3.Views.Tools"
              x:Class="UABEANext3.Views.Tools.PreviewerToolView">
-  <Image Source="{Binding ActiveImage}" Margin="0,0,0,0" Stretch="Uniform" StretchDirection="DownOnly">
-    <Image.RenderTransform>
-      <ScaleTransform ScaleY="-1" />
-    </Image.RenderTransform>
-  </Image>
+  <UserControl.DataTemplates>
+    <v:PreviewerTemplateSelector>
+      <DataTemplate x:Key="Image" DataType="m:PreviewerToolPreviewType">
+        <Image Source="{Binding $parent[UserControl].DataContext.ActiveImage}" Margin="0,0,0,0" Stretch="Uniform" StretchDirection="DownOnly">
+          <Image.RenderTransform>
+            <ScaleTransform ScaleY="-1" />
+          </Image.RenderTransform>
+        </Image>
+      </DataTemplate>
+      <DataTemplate x:Key="Text" DataType="m:PreviewerToolPreviewType">
+        <avedit:TextEditor FontFamily="Cascadia Code,Consolas,Monospace,Courier,DejaVu Sans Mono,Roboto Mono,Menlo" Document="{Binding $parent[UserControl].DataContext.ActiveDocument}" IsReadOnly="True" />
+      </DataTemplate>
+    </v:PreviewerTemplateSelector>
+  </UserControl.DataTemplates>
+  <Grid>
+    <ContentControl Content="{Binding ActivePreviewType}" />
+  </Grid>
 </UserControl>
