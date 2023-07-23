@@ -116,4 +116,18 @@
       <DependentUpon>WorkspaceExplorerToolView.axaml</DependentUpon>
     </Compile>
   </ItemGroup>
+  <Target Name="UABEAAfterBuild" AfterTargets="AfterBuild" Condition="'$(SolutionDir)' != '*Undefined*'">
+    <ItemGroup>
+      <ReleaseFiles Include="$(SolutionDir)ReleaseFiles\**\*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(ReleaseFiles)" DestinationFolder="$(OutputPath)" ContinueOnError="true" />
+    <MakeDir Directories="$(OutputPath)plugins" ContinueOnError="true" />
+  </Target>
+  <Target Name="UABEAAfterPublish" AfterTargets="Publish" Condition="'$(SolutionDir)' != '*Undefined*'">
+    <ItemGroup>
+      <ReleaseFiles Include="$(SolutionDir)ReleaseFiles\**\*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(ReleaseFiles)" DestinationFolder="$(PublishDir)" ContinueOnError="true" />
+    <MakeDir Directories="$(PublishDir)plugins" ContinueOnError="true" />
+  </Target>
 </Project>
