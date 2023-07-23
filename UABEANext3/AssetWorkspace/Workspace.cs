@@ -1,22 +1,36 @@
 ﻿using AssetsTools.NET;
+using AssetsTools.NET.Cpp2IL;
 using AssetsTools.NET.Extra;
+using Avalonia.Threading;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using UABEANext3.Util;
 
 namespace UABEANext3.AssetWorkspace
 {
     public class Workspace
     {
         public AssetsManager Manager { get; } = new AssetsManager();
+        public WorkspaceJobManager JobManager { get; } = new WorkspaceJobManager();
 
         public ObservableCollection<WorkspaceItem> RootItems { get; } = new();
         public Dictionary<string, WorkspaceItem> ItemLookup { get; } = new();
-        public Dictionary<AssetID, AssetInst> LoadedAssets { get; } = new();
+
+        // items modified and unsaved
+        public HashSet<WorkspaceItem> UnsavedItems { get; } = new();
+        // items modified and saved
+        // we track this since the base AssetsFile is still reading form the old file
+        public HashSet<WorkspaceItem> ModifiedItems { get; } = new();
+
+        public delegate void MonoTemplateFailureEvent(string path);
+        public event MonoTemplateFailureEvent? MonoTemplateLoadFailed;
 
         private bool _setMonoTempGeneratorsYet;
 
@@ -24,10 +38,14 @@ namespace UABEANext3.AssetWorkspace
         {
             if (File.Exists("classdata.tpk"))
                 Manager.LoadClassPackage("classdata.tpk");
+
+            Manager.UseTemplateFieldCache = true;
+            Manager.UseQuickLookup = true;
         }
 
         public WorkspaceItem LoadBundle(Stream stream, string name = "")
         {
+            // todo: don't always unpack to memory lol
             BundleFileInstance bunInst;
             if (stream is FileStream fs)
             {
@@ -39,8 +57,7 @@ namespace UABEANext3.AssetWorkspace
             }
 
             WorkspaceItem item = new WorkspaceItem(this, bunInst);
-            RootItems.Add(item);
-            ItemLookup[bunInst.name] = item;
+            AddRootItemThreadSafe(item, bunInst.name);
 
             return item;
         }
@@ -50,11 +67,11 @@ namespace UABEANext3.AssetWorkspace
             AssetsFileInstance fileInst;
             if (stream is FileStream fs)
             {
-                fileInst = new AssetsFileInstance(fs);
+                fileInst = Manager.LoadAssetsFile(fs);
             }
             else
             {
-                fileInst = new AssetsFileInstance(stream, name);
+                fileInst = Manager.LoadAssetsFile(stream, name);
             }
 
             if (Manager.ClassDatabase == null)
@@ -62,8 +79,7 @@ namespace UABEANext3.AssetWorkspace
                 Manager.LoadClassDatabaseFromPackage(fileInst.file.Metadata.UnityVersion);
             }
             WorkspaceItem item = new WorkspaceItem(fileInst);
-            RootItems.Add(item);
-            ItemLookup[fileInst.name] = item;
+            AddRootItemThreadSafe(item, fileInst.name);
 
             return item;
         }
@@ -79,89 +95,177 @@ namespace UABEANext3.AssetWorkspace
             }
 
             WorkspaceItem item = new WorkspaceItem(name, stream, WorkspaceItemType.ResourceFile);
-            RootItems.Add(item);
-            ItemLookup[name] = item;
+            AddRootItemThreadSafe(item, name);
 
             return item;
         }
 
+        private void AddRootItemThreadSafe(WorkspaceItem item, string itemName)
+        {
+            lock (RootItems)
+            {
+                if (Dispatcher.UIThread.CheckAccess())
+                {
+                    RootItems.Add(item);
+                }
+                else
+                {
+                    Dispatcher.UIThread.Post(() =>
+                    {
+                        RootItems.Add(item);
+                    }, DispatcherPriority.Background);
+                }
+            }
+            lock (ItemLookup)
+            {
+                ItemLookup[itemName] = item;
+            }
+        }
+
+        // should be nullable
         public AssetTypeTemplateField GetTemplateField(AssetInst asset, bool skipMonoBehaviourFields = false)
         {
             AssetReadFlags readFlags = AssetReadFlags.None;
             if (skipMonoBehaviourFields)
                 readFlags |= AssetReadFlags.SkipMonoBehaviourFields;
 
-            return Manager.GetTemplateBaseField(asset.FileInstance, asset.FileReader, asset.FilePosition, asset.ClassId, asset.MonoId, readFlags);
+            return Manager.GetTemplateBaseField(asset.FileInstance, asset, readFlags);
         }
 
-        public AssetInst? GetAssetInst(AssetsFileInstance fileInst, int fileId, long pathId, bool onlyInfo = true)
+        public AssetTypeTemplateField GetTemplateField(AssetsFileInstance fileInst, AssetFileInfo info, bool skipMonoBehaviourFields = false)
         {
+            AssetReadFlags readFlags = AssetReadFlags.None;
+            if (skipMonoBehaviourFields)
+                readFlags |= AssetReadFlags.SkipMonoBehaviourFields;
+
+            return Manager.GetTemplateBaseField(fileInst, info, readFlags);
+        }
+
+        private void CheckAndSetMonoTempGenerators(AssetsFileInstance fileInst, AssetFileInfo info)
+        {
+            if ((info.TypeId == (int)AssetClassID.MonoBehaviour || info.TypeId < 0) && !_setMonoTempGeneratorsYet && !fileInst.file.Metadata.TypeTreeEnabled)
+            {
+                string dataDir = PathUtils.GetAssetsFileDirectory(fileInst);
+                bool success = SetMonoTempGenerators(dataDir);
+                if (!success)
+                {
+                    MonoTemplateLoadFailed?.Invoke(dataDir);
+                }
+            }
+        }
+
+        private bool SetMonoTempGenerators(string fileDir)
+        {
+            if (!_setMonoTempGeneratorsYet)
+            {
+                _setMonoTempGeneratorsYet = true;
+                FindCpp2IlFilesResult il2cppFiles = FindCpp2IlFiles.Find(fileDir);
+                if (il2cppFiles.success && true/*ConfigurationManager.Settings.UseCpp2Il*/)
+                {
+                    Manager.MonoTempGenerator = new Cpp2IlTempGenerator(il2cppFiles.metaPath, il2cppFiles.asmPath);
+                    return true;
+                }
+                else
+                {
+                    string managedDir = Path.Combine(fileDir, "Managed");
+                    if (Directory.Exists(managedDir))
+                    {
+                        Manager.MonoTempGenerator = new MonoCecilTempGenerator(managedDir);
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        public AssetInst? GetAssetInst(AssetsFileInstance fileInst, AssetTypeValueField pptrField)
+        {
+            return GetAssetInst(fileInst, pptrField["m_FileID"].AsInt, pptrField["m_PathID"].AsLong);
+        }
+
+        public AssetInst? GetAssetInst(AssetsFileInstance fileInst, int fileId, long pathId)
+        {
+            // todo dupe
             if (fileId != 0)
             {
                 fileInst = fileInst.GetDependency(Manager, fileId - 1);
             }
-
-            if (fileInst != null)
+            if (fileInst == null)
             {
-                AssetID assetId = new AssetID(fileInst.path, pathId);
-                if (LoadedAssets.TryGetValue(assetId, out AssetInst? asset))
-                {
-                    if (!onlyInfo && asset.BaseValueField == null)
-                    {
-                        //// only set mono temp generator when we open a MonoBehaviour
-                        //if ((asset.ClassId == (int)AssetClassID.MonoBehaviour || asset.ClassId < 0) && !_setMonoTempGeneratorsYet && !fileInst.file.Metadata.TypeTreeEnabled)
-                        //{
-                        //    string dataDir = Extensions.GetAssetsFileDirectory(fileInst);
-                        //    bool success = SetMonoTempGenerators(dataDir);
-                        //    if (!success)
-                        //    {
-                        //        MonoTemplateLoadFailed?.Invoke(dataDir);
-                        //    }
-                        //}
-
-                        AssetTypeTemplateField tempField = GetTemplateField(asset);
-                        try
-                        {
-                            AssetTypeValueField baseField = tempField.MakeValue(asset.FileReader, asset.FilePosition);
-                            asset.BaseValueField = baseField;
-                        }
-                        catch
-                        {
-                            asset = null;
-                        }
-                    }
-                    return asset;
-                }
+                return null;
             }
-            return null;
+
+            AssetFileInfo? info = fileInst.file.GetAssetInfo(pathId);
+            if (info == null)
+            {
+                return null;
+            }
+            // todo dupe
+
+            if (info is AssetInst inst)
+            {
+                return inst;
+            }
+            else if (info is AssetFileInfo)
+            {
+                return new AssetInst(fileInst, info);
+            }
+
+            throw new Exception("Not a valid info!");
         }
 
-        public AssetInst? GetAssetInst(AssetsFileInstance fileInst, AssetTypeValueField pptrField, bool onlyInfo = true)
+        public AssetTypeValueField? GetBaseField(AssetsFileInstance fileInst, AssetTypeValueField pptrField)
         {
-            int fileId = pptrField["m_FileID"].AsInt;
-            long pathId = pptrField["m_PathID"].AsLong;
-            return GetAssetInst(fileInst, fileId, pathId, onlyInfo);
+            return GetBaseField(fileInst, pptrField["m_FileID"].AsInt, pptrField["m_PathID"].AsLong);
         }
 
         public AssetTypeValueField? GetBaseField(AssetInst asset)
         {
             if (asset.BaseValueField != null)
+            {
                 return asset.BaseValueField;
+            }
 
-            AssetInst? newAsset = GetAssetInst(asset.FileInstance, 0, asset.PathId, false);
-            if (newAsset != null)
-                return newAsset.BaseValueField;
-            else
-                return null;
+            var baseField = GetBaseField(asset.FileInstance, asset.PathId);
+            asset.BaseValueField = baseField;
+            return baseField;
         }
 
         public AssetTypeValueField? GetBaseField(AssetsFileInstance fileInst, int fileId, long pathId)
         {
-            AssetInst? newAsset = GetAssetInst(fileInst, fileId, pathId, false);
-            if (newAsset != null)
-                return newAsset.BaseValueField;
-            else
+            if (fileId != 0)
+            {
+                fileInst = fileInst.GetDependency(Manager, fileId - 1);
+            }
+            if (fileInst == null)
+            {
                 return null;
+            }
+
+            AssetFileInfo? info = fileInst.file.GetAssetInfo(pathId);
+            if (info == null)
+            {
+                return null;
+            }
+
+            CheckAndSetMonoTempGenerators(fileInst, info);
+
+            return Manager.GetBaseField(fileInst, info);
+        }
+
+        public AssetTypeValueField? GetBaseField(AssetsFileInstance fileInst, long pathId)
+        {
+            return GetBaseField(fileInst, 0, pathId);
+        }
+
+        public void Dirty(WorkspaceItem item)
+        {
+            UnsavedItems.Add(item);
+            ModifiedItems.Add(item);
+            if (item.Parent != null)
+            {
+                Dirty(item.Parent);
+            }
         }
     }
 }

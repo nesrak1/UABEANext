@@ -2,8 +2,11 @@
 using Dock.Model.Controls;
 using Dock.Model.Core;
 using Dock.Model.ReactiveUI.Controls;
+using ReactiveUI;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,7 +18,7 @@ namespace UABEANext3.ViewModels.Tools
     {
         const string TOOL_TITLE = "Workspace Explorer";
 
-        public delegate void SelectedWorkspaceItemChangedEvent(WorkspaceItem workspaceItem);
+        public delegate void SelectedWorkspaceItemChangedEvent(List<WorkspaceItem> workspaceItems);
         public event SelectedWorkspaceItemChangedEvent? SelectedWorkspaceItemChanged;
 
         public Workspace Workspace { get; }
@@ -37,9 +40,9 @@ namespace UABEANext3.ViewModels.Tools
             Title = TOOL_TITLE;
         }
 
-        public void InvokeSelectedWorkspaceItemChanged(WorkspaceItem wsItem)
+        public void InvokeSelectedWorkspaceItemChanged(List<WorkspaceItem> wsItems)
         {
-            SelectedWorkspaceItemChanged?.Invoke(wsItem);
+            SelectedWorkspaceItemChanged?.Invoke(wsItems);
         }
     }
 }

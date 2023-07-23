@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace UABEANext2.Util
+namespace UABEANext3.Util
 {
     public class SimpleObserver<T> : IObserver<T>
     {

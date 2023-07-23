@@ -11,6 +11,11 @@ namespace UABEANext3
     {
         public Control Build(object? data)
         {
+            if (data == null)
+            {
+                return new TextBlock { Text = "Null view model" };
+            }
+
             var name = data.GetType().FullName!.Replace("ViewModel", "View");
             var type = Type.GetType(name);
 
@@ -19,7 +24,7 @@ namespace UABEANext3
                 var instance = (Control)Activator.CreateInstance(type)!;
                 if (instance != null)
                 {
-                    return (Control)instance;
+                    return instance;
                 }
                 else
                 {
@@ -32,9 +37,9 @@ namespace UABEANext3
             }
         }
 
-        public bool Match(object data)
+        public bool Match(object? data)
         {
-            return data is ReactiveObject || data is IDockable;
+            return data != null && (data is ReactiveObject || data is IDockable);
         }
     }
 }

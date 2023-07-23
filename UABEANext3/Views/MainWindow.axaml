@@ -7,12 +7,12 @@
         xmlns:id="using:Dock.Avalonia"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="UABEANext3.Views.MainWindow"
-        Icon="/Assets/avalonia-logo.ico"
+        Icon="/Assets/logo-new.ico"
         Title="UABEAvalonia"
-        ExtendClientAreaToDecorationsHint="True"
-        ExtendClientAreaChromeHints="PreferSystemChrome"
+        
+        ExtendClientAreaToDecorationsHint="{Binding UsesChrome}"
+        ExtendClientAreaChromeHints="{Binding ChromeHints}"
         id:DockProperties.IsDragEnabled="True" id:DockProperties.IsDropEnabled="True">
-
     <Design.DataContext>
         <vm:MainWindowViewModel/>
     </Design.DataContext>
@@ -20,11 +20,14 @@
     <Panel Margin="{Binding #MainWindow.OffScreenMargin}">
         <Panel Height="30" HorizontalAlignment="Center" VerticalAlignment="Top">
             <Label Content="{Binding Path=Title, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"
-                   Margin="4,0,4,0"
+                   Margin="4,8,4,0"
                    FontSize="14"
                    FontWeight="Normal"
+                   FontFamily="Consolas,Monospace,Courier,DejaVu Sans Mono,Roboto Mono"
                    VerticalAlignment="Center"
-                   VerticalContentAlignment="Center" />
+                   VerticalContentAlignment="Center"
+                   IsHitTestVisible="False"
+                   IsVisible="{Binding UsesChrome}"/>
         </Panel>
         <Panel Margin="{Binding #MainWindow.WindowDecorationMargin}">
           <views:MainView/>

@@ -19,6 +19,9 @@ namespace UABEANext3
             => AppBuilder.Configure<App>()
                 .UsePlatformDetect()
                 .LogToTrace()
-                .UseReactiveUI();
+                .UseReactiveUI().With(new Win32PlatformOptions()
+                {
+                    CompositionMode = new[] { Win32CompositionMode.LowLatencyDxgiSwapChain }
+                });
     }
 }

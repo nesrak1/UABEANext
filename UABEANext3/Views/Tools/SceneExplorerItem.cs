@@ -23,7 +23,7 @@ namespace UABEANext3.Views.Tools
             AssetTypeValueField transformBf = workspace.GetBaseField(transformInst);
 
             AssetTypeValueField gameObjectRef = transformBf["m_GameObject"];
-            AssetInst gameObjectInst = workspace.GetAssetInst(transformInst.FileInstance, gameObjectRef, false);
+            AssetInst gameObjectInst = workspace.GetAssetInst(transformInst.FileInstance, gameObjectRef);
 
             Asset = gameObjectInst;
 
@@ -36,7 +36,7 @@ namespace UABEANext3.Views.Tools
             AssetTypeValueField children = transformBf["m_Children"]["Array"];
             foreach (AssetTypeValueField child in children)
             {
-                AssetInst childTransformInst = workspace.GetAssetInst(transformInst.FileInstance, child, false);
+                AssetInst childTransformInst = workspace.GetAssetInst(transformInst.FileInstance, child);
                 var childSeItem = new SceneExplorerItem(workspace, childTransformInst);
                 Children.Add(childSeItem);
             }

@@ -5,7 +5,7 @@
              xmlns:uaw="using:UABEANext3.AssetWorkspace"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="UABEANext3.Views.Tools.WorkspaceExplorerToolView">
-  <TreeView Margin="0,0,0,0" Background="#252526" Name="SolutionTreeView" Items="{Binding Workspace.RootItems}" SelectionChanged="SolutionTreeView_OnSelectionChanged">
+  <TreeView Margin="0,0,0,0" Background="#252526" Name="SolutionTreeView" ItemsSource="{Binding Workspace.RootItems}" SelectionChanged="SolutionTreeView_OnSelectionChanged" SelectionMode="Multiple">
     <TreeView.ItemTemplate>
       <TreeDataTemplate DataType="{x:Type uaw:WorkspaceItem}" ItemsSource="{Binding Children}">
         <TextBlock Text="{Binding Name}" Foreground="{Binding Color}" />

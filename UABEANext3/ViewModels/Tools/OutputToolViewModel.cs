@@ -1,4 +1,5 @@
 ﻿using Dock.Model.ReactiveUI.Controls;
+using ReactiveUI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,10 +15,18 @@ namespace UABEANext3.ViewModels.Tools
 
         Workspace Workspace { get; }
 
+        private string _displayText;
+        public string DisplayText
+        {
+            get => _displayText;
+            set => this.RaiseAndSetIfChanged(ref _displayText, value);
+        }
+
         // preview only
         public OutputToolViewModel()
         {
             Workspace = new();
+            DisplayText = "Welcome to UABEA!\n";
 
             Id = TOOL_TITLE.Replace(" ", "");
             Title = TOOL_TITLE;
@@ -26,6 +35,7 @@ namespace UABEANext3.ViewModels.Tools
         public OutputToolViewModel(Workspace workspace)
         {
             Workspace = workspace;
+            DisplayText = "Welcome to UABEA!\n";
 
             Id = TOOL_TITLE.Replace(" ", "");
             Title = TOOL_TITLE;

@@ -17,26 +17,26 @@
     <UniformGrid Grid.Row="0" Rows="1" HorizontalAlignment="Left">
       <Button MaxWidth="100">
         <StackPanel Orientation="Horizontal">
-          <Image Source="avares://UABEANext3/Assets/Icons/action-view-info.png" Margin="0,0,3,0" />
-          <TextBlock>View Data</TextBlock>
-        </StackPanel>
-      </Button>
-      <Button MaxWidth="100">
-        <StackPanel Orientation="Horizontal">
-          <Image Source="avares://UABEANext3/Assets/Icons/asset-game-object.png" Margin="0,0,3,0" />
+          <Image Source="avares://UABEANext3/Assets/Icons/action-view-scene.png" Margin="0,0,3,0" />
           <TextBlock>View Scene</TextBlock>
         </StackPanel>
       </Button>
-      <Button MaxWidth="100">
+      <Button MaxWidth="100" Command="{Binding Export}">
         <StackPanel Orientation="Horizontal">
           <Image Source="avares://UABEANext3/Assets/Icons/action-export-asset.png" Margin="0,0,3,0" />
           <TextBlock>Export</TextBlock>
         </StackPanel>
       </Button>
-      <Button MaxWidth="100">
+      <Button MaxWidth="100" Command="{Binding Import}">
         <StackPanel Orientation="Horizontal">
           <Image Source="avares://UABEANext3/Assets/Icons/action-import-asset.png" Margin="0,0,3,0" />
           <TextBlock>Import</TextBlock>
+        </StackPanel>
+      </Button>
+      <Button MaxWidth="100" Command="{Binding EditData}">
+        <StackPanel Orientation="Horizontal">
+          <Image Source="avares://UABEANext3/Assets/Icons/action-view-info.png" Margin="0,0,3,0" />
+          <TextBlock>Edit Data</TextBlock>
         </StackPanel>
       </Button>
       <Button MaxWidth="100">
@@ -59,7 +59,11 @@
       </Button>
     </UniformGrid>
 
-    <DataGrid Grid.Row="1" AutoGenerateColumns="False" CanUserResizeColumns="True" IsReadOnly="True" Name="dataGrid" Items="{Binding Items}" DoubleTapped="DataGrid_DoubleTapped" Margin="0,0,0,0">
+    <DataGrid
+      Grid.Row="1" AutoGenerateColumns="False" CanUserResizeColumns="True"
+      IsReadOnly="True" Name="dataGrid" ItemsSource="{Binding Items}"
+      SelectedItem="{Binding SelectedItem}"
+      SelectionChanged="DataGrid_SelectionChanged" Margin="0,0,0,0">
       <DataGrid.RowTheme>
         <ControlTheme TargetType="DataGridRow" BasedOn="{StaticResource {x:Type DataGridRow}}">
           <ControlTheme.Children>
@@ -78,13 +82,14 @@
             </DataGridTemplateColumn.CellTemplate>
         </DataGridTemplateColumn>
         
-        <DataGridTextColumn Header="Name" Binding="{Binding DisplayName}"/>
-        <DataGridTextColumn Header="Container" Binding="{Binding Container}"/>
-        <DataGridTextColumn Header="Type" Binding="{Binding TypeName}"/>
-        <!--<DataGridTextColumn Header="File ID" Binding="{Binding FileID}"/>-->
-        <DataGridTextColumn Header="Path ID" Binding="{Binding PathId}"/>
-        <DataGridTextColumn Header="Size" Binding="{Binding Size}"/>
-        <!--<DataGridTextColumn Header="Modified" Binding="{Binding Modified}"/>-->
+        <DataGridTextColumn Header="Name" Width="150" Binding="{Binding DisplayName}"/>
+        <!--<DataGridTextColumn Header="Container" Binding="{Binding Container}"/>-->
+        <DataGridTextColumn Header="Type" Width="120" Binding="{Binding Type}"/>
+        <DataGridTextColumn Header="File Name" Width="120" Binding="{Binding FileName}"/>
+        <DataGridTextColumn Header="Path ID" Width="130" Binding="{Binding PathId}"/>
+        <!--<DataGridTextColumn Header="Offset" Binding="{Binding ByteStart}"/>-->
+        <DataGridTextColumn Header="Size" Width="80" Binding="{Binding ByteSizeModified}"/>
+        <DataGridTextColumn Header="Modified" Binding="{Binding ModifiedString}"/>
       </DataGrid.Columns>
     </DataGrid>
   </Grid>

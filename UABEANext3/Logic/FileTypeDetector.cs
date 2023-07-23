@@ -1,15 +1,10 @@
 ﻿using AssetsTools.NET;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
-namespace UABEANext3.Util
+namespace UABEANext3.Logic
 {
-    public static class AssetBundleDetector
+    public static class FileTypeDetector
     {
         public static DetectedFileType DetectFileType(string filePath)
         {

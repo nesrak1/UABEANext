@@ -8,6 +8,8 @@ using Dock.Model.ReactiveUI.Controls;
 using ReactiveUI;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -24,14 +26,16 @@ namespace UABEANext3.ViewModels.Tools
         public Workspace Workspace
         {
             get => _workspace;
-            set => this.RaiseAndSetIfChanged(ref _workspace, value);
+            [MemberNotNull(nameof(_workspace))]
+            set => this.RaiseAndSetIfChanged(ref _workspace!, value);
         }
 
-        private AvaloniaList<AssetInst>? _activeAssets;
-        public AvaloniaList<AssetInst>? ActiveAssets
+        private ObservableCollection<AssetInst> _activeAssets;
+        public ObservableCollection<AssetInst> ActiveAssets
         {
             get => _activeAssets;
-            set => this.RaiseAndSetIfChanged(ref _activeAssets, value);
+            [MemberNotNull(nameof(_activeAssets))]
+            set => this.RaiseAndSetIfChanged(ref _activeAssets!, value);
         }
 
         // preview only

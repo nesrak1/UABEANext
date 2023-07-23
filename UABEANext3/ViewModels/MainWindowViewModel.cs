@@ -1,30 +1,38 @@
 using AssetsTools.NET;
 using AssetsTools.NET.Extra;
 using AssetsTools.NET.Texture;
-using Avalonia.Collections;
+using Avalonia.Platform;
 using Avalonia.Platform.Storage;
 using Dock.Model.Controls;
 using Dock.Model.Core;
+using DynamicData;
 using ReactiveUI;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.IO;
 using System.Linq;
-using System.Text;
+using System.Web;
 using UABEANext3.AssetWorkspace;
+using UABEANext3.AssetWorkspace.WorkspaceJobs;
 using UABEANext3.Util;
 using UABEANext3.ViewModels.Documents;
 using UABEANext3.ViewModels.Tools;
-using UABEANext3.Views.Documents;
+using UABEAvalonia;
 
 namespace UABEANext3.ViewModels
 {
     public class MainWindowViewModel : ViewModelBase
     {
-        private readonly IFactory? _factory;
+        private readonly IFactory _factory;
         private IRootDock? _layout;
+        private double _progressValue;
+        private string _progressText = "Done.";
 
-        private Workspace _workspace;
+        private readonly ServiceContainer _sc;
+        private readonly Workspace _workspace;
+
+        private OutputToolViewModel _outputToolViewModel;
 
         public IRootDock? Layout
         {
@@ -32,16 +40,35 @@ namespace UABEANext3.ViewModels
             set => this.RaiseAndSetIfChanged(ref _layout, value);
         }
 
-        public MainWindowViewModel()
+        public double ProgressValue
         {
+            get => _progressValue;
+            set => this.RaiseAndSetIfChanged(ref _progressValue, value);
+        }
+
+        public string ProgressText
+        {
+            get => _progressText;
+            set => this.RaiseAndSetIfChanged(ref _progressText, value);
+        }
+
+        public bool UsesChrome { get; set; } = OperatingSystem.IsWindows();
+        public ExtendClientAreaChromeHints ChromeHints => UsesChrome
+            ? ExtendClientAreaChromeHints.PreferSystemChrome
+            : ExtendClientAreaChromeHints.Default;
+
+        public MainWindowViewModel(ServiceContainer sc)
+        {
+            _sc = sc;
+
             _workspace = new();
 
-            _factory = new MainDockFactory(_workspace);
+            _factory = new MainDockFactory(_sc, _workspace);
 
-            Layout = _factory?.CreateLayout();
+            Layout = _factory.CreateLayout();
             if (Layout is { })
             {
-                _factory?.InitLayout(Layout);
+                _factory.InitLayout(Layout);
             }
 
             SetupEvents();
@@ -49,27 +76,84 @@ namespace UABEANext3.ViewModels
 
         private void SetupEvents()
         {
-            var wsExp = _factory?.GetDockable<WorkspaceExplorerToolViewModel>("WorkspaceExplorer");
-            var scExp = _factory?.GetDockable<SceneExplorerToolViewModel>("SceneExplorer");
+            var wsExp = _factory.GetDockable<WorkspaceExplorerToolViewModel>("WorkspaceExplorer")!;
+            var scExp = _factory.GetDockable<SceneExplorerToolViewModel>("SceneExplorer")!;
+
+            _outputToolViewModel = _factory.GetDockable<OutputToolViewModel>("Output")!;
 
             wsExp.SelectedWorkspaceItemChanged += WsExp_SelectedWorkspaceItemChanged;
             scExp.SelectedSceneItemChanged += ScExp_SelectedSceneItemChanged;
+
+            _workspace.JobManager.JobProgressMessageFired += JobManager_JobProgressMessageFired;
+            _workspace.JobManager.ProgressChanged += JobManager_ProgressChanged;
+            _workspace.JobManager.JobsRunning += JobManager_JobsRunning;
         }
 
-        private void WsExp_SelectedWorkspaceItemChanged(WorkspaceItem workspaceItem)
+        private void JobManager_JobProgressMessageFired(object? sender, string e)
         {
-            if (workspaceItem.ObjectType != WorkspaceItemType.AssetsFile)
-                return;
+            _outputToolViewModel.DisplayText += e + "\n";
+        }
 
-            var fileInst = (AssetsFileInstance)workspaceItem.Object;
+        private void JobManager_ProgressChanged(object? sender, float value)
+        {
+            ProgressValue = value;
+        }
 
-            var document = new AssetDocumentViewModel(_workspace)
+        private void JobManager_JobsRunning(object? sender, bool value)
+        {
+            if (value)
             {
-                Title = fileInst.name,
-                Id = fileInst.name
-            };
+                ProgressText = "Loading...";
+            }
+            else
+            {
+                ProgressText = "Done.";
+            }
+        }
 
-            document.Load(fileInst);
+        private void WsExp_SelectedWorkspaceItemChanged(List<WorkspaceItem> workspaceItems)
+        {
+            AssetDocumentViewModel document;
+            AssetsFileInstance mainFileInst;
+            if (workspaceItems.Count == 1)
+            {
+                var workspaceItem = workspaceItems[0];
+
+                if (workspaceItem.ObjectType != WorkspaceItemType.AssetsFile)
+                    return;
+
+                mainFileInst = (AssetsFileInstance)workspaceItem.Object;
+
+                document = new AssetDocumentViewModel(_sc, _workspace)
+                {
+                    Title = mainFileInst.name,
+                    Id = mainFileInst.name
+                };
+
+                document.Load(new List<AssetsFileInstance>() { mainFileInst });
+            }
+            else
+            {
+                var assetsFileItems = workspaceItems
+                    .Where(i => i.ObjectType == WorkspaceItemType.AssetsFile)
+                    .Select(i => (AssetsFileInstance?)i.Object)
+                    .Where(i => i != null).ToList()!;
+
+                if (assetsFileItems.Count == 0)
+                {
+                    return;
+                }
+
+                mainFileInst = assetsFileItems[0]!;
+
+                document = new AssetDocumentViewModel(_sc, _workspace)
+                {
+                    Title = $"{assetsFileItems.Count} files",
+                    Id = (assetsFileItems.GetHashCode() * assetsFileItems.Count.GetHashCode()).ToString(), // todo random id
+                };
+
+                document.Load(assetsFileItems!);
+            }
 
             document.AssetOpened += Document_AssetOpened;
 
@@ -96,7 +180,7 @@ namespace UABEANext3.ViewModels
             var scene = _factory?.GetDockable<SceneExplorerToolViewModel>("SceneExplorer");
             if (Layout is not null && scene is not null)
             {
-                scene.LoadHierarchy(fileInst);
+                scene.LoadHierarchy(mainFileInst);
             }
         }
 
@@ -105,14 +189,23 @@ namespace UABEANext3.ViewModels
             if (asset.Type == AssetClassID.GameObject)
             {
                 var gameObjectBf = _workspace.GetBaseField(asset);
+                if (gameObjectBf == null)
+                {
+                    // todo: error msg
+                    return;
+                }
+                SetInspectorItem(asset, true);
                 var components = gameObjectBf["m_Component.Array"];
-                bool firstTime = true;
                 foreach (var data in components)
                 {
                     var component = data[data.Children.Count - 1];
-                    AssetInst componentInst = _workspace.GetAssetInst(asset.FileInstance, component, false);
-                    SetInspectorItem(componentInst, firstTime);
-                    firstTime = false;
+                    AssetInst? componentInst = _workspace.GetAssetInst(asset.FileInstance, component);
+                    if (componentInst == null)
+                    {
+                        // todo: error msg
+                        continue;
+                    }
+                    SetInspectorItem(componentInst, false);
                 }
             }
         }
@@ -132,12 +225,9 @@ namespace UABEANext3.ViewModels
             else
             {
                 inspector.ActiveAssets.Add(asset);
-                var tmp = inspector.ActiveAssets;
-                inspector.ActiveAssets = new AvaloniaList<AssetInst>();
-                inspector.ActiveAssets = tmp;
             }
 
-            if ((AssetClassID)asset.ClassId == AssetClassID.Texture2D)
+            if (asset.Type == AssetClassID.Texture2D)
             {
                 var previewer = _factory?.GetDockable<PreviewerToolViewModel>("Previewer");
 
@@ -161,7 +251,7 @@ namespace UABEANext3.ViewModels
 
         public static AssetTypeValueField? GetByteArrayTexture(Workspace workspace, AssetInst tex)
         {
-            AssetTypeTemplateField textureTemp = workspace.GetTemplateField(tex);
+            AssetTypeTemplateField textureTemp = workspace.GetTemplateField(tex.FileInstance, tex);
             AssetTypeTemplateField? image_data = textureTemp.Children.FirstOrDefault(f => f.Name == "image data");
             if (image_data == null)
                 return null;
@@ -175,7 +265,7 @@ namespace UABEANext3.ViewModels
                 m_PlatformBlob_Array.ValueType = AssetValueType.ByteArray;
             }
 
-            AssetTypeValueField baseField = textureTemp.MakeValue(tex.FileReader, tex.FilePosition);
+            AssetTypeValueField baseField = textureTemp.MakeValue(tex.FileInstance.file.Reader, tex.AbsoluteByteStart);
             return baseField;
         }
 
@@ -197,25 +287,155 @@ namespace UABEANext3.ViewModels
                 AllowMultiple = true
             });
 
-            foreach (var file in result)
+            // todo: FileDialogUtils
+            var jobs = result.Select(file => new OpenFilesWorkspaceJob(_workspace, HttpUtility.UrlDecode(file.Path.AbsolutePath))).Cast<IWorkspaceJob>().ToList();
+            if (result != null)
             {
-                var fileStream = await file.OpenReadAsync();
-                var detectedType = AssetBundleDetector.DetectFileType(new AssetsFileReader(fileStream), 0);
-                if (detectedType == DetectedFileType.BundleFile)
+                await _workspace.JobManager.ProcessJobs(jobs);
+            }
+        }
+
+        public async void FileSaveAllAs_Menu()
+        {
+            var storageProvider = StorageService.GetStorageProvider();
+            if (storageProvider is null)
+            {
+                return;
+            }
+
+            var unsavedAssetsFiles = _workspace.UnsavedItems.Where(i => i.ObjectType == WorkspaceItemType.AssetsFile);
+            foreach (var unsavedAssetsFile in unsavedAssetsFiles)
+            {
+                // skip assets files in bundles
+                if (unsavedAssetsFile.Parent != null)
+                    continue;
+
+                var result = await storageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
                 {
-                    fileStream.Position = 0;
-                    _workspace.LoadBundle(fileStream);
-                }
-                else if (detectedType == DetectedFileType.AssetsFile)
+                    Title = "Save file",
+                    FileTypeChoices = new FilePickerFileType[]
+                    {
+                        new FilePickerFileType("All files (*.*)") { Patterns = new[] {"*.*"} }
+                    },
+                    SuggestedFileName = unsavedAssetsFile.Name
+                });
+
+                if (result != null)
                 {
-                    fileStream.Position = 0;
-                    _workspace.LoadAssets(fileStream);
-                }
-                else if (file.Name.EndsWith(".resS") || file.Name.EndsWith(".resource"))
-                {
-                    _workspace.LoadResource(fileStream);
+                    using var stream = await result.OpenWriteAsync();
+                    var fileInst = (AssetsFileInstance)unsavedAssetsFile.Object!;
+                    fileInst.file.Write(new AssetsFileWriter(stream));
                 }
             }
+
+            var unsavedBundleFiles = _workspace.UnsavedItems.Where(i => i.ObjectType == WorkspaceItemType.BundleFile);
+            foreach (var unsavedBundleFile in unsavedBundleFiles)
+            {
+                // todo dupe
+                var result = await storageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
+                {
+                    Title = "Save file",
+                    FileTypeChoices = new FilePickerFileType[]
+                    {
+                        new FilePickerFileType("All files (*.*)") { Patterns = new[] {"*.*"} }
+                    },
+                    SuggestedFileName = unsavedBundleFile.Name
+                });
+                // /////////
+
+                if (result != null)
+                {
+                    using var stream = await result.OpenWriteAsync();
+                    var bunInst = (BundleFileInstance)unsavedBundleFile.Object!;
+
+                    // files that are both unsaved and part of this bundle
+                    var childrenFiles = unsavedBundleFile.Children
+                        .Intersect(_workspace.UnsavedItems)
+                        .ToDictionary(f => f.Name);
+
+                    // sync up directory infos
+                    var infos = bunInst.file.BlockAndDirInfo.DirectoryInfos;
+                    foreach (var info in infos)
+                    {
+                        if (childrenFiles.TryGetValue(info.Name, out var unsavedAssetsFile))
+                        {
+                            if (unsavedAssetsFile.Object is AssetsFileInstance fileInst)
+                            {
+                                info.SetNewData(fileInst.file);
+                            }
+                            else if (unsavedAssetsFile.Object is AssetBundleDirectoryInfo matchingInfo && info == matchingInfo)
+                            {
+                                // do nothing, already handled by replacer
+                            }
+                            else
+                            {
+                                // shouldn't happen
+                                info.Replacer = null;
+                            }
+                        }
+                        else
+                        {
+                            // remove replacer (if there was one ever set)
+                            info.Replacer = null;
+                        }
+                    }
+
+                    bunInst.file.Write(new AssetsFileWriter(stream));
+                }
+            }
+
+            var unsavedResourceFiles = _workspace.UnsavedItems.Where(i => i.ObjectType == WorkspaceItemType.ResourceFile);
+            foreach (var unsavedResourceFile in unsavedResourceFiles)
+            {
+                // todo dupe
+                var result = await storageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
+                {
+                    Title = "Save file",
+                    FileTypeChoices = new FilePickerFileType[]
+                    {
+                        new FilePickerFileType("All files (*.*)") { Patterns = new[] {"*.*"} }
+                    },
+                    SuggestedFileName = unsavedResourceFile.Name
+                });
+                // /////////
+
+                if (result != null)
+                {
+                    using var stream = await result!.OpenWriteAsync();
+                    var dirInfo = (AssetBundleDirectoryInfo)unsavedResourceFile.Object!;
+                    if (dirInfo.IsReplacerPreviewable)
+                    {
+                        dirInfo.Replacer.GetPreviewStream().CopyTo(stream);
+                    }
+                    else if (unsavedResourceFile.Parent != null)
+                    {
+                        var parentBundle = (BundleFileInstance)unsavedResourceFile.Parent.Object!;
+                        var reader = parentBundle.file.DataReader;
+                        reader.Position = dirInfo.Offset;
+                        reader.BaseStream.CopyToCompat(stream, dirInfo.DecompressedSize);
+                    }
+                    else
+                    {
+                        // we can't do anything, not enough information
+                    }
+                }
+            }
+        }
+
+        public async void FileXrefs_Menu()
+        {
+            var scanner = new SanicPPtrScanner(_workspace);
+
+            var assetsFiles = _workspace.RootItems
+                .Where(item => item.ObjectType == WorkspaceItemType.AssetsFile && item.Object != null)
+                .Select(item => (AssetsFileInstance)item.Object!).ToList();
+
+            var jobs = new List<IWorkspaceJob>() { new XRefsJob(scanner, assetsFiles) };
+
+            await _workspace.JobManager.ProcessJobs(jobs);
+
+            using var writer = new AssetsFileWriter($"scans/{Path.GetFileName(assetsFiles[0].name)}.uxrs");
+            scanner.Save(writer);
         }
     }
 }

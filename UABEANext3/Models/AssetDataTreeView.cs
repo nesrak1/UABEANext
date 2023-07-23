@@ -6,16 +6,18 @@ using Avalonia.Controls;
 using Avalonia.Controls.Documents;
 using Avalonia.Media;
 using Avalonia.Styling;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
-using System.Threading.Tasks;
-using UABEANext2;
-using UABEANext2.Util;
+using System.Xml.Linq;
 using UABEANext3.AssetWorkspace;
-using UABEANext3.Views;
+using UABEANext3.Util;
 
 namespace UABEANext3.Models
 {
@@ -25,7 +27,7 @@ namespace UABEANext3.Models
 
         //private Workspace _workspace;
 
-        private AvaloniaList<object> ListItems => (AvaloniaList<object>)Items;
+        private AvaloniaList<object> ListItems;// => (AvaloniaList<object>)Items;
 
         private static SolidColorBrush PrimNameBrushDark = SolidColorBrush.Parse("#569cd6");
         private static SolidColorBrush PrimNameBrushLight = SolidColorBrush.Parse("#0000ff");
@@ -92,7 +94,7 @@ namespace UABEANext3.Models
             menuCollapseSel.Click += MenuCollapseSel_Click;
 
             ContextMenu = new ContextMenu();
-            ContextMenu.Items = new AvaloniaList<MenuItem>()
+            ContextMenu.ItemsSource = new AvaloniaList<MenuItem>()
             {
                 menuEditAsset,
                 menuVisitAsset,
@@ -112,7 +114,7 @@ namespace UABEANext3.Models
                 {
                     AssetDataTreeViewItem info = (AssetDataTreeViewItem)item.Tag;
 
-                    AssetInst? cont = _workspace.GetAssetInst(info.fromFile, 0, info.fromPathId, false);
+                    AssetInst? cont = _workspace.GetAssetInst(info.fromFile, 0, info.fromPathId);
                     if (cont == null || cont.BaseValueField == null)
                     {
                         return;
@@ -169,13 +171,14 @@ namespace UABEANext3.Models
 
         public void Init(Workspace workspace)
         {
-            this._workspace = workspace;
+            _workspace = workspace;
             Reset();
         }
 
         public void Reset()
         {
-            Items = new AvaloniaList<object>();
+            ListItems = new AvaloniaList<object>();
+            ItemsSource = ListItems;
         }
 
         public void LoadComponent(AssetInst asset)
@@ -184,21 +187,27 @@ namespace UABEANext3.Models
                 return;
 
             AssetTypeValueField? baseField = _workspace.GetBaseField(asset);
-
             if (baseField == null)
             {
-                TreeViewItem errorItem0 = CreateTreeItem("Asset failed to deserialize.");
-                TreeViewItem errorItem1 = CreateTreeItem("The file version may be too new for");
-                TreeViewItem errorItem2 = CreateTreeItem("this tpk or the file format is custom.");
-                errorItem0.Items = new List<TreeViewItem>() { errorItem1, errorItem2 };
+                TreeViewItem errorItem0 = CreateTreeItem("Asset failed to deserialize. A few possibilities:");
+                TreeViewItem errorItem1 = CreateTreeItem("The game's version is too new for this version of UABEA");
+                TreeViewItem errorItem1I = CreateTreeItem("Try updating UABEA to see if it fixes the problem.");
+                TreeViewItem errorItem2 = CreateTreeItem("The asset was a MonoBehaviour that didn't read correctly");
+                TreeViewItem errorItem2I = CreateTreeItem("Try disabling Cpp2IL and dumping dlls manually into a (new) folder called Managed.");
+                TreeViewItem errorItem3 = CreateTreeItem("The game uses a custom engine");
+                TreeViewItem errorItem3I = CreateTreeItem("I can't help with custom/encrypted engines. You'll need to make a fork.");
+                errorItem0.ItemsSource = new List<TreeViewItem>() { errorItem1, errorItem2, errorItem3 };
+                errorItem1.ItemsSource = new List<TreeViewItem>() { errorItem1I };
+                errorItem2.ItemsSource = new List<TreeViewItem>() { errorItem2I };
+                errorItem3.ItemsSource = new List<TreeViewItem>() { errorItem3I };
                 ListItems.Add(errorItem0);
                 return;
             }
 
             string baseItemString = $"{baseField.TypeName} {baseField.FieldName}";
-            if (asset.ClassId == (uint)AssetClassID.MonoBehaviour || asset.ClassId < 0)
+            if (asset.Type == AssetClassID.MonoBehaviour || asset.TypeId < 0)
             {
-                string monoName = Utils.GetMonoBehaviourNameFast(_workspace, asset);
+                string monoName = AssetNameUtils.GetMonoBehaviourNameFast(_workspace, asset);
                 if (monoName != null)
                 {
                     baseItemString += $" ({monoName})";
@@ -208,7 +217,7 @@ namespace UABEANext3.Models
             TreeViewItem baseItem = CreateTreeItem(baseItemString);
 
             TreeViewItem arrayIndexTreeItem = CreateTreeItem("Loading...");
-            baseItem.Items = new AvaloniaList<TreeViewItem>() { arrayIndexTreeItem };
+            baseItem.ItemsSource = new AvaloniaList<TreeViewItem>() { arrayIndexTreeItem };
             ListItems.Add(baseItem);
 
             SetTreeItemEvents(baseItem, asset.FileInstance, asset.PathId, baseField);
@@ -272,8 +281,7 @@ namespace UABEANext3.Models
 
             Span span1 = new Span()
             {
-                Foreground = TypeNameBrush,/*,
-                FontWeight = FontWeight.Bold*/
+                Foreground = TypeNameBrush
             };
             Bold bold1 = new Bold();
             bold1.Inlines.Add(typeName);
@@ -284,22 +292,13 @@ namespace UABEANext3.Models
             bold2.Inlines.Add($" {fieldName}");
             tb.Inlines.Add(bold2);
 
-            /*
-			<Span Foreground="#4ec9b0">
-				<Bold>TypeName</Bold></Span>
-			<Bold>. fieldName = .</Bold>
-			<Span Foreground="#d69d85">
-				<Bold>"hi"</Bold>
-			</Span> 
-            */
-
             return new TreeViewItem()
             {
                 Header = tb
             };
         }
 
-        private TreeViewItem CreateColorTreeItem(string typeName, string fieldName, string middle, string value)
+        private TreeViewItem CreateColorTreeItem(string typeName, string fieldName, string middle, string value, string comment = "")
         {
             bool isString = value.StartsWith("\"");
 
@@ -314,7 +313,7 @@ namespace UABEANext3.Models
             Bold bold1 = new Bold();
             bold1.Inlines.Add(typeName);
             span1.Inlines.Add(bold1);
-            tb.Inlines.Add(span1);
+            tb.Inlines!.Add(span1);
 
             Bold bold2 = new Bold();
             bold2.Inlines.Add($" {fieldName}");
@@ -322,7 +321,7 @@ namespace UABEANext3.Models
 
             tb.Inlines.Add(middle);
 
-            if (value != "")
+            if (value != string.Empty)
             {
                 Span span2 = new Span()
                 {
@@ -334,22 +333,27 @@ namespace UABEANext3.Models
                 tb.Inlines.Add(span2);
             }
 
+            if (comment != string.Empty)
+            {
+                tb.Inlines.Add(comment);
+            }
+
             return new TreeViewItem() { Header = tb };
         }
 
-        //lazy load tree items. avalonia is really slow to load if
-        //we just throw everything in the treeview at once
+        // lazy load tree items. avalonia is really slow to load if
+        // we just throw everything in the treeview at once
         private void SetTreeItemEvents(TreeViewItem item, AssetsFileInstance fromFile, long fromPathId, AssetTypeValueField field)
         {
             item.Tag = new AssetDataTreeViewItem(fromFile, fromPathId);
-            //avalonia's treeviews have no Expanded event so this is all we can do
+            // avalonia's treeviews have no Expanded event so this is all we can do
             var expandObs = item.GetObservable(TreeViewItem.IsExpandedProperty);
             expandObs.Subscribe(new SimpleObserver<bool>(isExpanded =>
             {
                 AssetDataTreeViewItem itemInfo = (AssetDataTreeViewItem)item.Tag;
                 if (isExpanded && !itemInfo.loaded)
                 {
-                    itemInfo.loaded = true; //don't load this again
+                    itemInfo.loaded = true; // don't load this again
                     TreeLoad(fromFile, field, fromPathId, item);
                 }
             }));
@@ -364,28 +368,38 @@ namespace UABEANext3.Models
                 AssetDataTreeViewItem itemInfo = (AssetDataTreeViewItem)item.Tag;
                 if (isExpanded && !itemInfo.loaded)
                 {
-                    itemInfo.loaded = true; //don't load this again
+                    itemInfo.loaded = true; // don't load this again
 
-                    if (asset != null)
+                    if (asset == null)
                     {
-                        AssetTypeValueField baseField = _workspace.GetBaseField(asset);
-                        TreeViewItem baseItem = CreateTreeItem($"{baseField.TypeName} {baseField.FieldName}");
+                        item.ItemsSource = new AvaloniaList<TreeViewItem>() { CreateTreeItem("[null asset]") };
+                        return;
+                    }
 
-                        TreeViewItem arrayIndexTreeItem = CreateTreeItem("Loading...");
-                        baseItem.Items = new AvaloniaList<TreeViewItem>() { arrayIndexTreeItem };
-                        item.Items = new AvaloniaList<TreeViewItem>() { baseItem };
-                        SetTreeItemEvents(baseItem, asset.FileInstance, fromPathId, baseField);
-                    }
-                    else
+                    AssetTypeValueField? baseField = _workspace!.GetBaseField(asset);
+                    if (baseField == null)
                     {
-                        item.Items = new AvaloniaList<TreeViewItem>() { CreateTreeItem("[null asset]") };
+                        item.ItemsSource = new AvaloniaList<TreeViewItem>() { CreateTreeItem("[failed to load]") };
+                        return;
                     }
+
+                    TreeViewItem baseItem = CreateTreeItem($"{baseField.TypeName} {baseField.FieldName}");
+                    TreeViewItem arrayIndexTreeItem = CreateTreeItem("Loading...");
+                    baseItem.ItemsSource = new AvaloniaList<TreeViewItem>() { arrayIndexTreeItem };
+                    item.ItemsSource = new AvaloniaList<TreeViewItem>() { baseItem };
+                    SetTreeItemEvents(baseItem, asset.FileInstance, fromPathId, baseField);
                 }
             }));
         }
 
         private void TreeLoad(AssetsFileInstance fromFile, AssetTypeValueField assetField, long fromPathId, TreeViewItem treeItem)
         {
+            List<AssetTypeValueField> children;
+            if (assetField.Value != null && assetField.Value.ValueType == AssetValueType.ManagedReferencesRegistry)
+                children = assetField.AsManagedReferencesRegistry.references.Select(r => r.data).ToList();
+            else
+                children = assetField.Children;
+
             if (assetField.Children.Count == 0)
                 return;
 
@@ -408,25 +422,75 @@ namespace UABEANext3.Models
                 if (childField == null) return;
                 string middle = "";
                 string value = "";
+                string comment = "";
                 if (childField.Value != null)
                 {
-                    AssetValueType evt = childField.Value.ValueType;
-                    string quote = "";
-                    if (evt == AssetValueType.String) quote = "\"";
-                    if (1 <= (int)evt && (int)evt <= 12)
+                    AssetValueType valueType = childField.Value.ValueType;
+                    if (valueType == AssetValueType.String)
                     {
                         middle = " = ";
-                        value = $"{quote}{childField.AsString}{quote}";
+                        value = EscapeAndQuoteString(childField.AsString);
                     }
-                    if (evt == AssetValueType.Array)
+                    else if (1 <= (int)valueType && (int)valueType <= 11)
+                    {
+                        middle = " = ";
+                        value = childField.AsString;
+                    }
+                    if (valueType == AssetValueType.Array)
                     {
                         middle = $" (size {childField.Children.Count})";
                     }
-                    else if (evt == AssetValueType.ByteArray)
+                    else if (valueType == AssetValueType.ByteArray)
                     {
-                        middle = $" (size {childField.AsByteArray.Length})";
+                        byte[] bytes = childField.AsByteArray;
+                        int byteArraySize = childField.AsByteArray.Length;
+                        middle = $" (size {byteArraySize}) = ";
+
+                        const int MAX_PREVIEW_BYTES = 20;
+                        int previewSize = Math.Min(byteArraySize, MAX_PREVIEW_BYTES);
+
+                        StringBuilder valueBuilder = new StringBuilder();
+                        for (int i = 0; i < previewSize; i++)
+                        {
+                            if (i == 0)
+                            {
+                                valueBuilder.Append(bytes[i].ToString("X2"));
+                            }
+                            else
+                            {
+                                valueBuilder.Append(" " + bytes[i].ToString("X2"));
+                            }
+                        }
+
+                        if (byteArraySize > MAX_PREVIEW_BYTES)
+                        {
+                            valueBuilder.Append(" ...");
+                        }
+
+                        value = valueBuilder.ToString();
+                    }
+
+                    if (valueType == AssetValueType.Int32 && childField.TemplateField.Name == "m_FileID")
+                    {
+                        List<AssetsFileExternal> externals = fromFile.file.Metadata.Externals;
+                        int fileId = childField.AsInt;
+                        if (fileId == 0)
+                        {
+                            comment = $" ({fromFile.name})";
+                        }
+                        else
+                        {
+                            int externalIdx = fileId - 1;
+                            if (0 <= externalIdx && externalIdx < externals.Count)
+                            {
+                                string externalName = Path.GetFileName(externals[externalIdx].PathName);
+                                comment = $" ({externalName})";
+                            }
+                        }
                     }
                 }
+
+                bool hasChildren = childField.Children.Count > 0;
 
                 if (isArray)
                 {
@@ -434,12 +498,12 @@ namespace UABEANext3.Models
                     items.Add(arrayIndexTreeItem);
 
                     TreeViewItem childTreeItem = CreateColorTreeItem(childField.TypeName, childField.FieldName, middle, value);
-                    arrayIndexTreeItem.Items = new AvaloniaList<TreeViewItem>() { childTreeItem };
+                    arrayIndexTreeItem.ItemsSource = new AvaloniaList<TreeViewItem>() { childTreeItem };
 
-                    if (childField.Children.Count > 0)
+                    if (hasChildren)
                     {
                         TreeViewItem dummyItem = CreateTreeItem("Loading...");
-                        childTreeItem.Items = new AvaloniaList<TreeViewItem>() { dummyItem };
+                        childTreeItem.ItemsSource = new AvaloniaList<TreeViewItem>() { dummyItem };
                         SetTreeItemEvents(childTreeItem, fromFile, fromPathId, childField);
                     }
 
@@ -447,13 +511,86 @@ namespace UABEANext3.Models
                 }
                 else
                 {
-                    TreeViewItem childTreeItem = CreateColorTreeItem(childField.TypeName, childField.FieldName, middle, value);
+                    TreeViewItem childTreeItem = CreateColorTreeItem(childField.TypeName, childField.FieldName, middle, value, comment);
                     items.Add(childTreeItem);
 
-                    if (childField.Children.Count > 0)
+                    if (childField.Value != null && childField.Value.ValueType == AssetValueType.ManagedReferencesRegistry)
+                    {
+                        ManagedReferencesRegistry registry = childField.AsManagedReferencesRegistry;
+
+                        if (registry.version == 1 || registry.version == 2)
+                        {
+                            TreeViewItem versionItem = CreateColorTreeItem("int", "version", " = ", registry.version.ToString());
+                            TreeViewItem refIdsItem = CreateColorTreeItem("vector", "RefIds");
+                            TreeViewItem refIdsArrayItem = CreateColorTreeItem("Array", "Array", $" (size {registry.references.Count})", "");
+
+                            AvaloniaList<TreeViewItem> refObjItems = new AvaloniaList<TreeViewItem>();
+
+                            foreach (AssetTypeReferencedObject refObj in registry.references)
+                            {
+                                AssetTypeReference typeRef = refObj.type;
+
+                                TreeViewItem refObjItem = CreateColorTreeItem("ReferencedObject", "data");
+
+                                TreeViewItem managedTypeItem = CreateColorTreeItem("ReferencedManagedType", "type");
+                                managedTypeItem.ItemsSource = new AvaloniaList<TreeViewItem>
+                                {
+                                    CreateColorTreeItem("string", "class", " = ", EscapeAndQuoteString(typeRef.ClassName)),
+                                    CreateColorTreeItem("string", "ns", " = ", EscapeAndQuoteString(typeRef.Namespace)),
+                                    CreateColorTreeItem("string", "asm", " = ", EscapeAndQuoteString(typeRef.AsmName))
+                                };
+
+                                TreeViewItem refObjectItem = CreateColorTreeItem("ReferencedObjectData", "data");
+
+                                TreeViewItem dummyItem = CreateTreeItem("Loading...");
+                                refObjectItem.ItemsSource = new AvaloniaList<TreeViewItem> { dummyItem };
+                                SetTreeItemEvents(refObjectItem, fromFile, fromPathId, refObj.data);
+
+                                if (registry.version == 1)
+                                {
+                                    refObjItem.ItemsSource = new AvaloniaList<TreeViewItem>
+                                    {
+                                        managedTypeItem,
+                                        refObjectItem
+                                    };
+                                }
+                                else if (registry.version == 2)
+                                {
+                                    refObjItem.ItemsSource = new AvaloniaList<TreeViewItem>
+                                    {
+                                        CreateColorTreeItem("SInt64", "rid", " = ", refObj.rid.ToString()),
+                                        managedTypeItem,
+                                        refObjectItem
+                                    };
+                                }
+
+                                refObjItems.Add(refObjItem);
+                            }
+
+                            refIdsArrayItem.ItemsSource = refObjItems;
+
+                            refIdsItem.ItemsSource = new AvaloniaList<TreeViewItem>
+                            {
+                                refIdsArrayItem
+                            };
+
+                            childTreeItem.ItemsSource = new AvaloniaList<TreeViewItem>
+                            {
+                                versionItem,
+                                refIdsItem
+                            };
+                        }
+                        else
+                        {
+                            TreeViewItem errorTreeItem = CreateTreeItem($"[unsupported registry version {registry.version}]");
+                            childTreeItem.ItemsSource = new AvaloniaList<TreeViewItem> { errorTreeItem };
+                        }
+                    }
+
+                    if (hasChildren)
                     {
                         TreeViewItem dummyItem = CreateTreeItem("Loading...");
-                        childTreeItem.Items = new AvaloniaList<TreeViewItem>() { dummyItem };
+                        childTreeItem.ItemsSource = new AvaloniaList<TreeViewItem> { dummyItem };
                         SetTreeItemEvents(childTreeItem, fromFile, fromPathId, childField);
                     }
                 }
@@ -471,30 +608,48 @@ namespace UABEANext3.Models
                     int fileId = fileIdField.AsInt;
                     long pathId = pathIdField.AsLong;
 
-                    AssetInst cont = _workspace.GetAssetInst(fromFile, fileId, pathId, true);
+                    AssetInst cont = _workspace.GetAssetInst(fromFile, fileId, pathId);
 
                     TreeViewItem childTreeItem = CreateTreeItem("[view asset]");
                     items.Add(childTreeItem);
 
                     TreeViewItem dummyItem = CreateTreeItem("Loading...");
-                    childTreeItem.Items = new AvaloniaList<TreeViewItem>() { dummyItem };
+                    childTreeItem.ItemsSource = new AvaloniaList<TreeViewItem>() { dummyItem };
                     SetPPtrEvents(childTreeItem, fromFile, pathId, cont);
                 }
             }
 
-            treeItem.Items = items;
+            treeItem.ItemsSource = items;
         }
 
-        private AvaloniaList<AssetInst>? _activeAssets = null;
+        // escaping format tbd
+        private string EscapeAndQuoteString(string str)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append("\"");
+            if (str.Length > 1000)
+            {
+                sb.Append(str[..1000]);
+                sb.Append("...");
+            }
+            else
+            {
+                sb.Append(str);
+            }
+            sb.Append("\"");
+            return sb.ToString();
+        }
+
+        private ObservableCollection<AssetInst>? _activeAssets = null;
         private Workspace? _workspace = null;
 
-        public static readonly DirectProperty<AssetDataTreeView, AvaloniaList<AssetInst>?> ActiveAssetsProperty =
-            AvaloniaProperty.RegisterDirect<AssetDataTreeView, AvaloniaList<AssetInst>?>(nameof(ActiveAssets), o => o.ActiveAssets, (o, v) => o.ActiveAssets = v);
+        public static readonly DirectProperty<AssetDataTreeView, ObservableCollection<AssetInst>?> ActiveAssetsProperty =
+            AvaloniaProperty.RegisterDirect<AssetDataTreeView, ObservableCollection<AssetInst>?>(nameof(ActiveAssets), o => o.ActiveAssets, (o, v) => o.ActiveAssets = v);
         public static readonly DirectProperty<AssetDataTreeView, Workspace?> WorkspaceProperty =
             AvaloniaProperty.RegisterDirect<AssetDataTreeView, Workspace?>(nameof(Workspace), o => o.Workspace, (o, v) => o.Workspace = v);
 
         [DataMember(IsRequired = true, EmitDefaultValue = true)]
-        public AvaloniaList<AssetInst>? ActiveAssets
+        public ObservableCollection<AssetInst>? ActiveAssets
         {
             get => _activeAssets;
             set
@@ -502,12 +657,23 @@ namespace UABEANext3.Models
                 SetAndRaise(ActiveAssetsProperty, ref _activeAssets, value);
                 if (value != null)
                 {
-                    Reset();
-                    foreach (var item in value)
-                    {
-                        LoadComponent(item);
-                    }
+                    _activeAssets!.CollectionChanged += ActiveAssets_CollectionChanged;
+                    LoadAssets();
                 }
+            }
+        }
+
+        private void ActiveAssets_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+        {
+            LoadAssets();
+        }
+
+        private void LoadAssets()
+        {
+            Reset();
+            foreach (var item in _activeAssets!)
+            {
+                LoadComponent(item);
             }
         }
 

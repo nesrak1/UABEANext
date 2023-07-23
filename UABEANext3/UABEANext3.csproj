@@ -10,6 +10,7 @@
   <ItemGroup>
     <AvaloniaResource Include="Assets\**" />
     <None Remove=".gitignore" />
+    <None Remove="Grammars\utxt\syntaxes\utxt.tmLanguage.json" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Assets\Icons\asset-animation-clip.png" />
@@ -64,6 +65,9 @@
     <Content Include="Assets\Icons\asset-unknown.png" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Grammars\utxt\syntaxes\utxt.tmLanguage.json" />
+  </ItemGroup>
+  <ItemGroup>
     <!--This helps with theme dll-s trimming.
 	If you will publish your application in self-contained mode with p:PublishTrimmed=true and it will use Fluent theme Default theme will be trimmed from the output and vice versa.
 	https://github.com/AvaloniaUI/Avalonia/issues/5593 -->
@@ -74,24 +78,35 @@
     <Reference Include="AssetsTools.NET">
       <HintPath>..\Libs\AssetsTools.NET.dll</HintPath>
     </Reference>
+    <Reference Include="AssetsTools.NET.Cpp2IL">
+      <HintPath>..\Libs\AssetsTools.NET.Cpp2IL.dll</HintPath>
+    </Reference>
+    <Reference Include="AssetsTools.NET.MonoCecil">
+      <HintPath>..\Libs\AssetsTools.NET.MonoCecil.dll</HintPath>
+    </Reference>
     <Reference Include="AssetsTools.NET.Texture">
       <HintPath>..\Libs\AssetsTools.NET.Texture.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="AssetRipper.TextureDecoder" Version="1.2.0" />
-    <PackageReference Include="Avalonia" Version="11.0.0-preview5" />
-    <PackageReference Include="Avalonia.Desktop" Version="11.0.0-preview5" />
+    <PackageReference Include="Autofac" Version="7.0.1" />
+    <PackageReference Include="Avalonia" Version="11.0.0" />
+    <PackageReference Include="Avalonia.AvaloniaEdit" Version="11.0.0" />
+    <PackageReference Include="Avalonia.Desktop" Version="11.0.0" />
     <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
-    <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.0.0-preview5" />
-    <PackageReference Include="Avalonia.ReactiveUI" Version="11.0.0-preview5" />
-    <PackageReference Include="Avalonia.Themes.Simple" Version="11.0.0-preview5" />
-    <PackageReference Include="Dock.Avalonia" Version="11.0.0-preview5" />
-    <PackageReference Include="Dock.Model" Version="11.0.0-preview5" />
-    <PackageReference Include="Dock.Model.Avalonia" Version="11.0.0-preview5" />
-    <PackageReference Include="Dock.Model.ReactiveUI" Version="11.0.0-preview5" />
-    <PackageReference Include="SixLabors.ImageSharp" Version="2.1.3" />
-    <PackageReference Include="XamlNameReferenceGenerator" Version="1.6.1" />
+    <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.0.0" />
+    <PackageReference Include="Avalonia.ReactiveUI" Version="11.0.0" />
+    <PackageReference Include="Avalonia.Themes.Simple" Version="11.0.0" />
+    <PackageReference Include="AvaloniaEdit.TextMate" Version="11.0.0" />
+    <PackageReference Include="Dock.Avalonia" Version="11.0.0" />
+    <PackageReference Include="Dock.Model" Version="11.0.0" />
+    <PackageReference Include="Dock.Model.Avalonia" Version="11.0.0" />
+    <PackageReference Include="Dock.Model.ReactiveUI" Version="11.0.0-preview6" />
+    <PackageReference Include="Mono.Cecil" Version="0.11.4" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="ReactiveUI.Fody" Version="19.4.1" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="3.0.1" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Views\Tools\SceneExplorerToolView.axaml.cs">

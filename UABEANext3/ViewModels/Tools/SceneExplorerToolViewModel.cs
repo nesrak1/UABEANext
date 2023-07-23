@@ -44,18 +44,20 @@ namespace UABEANext3.ViewModels.Tools
 
         public void LoadHierarchy(AssetsFileInstance fileInst)
         {
-            foreach (var asset in Workspace.LoadedAssets.Values)
+            return;
+            foreach (var asset in fileInst.file.AssetInfos)
             {
-                if (asset.FileInstance == fileInst && asset.Type == AssetClassID.Transform)
+                var assetInst = (AssetInst)asset;
+                if (assetInst.Type == AssetClassID.Transform)
                 {
-                    var transformBf = Workspace.GetBaseField(asset);
+                    var transformBf = Workspace.GetBaseField(assetInst);
                     if (transformBf == null)
                         continue;
 
                     var father = transformBf["m_Father"];
                     if (AssetPPtr.FromField(father).IsNull())
                     {
-                        RootItems.Add(new SceneExplorerItem(Workspace, asset));
+                        RootItems.Add(new SceneExplorerItem(Workspace, assetInst));
                     }
                 }
             }

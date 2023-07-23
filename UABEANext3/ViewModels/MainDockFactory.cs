@@ -1,16 +1,11 @@
-﻿using AssetsTools.NET.Extra;
-using Avalonia.Controls;
-using Avalonia.Media.Imaging;
-using Dock.Avalonia.Controls;
+﻿using Dock.Avalonia.Controls;
 using Dock.Model.Controls;
 using Dock.Model.Core;
 using Dock.Model.ReactiveUI;
 using Dock.Model.ReactiveUI.Controls;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.ComponentModel.Design;
 using UABEANext3.AssetWorkspace;
 using UABEANext3.ViewModels.Documents;
 using UABEANext3.ViewModels.Tools;
@@ -28,15 +23,20 @@ namespace UABEANext3.ViewModels
         private InspectorToolViewModel? _inspectorTool;
         private PreviewerToolViewModel? _previewerTool;
 
+        private ServiceContainer _sc;
         private Workspace _workspace;
 
+        // previewer
         public MainDockFactory()
         {
+            _sc = new();
             _workspace = new();
         }
+        // /////////
 
-        public MainDockFactory(Workspace workspace)
+        public MainDockFactory(ServiceContainer sc, Workspace workspace)
         {
+            _sc = sc;
             _workspace = workspace;
         }
 
@@ -219,6 +219,7 @@ namespace UABEANext3.ViewModels
                 ["WorkspaceExplorer"] = () => _workspaceExplorerTool,
                 ["SceneExplorer"] = () => _sceneExplorerTool,
                 ["Files"] = () => _fileDocumentDock,
+                ["Output"] = () => _outputTool,
             };
 
             HostWindowLocator = new Dictionary<string, Func<IHostWindow?>>

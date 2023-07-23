@@ -1,10 +1,11 @@
 using Avalonia;
-using Avalonia.Controls;
+using Avalonia.ReactiveUI;
 using Avalonia.Styling;
+using UABEANext3.ViewModels;
 
 namespace UABEANext3.Views
 {
-    public partial class MainWindow : Window
+    public partial class MainWindow : ReactiveWindow<MainWindowViewModel>
     {
         public MainWindow()
         {
