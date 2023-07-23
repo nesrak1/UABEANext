@@ -1,9 +1,5 @@
 ﻿using AssetsTools.NET;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UABEANext3.AssetWorkspace;
 
 namespace UABEANext3.Views.Tools

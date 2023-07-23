@@ -1,13 +1,7 @@
 ﻿using AssetsTools.NET;
 using AssetsTools.NET.Extra;
-using Dock.Model.Controls;
-using Dock.Model.Core;
 using Dock.Model.ReactiveUI.Controls;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UABEANext3.AssetWorkspace;
 using UABEANext3.Views.Tools;
 

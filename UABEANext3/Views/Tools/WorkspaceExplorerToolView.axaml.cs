@@ -1,13 +1,9 @@
 using Avalonia.Controls;
-using UABEANext3.AssetWorkspace;
-using UABEANext3.ViewModels.Tools;
 using System.Collections.Generic;
-using System;
 using System.Threading;
 using System.Threading.Tasks;
-using UABEANext3.Util;
-using Avalonia.Threading;
-using System.Diagnostics;
+using UABEANext3.AssetWorkspace;
+using UABEANext3.ViewModels.Tools;
 
 namespace UABEANext3.Views.Tools
 {

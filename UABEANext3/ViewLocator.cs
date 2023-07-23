@@ -3,7 +3,6 @@ using Avalonia.Controls.Templates;
 using Dock.Model.Core;
 using ReactiveUI;
 using System;
-using UABEANext3.ViewModels;
 
 namespace UABEANext3
 {

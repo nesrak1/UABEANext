@@ -1,5 +1,4 @@
 ﻿using AssetsTools.NET.Extra;
-using Avalonia;
 using Avalonia.Data;
 using Avalonia.Data.Converters;
 using Avalonia.Media.Imaging;

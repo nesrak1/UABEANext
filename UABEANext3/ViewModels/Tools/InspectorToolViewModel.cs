@@ -1,20 +1,8 @@
-﻿using AssetsTools.NET;
-using AssetsTools.NET.Extra;
-using Avalonia.Collections;
-using Avalonia.Controls;
-using Avalonia.Input;
-using Dock.Model.Controls;
-using Dock.Model.ReactiveUI.Controls;
+﻿using Dock.Model.ReactiveUI.Controls;
 using ReactiveUI;
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UABEANext3.AssetWorkspace;
-using UABEANext3.Views;
 
 namespace UABEANext3.ViewModels.Tools
 {

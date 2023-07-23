@@ -1,11 +1,5 @@
 ﻿using AssetsTools.NET;
-using Avalonia.Platform.Storage;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UABEANext3.Logic;
 
 namespace UABEANext3.AssetWorkspace.WorkspaceJobs

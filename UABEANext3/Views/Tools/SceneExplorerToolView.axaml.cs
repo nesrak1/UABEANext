@@ -1,8 +1,5 @@
-using AssetsTools.NET.Extra;
 using Avalonia.Controls;
-using UABEANext3.AssetWorkspace;
 using UABEANext3.ViewModels.Tools;
-using System.Linq;
 
 namespace UABEANext3.Views.Tools
 {

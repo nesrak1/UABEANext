@@ -1,4 +1,3 @@
-using Avalonia;
 using Avalonia.ReactiveUI;
 using Avalonia.Styling;
 using UABEANext3.ViewModels;

@@ -1,17 +1,8 @@
 using AssetsTools.NET;
-using Avalonia.Controls;
 using Avalonia.ReactiveUI;
-using AvaloniaEdit;
 using AvaloniaEdit.TextMate;
-using Microsoft.Win32;
-using ReactiveUI;
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Reactive.Disposables;
-using System.Text;
 using TextMateSharp.Grammars;
-using UABEANext3.Logic;
 using UABEANext3.TextHighlighting;
 using UABEANext3.ViewModels.Dialogs;
 

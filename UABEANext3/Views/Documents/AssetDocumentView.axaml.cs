@@ -1,17 +1,12 @@
-using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Input;
 using Avalonia.ReactiveUI;
 using AvaloniaEdit.Utils;
 using ReactiveUI;
-using System.Diagnostics;
 using System.Threading.Tasks;
 using UABEANext3.AssetWorkspace;
 using UABEANext3.Services;
-using UABEANext3.Util;
 using UABEANext3.ViewModels.Dialogs;
 using UABEANext3.ViewModels.Documents;
-using UABEANext3.ViewModels.Tools;
 using UABEANext3.Views.Dialogs;
 
 namespace UABEANext3.Views.Documents

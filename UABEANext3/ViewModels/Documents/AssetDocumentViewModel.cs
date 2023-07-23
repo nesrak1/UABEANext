@@ -1,24 +1,21 @@
-﻿using AssetsTools.NET.Extra;
-using AssetsTools.NET;
+﻿using AssetsTools.NET;
+using AssetsTools.NET.Extra;
 using Avalonia.Platform.Storage;
 using Dock.Model.ReactiveUI.Controls;
-using DynamicData.Binding;
 using DynamicData;
+using DynamicData.Binding;
 using ReactiveUI;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel.Design;
 using System.IO;
 using System.Reactive.Linq;
 using System.Windows.Input;
-using System;
 using UABEANext3.AssetWorkspace;
 using UABEANext3.Logic;
 using UABEANext3.Util;
 using UABEANext3.ViewModels.Dialogs;
-using UABEANext3.Services;
-using Autofac;
-using UABEANext3.Views.Dialogs;
-using System.ComponentModel.Design;
 
 namespace UABEANext3.ViewModels.Documents
 {

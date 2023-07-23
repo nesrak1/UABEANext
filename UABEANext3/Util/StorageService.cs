@@ -1,7 +1,7 @@
-﻿using Avalonia.Controls.ApplicationLifetimes;
+﻿using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Platform.Storage;
-using Avalonia;
 using Avalonia.VisualTree;
 
 namespace UABEANext3.Util
