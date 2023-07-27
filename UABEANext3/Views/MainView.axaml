@@ -10,12 +10,15 @@
   <Design.DataContext>
     <vm:MainWindowViewModel />
   </Design.DataContext>
-  <Grid RowDefinitions="Auto,*,22" DragDrop.AllowDrop="True" Margin="4">
+  <Grid RowDefinitions="Auto,*,22" Margin="4">
     <Menu Grid.Row="0" Padding="0,6">
       <MenuItem Header="File">
-        <MenuItem Header="Open" Command="{Binding FileOpen_Menu}"/>
-        <MenuItem Header="Save All As" Command="{Binding FileSaveAllAs_Menu}"/>
-        <MenuItem Header="Xrefs" Command="{Binding FileXrefs_Menu}"/>
+        <MenuItem Header="Open" Command="{Binding FileOpen_Menu}" />
+        <MenuItem Header="Save" />
+        <MenuItem Header="Save As..." Command="{Binding FileSaveAs_Menu}" />
+        <MenuItem Header="Save All" />
+        <MenuItem Header="Save All As..." Command="{Binding FileSaveAllAs_Menu}" />
+        <MenuItem Header="Xrefs" Command="{Binding FileXrefs_Menu}" />
       </MenuItem>
     </Menu>
     <DockControl Layout="{Binding Layout}" Margin="4" Grid.Row="1" />

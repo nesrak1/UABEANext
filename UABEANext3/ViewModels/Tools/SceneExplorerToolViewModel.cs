@@ -2,7 +2,7 @@
 using AssetsTools.NET.Extra;
 using Dock.Model.ReactiveUI.Controls;
 using System;
-using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using UABEANext3.AssetWorkspace;
 using UABEANext3.Views.Tools;
 
@@ -16,7 +16,7 @@ namespace UABEANext3.ViewModels.Tools
         public event SelectedSceneItemChangedEvent? SelectedSceneItemChanged;
 
         public Workspace Workspace { get; }
-        public List<SceneExplorerItem> RootItems { get; }
+        public ObservableCollection<SceneExplorerItem> RootItems { get; }
 
         [Obsolete("This is a previewer-only constructor")]
         public SceneExplorerToolViewModel()
@@ -40,7 +40,7 @@ namespace UABEANext3.ViewModels.Tools
         // slow!
         public void LoadHierarchy(AssetsFileInstance fileInst)
         {
-            return;
+            //return;
             foreach (var asset in fileInst.file.AssetInfos)
             {
                 var assetInst = (AssetInst)asset;

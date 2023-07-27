@@ -1,4 +1,6 @@
-﻿using Dock.Model.ReactiveUI.Controls;
+﻿using Avalonia.Collections;
+using Dock.Model.ReactiveUI.Controls;
+using ReactiveUI.Fody.Helpers;
 using System.Collections.Generic;
 using UABEANext3.AssetWorkspace;
 
@@ -12,11 +14,14 @@ namespace UABEANext3.ViewModels.Tools
         public event SelectedWorkspaceItemChangedEvent? SelectedWorkspaceItemChanged;
 
         public Workspace Workspace { get; }
+        [Reactive]
+        public AvaloniaList<object> SelectedItems { get; set; }
 
         // preview only
         public WorkspaceExplorerToolViewModel()
         {
             Workspace = new();
+            SelectedItems = new();
 
             Id = TOOL_TITLE.Replace(" ", "");
             Title = TOOL_TITLE;
@@ -25,6 +30,7 @@ namespace UABEANext3.ViewModels.Tools
         public WorkspaceExplorerToolViewModel(Workspace workspace)
         {
             Workspace = workspace;
+            SelectedItems = new();
 
             Id = TOOL_TITLE.Replace(" ", "");
             Title = TOOL_TITLE;

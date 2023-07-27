@@ -1,4 +1,3 @@
-using AssetsTools.NET;
 using Avalonia.ReactiveUI;
 using AvaloniaEdit.TextMate;
 using System;
@@ -10,8 +9,6 @@ namespace UABEANext3.Views.Dialogs
 {
     public partial class EditDataView : ReactiveWindow<EditDataViewModel>
     {
-        private AssetTypeValueField _baseField;
-
         public EditDataView()
         {
             InitializeComponent();

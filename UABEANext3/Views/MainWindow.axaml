@@ -9,9 +9,9 @@
         x:Class="UABEANext3.Views.MainWindow"
         Icon="/Assets/logo-new.ico"
         Title="UABEAvalonia"
-        
         ExtendClientAreaToDecorationsHint="{Binding UsesChrome}"
         ExtendClientAreaChromeHints="{Binding ChromeHints}"
+        DragDrop.AllowDrop="True"
         id:DockProperties.IsDragEnabled="True" id:DockProperties.IsDropEnabled="True">
     <Design.DataContext>
         <vm:MainWindowViewModel/>

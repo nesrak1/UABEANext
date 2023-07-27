@@ -6,6 +6,7 @@
              xmlns:avedit="clr-namespace:AvaloniaEdit;assembly=AvaloniaEdit"
              xmlns:m="using:UABEANext3.ViewModels.Tools"
              xmlns:v="using:UABEANext3.Views.Tools"
+             xmlns:mprev="using:UABEANext3.Models.MeshPreviewer"
              x:Class="UABEANext3.Views.Tools.PreviewerToolView">
   <UserControl.DataTemplates>
     <v:PreviewerTemplateSelector>
@@ -18,6 +19,9 @@
       </DataTemplate>
       <DataTemplate x:Key="Text" DataType="m:PreviewerToolPreviewType">
         <avedit:TextEditor FontFamily="Cascadia Code,Consolas,Monospace,Courier,DejaVu Sans Mono,Roboto Mono,Menlo" Document="{Binding $parent[UserControl].DataContext.ActiveDocument}" IsReadOnly="True" />
+      </DataTemplate>
+      <DataTemplate x:Key="Mesh" DataType="m:PreviewerToolPreviewType">
+        <mprev:MeshPreviewerControl />
       </DataTemplate>
     </v:PreviewerTemplateSelector>
   </UserControl.DataTemplates>

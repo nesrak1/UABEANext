@@ -5,12 +5,14 @@ using Dock.Model.ReactiveUI.Controls;
 using DynamicData;
 using DynamicData.Binding;
 using ReactiveUI;
+using ReactiveUI.Fody.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel.Design;
 using System.IO;
 using System.Reactive.Linq;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using UABEANext3.AssetWorkspace;
 using UABEANext3.Logic;
@@ -21,7 +23,6 @@ namespace UABEANext3.ViewModels.Documents
 {
     public class AssetDocumentViewModel : Document
     {
-        //public ObservableCollection<AssetFileInfo> Items { get; set; }
         public ReadOnlyObservableCollection<AssetInst> Items { get; set; }
 
         public ServiceContainer Container { get; }
@@ -30,12 +31,8 @@ namespace UABEANext3.ViewModels.Documents
         public delegate void AssetOpenedEvent(AssetInst assetInst);
         public event AssetOpenedEvent? AssetOpened;
 
-        private AssetFileInfo? _selectedItem;
-        public AssetFileInfo? SelectedItem
-        {
-            get => _selectedItem;
-            set => this.RaiseAndSetIfChanged(ref _selectedItem, value);
-        }
+        [Reactive]
+        public AssetFileInfo? SelectedItem { get; set; }
 
         private IDisposable? _disposableLastList;
 
@@ -49,6 +46,9 @@ namespace UABEANext3.ViewModels.Documents
             Container = new();
             Workspace = new();
             Items = new(new ObservableCollection<AssetInst>());
+
+            ShowEditData = new Interaction<EditDataViewModel, byte[]?>();
+            EditDataCommand = ReactiveCommand.CreateFromTask<AssetInst>(EditDataCommandMethod);
         }
         // ///////
 
@@ -59,28 +59,38 @@ namespace UABEANext3.ViewModels.Documents
             Items = new(new ObservableCollection<AssetInst>());
 
             ShowEditData = new Interaction<EditDataViewModel, byte[]?>();
-            EditDataCommand = ReactiveCommand.CreateFromTask<AssetInst> (async (asset) =>
+            EditDataCommand = ReactiveCommand.CreateFromTask<AssetInst>(EditDataCommandMethod);
+        }
+
+        private async Task EditDataCommandMethod(AssetInst asset)
+        {
+            var baseField = Workspace.GetBaseField(asset);
+            if (baseField == null)
             {
-                var baseField = Workspace.GetBaseField(asset);
-                if (baseField == null)
-                {
-                    return;
-                }
+                return;
+            }
 
-                var data = await ShowEditData.Handle(new EditDataViewModel(baseField));
-                if (data == null)
-                {
-                    return;
-                }
+            var data = await ShowEditData.Handle(new EditDataViewModel(baseField));
+            if (data == null)
+            {
+                return;
+            }
 
-                asset.SetNewData(data);
-                asset.BaseValueField = null;
-                AssetNameUtils.GetDisplayNameFast(Workspace, asset, true, out string assetName, out string _);
-                asset.DisplayName = assetName;
-                asset.Update(nameof(asset.DisplayName));
-                asset.Update(nameof(asset.ByteSizeModified));
-                asset.Update(nameof(asset.ModifiedString));
-            });
+            UpdateAssetDataAndRow(asset, data);
+
+            var workspaceItem = Workspace.ItemLookup[asset.FileInstance.name];
+            Workspace.Dirty(workspaceItem);
+        }
+
+        private void UpdateAssetDataAndRow(AssetInst asset, byte[] data)
+        {
+            asset.SetNewData(data);
+            asset.BaseValueField = null; // clear basefield cache
+            AssetNameUtils.GetDisplayNameFast(Workspace, asset, true, out string assetName, out string _);
+            asset.DisplayName = assetName;
+            asset.Update(nameof(asset.DisplayName));
+            asset.Update(nameof(asset.ByteSizeModified));
+            asset.Update(nameof(asset.ModifiedString));
         }
 
         public void Load(List<AssetsFileInstance> fileInsts)
@@ -89,32 +99,6 @@ namespace UABEANext3.ViewModels.Documents
                 return;
 
             _disposableLastList?.Dispose();
-
-            //List<AssetInst> items = new List<AssetInst>();
-            //foreach (var fileInst in fileInsts)
-            //{
-            //    IList<AssetFileInfo> infos = fileInst.file.AssetInfos;
-            //    if (fileInst.file.AssetInfos is not RangeObservableCollection<AssetFileInfo>)
-            //    {
-            //        var tmp = new List<AssetFileInfo>();
-            //        for (int i = 0; i < infos.Count; i++)
-            //        {
-            //            AssetInst asset = new AssetInst(fileInst, infos[i]);
-            //            AssetNameUtils.GetDisplayNameFast(Workspace, asset, true, out string assetName, out string _);
-            //            asset.DisplayName = assetName;
-            //            infos[i] = asset;
-            //        }
-            //        var tmp2 = new RangeObservableCollection<AssetFileInfo>();
-            //        tmp2.AddRange(fileInst.file.AssetInfos);
-            //        fileInst.file.Metadata.AssetInfos = tmp2;
-            //        fileInst.file.Metadata.AssetInfos = tmp;
-            //    }
-            //    items.AddRange(infos.Cast<AssetInst>());
-            //}
-
-            //GC.Collect();
-
-            //Items = items;
 
             var sourceList = new SourceList<RangeObservableCollection<AssetFileInfo>>();
             foreach (var fileInst in fileInsts)
@@ -175,12 +159,14 @@ namespace UABEANext3.ViewModels.Documents
             });
 
             var files = FileDialogUtils.GetOpenFileDialogFiles(result);
-            if (files == null)
+            if (files == null || files.Length == 0)
                 return;
 
             var fileNamesToDirty = new HashSet<string>();
-            foreach (var file in files)
+            //foreach (var file in files) // todo: support multi file import
             {
+                var file = files[0];
+
                 byte[]? data = null;
                 string? exception;
                 var impExpTool = new AssetImportExport();
@@ -197,7 +183,7 @@ namespace UABEANext3.ViewModels.Documents
                         data = impExpTool.ImportTextAsset(reader, out exception);
                     }
                 }
-                else if (file.EndsWith(".dat"))
+                else //if (file.EndsWith(".dat"))
                 {
                     using var stream = File.OpenRead(file);
                     data = impExpTool.ImportRawAsset(stream);
@@ -205,13 +191,7 @@ namespace UABEANext3.ViewModels.Documents
 
                 if (data != null)
                 {
-                    asset.SetNewData(data);
-                    asset.BaseValueField = null;
-                    AssetNameUtils.GetDisplayNameFast(Workspace, asset, true, out string assetName, out string _);
-                    asset.DisplayName = assetName;
-                    asset.Update(nameof(asset.DisplayName));
-                    asset.Update(nameof(asset.ByteSizeModified));
-                    asset.Update(nameof(asset.ModifiedString));
+                    UpdateAssetDataAndRow(asset, data);
                 }
 
                 fileNamesToDirty.Add(asset.FileInstance.name);
@@ -219,8 +199,8 @@ namespace UABEANext3.ViewModels.Documents
 
             foreach (var fileName in fileNamesToDirty)
             {
-                var file = Workspace.ItemLookup[fileName];
-                Workspace.Dirty(file);
+                var workspaceItem = Workspace.ItemLookup[fileName];
+                Workspace.Dirty(workspaceItem);
             }
         }
 
@@ -298,29 +278,6 @@ namespace UABEANext3.ViewModels.Documents
 
             EditDataCommand.Execute(asset);
         }
-
-        //public async void EditData()
-        //{
-        //    if (SelectedItem == null || SelectedItem is not AssetInst asset)
-        //    {
-        //        return;
-        //    }
-        //
-        //    var editData = new EditDataView(Workspace.GetBaseField(asset)!);
-        //    var data = await editData.ShowDialog<byte[]?>(WindowUtils.GetMainWindow());
-        //    if (data == null)
-        //    {
-        //        return;
-        //    }
-        //    
-        //    asset.SetNewData(data);
-        //    asset.BaseValueField = null;
-        //    AssetNameUtils.GetDisplayNameFast(Workspace, asset, true, out string assetName, out string _);
-        //    asset.DisplayName = assetName;
-        //    asset.Update(nameof(asset.DisplayName));
-        //    asset.Update(nameof(asset.ByteSizeModified));
-        //    asset.Update(nameof(asset.ModifiedString));
-        //}
 
         public void InvokeAssetOpened(AssetInst asset)
         {

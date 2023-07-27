@@ -1,18 +1,19 @@
 using AssetsTools.NET;
 using AssetsTools.NET.Extra;
 using AssetsTools.NET.Texture;
+using Avalonia.Input;
 using Avalonia.Platform;
 using Avalonia.Platform.Storage;
 using Dock.Model.Controls;
 using Dock.Model.Core;
 using DynamicData;
-using ReactiveUI;
+using ReactiveUI.Fody.Helpers;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.IO;
 using System.Linq;
-using System.Web;
+using System.Threading.Tasks;
 using UABEANext3.AssetWorkspace;
 using UABEANext3.AssetWorkspace.WorkspaceJobs;
 using UABEANext3.Util;
@@ -34,25 +35,14 @@ namespace UABEANext3.ViewModels
 
         private OutputToolViewModel _outputToolViewModel;
 
-        public IRootDock? Layout
-        {
-            get => _layout;
-            set => this.RaiseAndSetIfChanged(ref _layout, value);
-        }
+        [Reactive]
+        public IRootDock? Layout { get; set; }
+        [Reactive]
+        public double ProgressValue { get; set; }
+        [Reactive]
+        public string ProgressText { get; set; }
 
-        public double ProgressValue
-        {
-            get => _progressValue;
-            set => this.RaiseAndSetIfChanged(ref _progressValue, value);
-        }
-
-        public string ProgressText
-        {
-            get => _progressText;
-            set => this.RaiseAndSetIfChanged(ref _progressText, value);
-        }
-
-        public bool UsesChrome { get; set; } = OperatingSystem.IsWindows();
+        public bool UsesChrome => OperatingSystem.IsWindows();
         public ExtendClientAreaChromeHints ChromeHints => UsesChrome
             ? ExtendClientAreaChromeHints.PreferSystemChrome
             : ExtendClientAreaChromeHints.Default;
@@ -60,9 +50,7 @@ namespace UABEANext3.ViewModels
         public MainWindowViewModel(ServiceContainer sc)
         {
             _sc = sc;
-
             _workspace = new();
-
             _factory = new MainDockFactory(_sc, _workspace);
 
             Layout = _factory.CreateLayout();
@@ -87,6 +75,11 @@ namespace UABEANext3.ViewModels
             _workspace.JobManager.JobProgressMessageFired += JobManager_JobProgressMessageFired;
             _workspace.JobManager.ProgressChanged += JobManager_ProgressChanged;
             _workspace.JobManager.JobsRunning += JobManager_JobsRunning;
+        }
+
+        public async void DragDrop_Drop(object? sender, DragEventArgs e)
+        {
+            await MessageBoxUtil.ShowDialog("test", "test2");
         }
 
         private void JobManager_JobProgressMessageFired(object? sender, string e)
@@ -218,45 +211,60 @@ namespace UABEANext3.ViewModels
         public void SetInspectorItem(AssetInst asset, bool reset)
         {
             var inspector = _factory?.GetDockable<InspectorToolViewModel>("Inspector");
-            if (reset)
+            if (inspector != null)
             {
-                inspector.ActiveAssets = new() { asset };
-            }
-            else
-            {
-                inspector.ActiveAssets.Add(asset);
+                if (reset)
+                {
+                    inspector.ActiveAssets = new() { asset };
+                }
+                else
+                {
+                    inspector.ActiveAssets.Add(asset);
+                }
             }
 
             if (asset.Type == AssetClassID.Texture2D)
             {
                 var previewer = _factory?.GetDockable<PreviewerToolViewModel>("Previewer");
-
-                var textureEditBf = GetByteArrayTexture(_workspace, asset);
-                var texture = TextureFile.ReadTextureFile(textureEditBf);
-                var textureRgba = texture.GetTextureData(asset.FileInstance);
-
-                if (textureRgba == null)
-                    return;
-
-                for (int i = 0; i < textureRgba.Length; i += 4)
+                if (previewer != null)
                 {
-                    byte temp = textureRgba[i];
-                    textureRgba[i] = textureRgba[i + 2];
-                    textureRgba[i + 2] = temp;
-                }
+                    var textureEditBf = GetByteArrayTexture(_workspace, asset);
+                    var texture = TextureFile.ReadTextureFile(textureEditBf);
+                    var textureRgba = texture.GetTextureData(asset.FileInstance);
 
-                previewer.SetImage(textureRgba, texture.m_Width, texture.m_Height);
+                    if (textureRgba == null)
+                        return;
+
+                    for (int i = 0; i < textureRgba.Length; i += 4)
+                    {
+                        byte temp = textureRgba[i];
+                        textureRgba[i] = textureRgba[i + 2];
+                        textureRgba[i + 2] = temp;
+                    }
+
+                    previewer.SetImage(textureRgba, texture.m_Width, texture.m_Height);
+                }
             }
             else if (asset.Type == AssetClassID.TextAsset)
             {
                 var previewer = _factory?.GetDockable<PreviewerToolViewModel>("Previewer");
+                if (previewer != null)
+                {
+                    var textAssetBf = _workspace.GetBaseField(asset);
+                    if (textAssetBf == null)
+                        return;
 
-                var textAssetBf = _workspace.GetBaseField(asset);
-                if (textAssetBf == null)
-                    return;
-
-                byte[] data = textAssetBf["m_Script"].AsByteArray;
-                previewer.SetText(data);
+                    byte[] data = textAssetBf["m_Script"].AsByteArray;
+                    previewer.SetText(data);
+                }
+            }
+            else if (asset.Type == AssetClassID.Mesh)
+            {
+                var previewer = _factory?.GetDockable<PreviewerToolViewModel>("Previewer");
+                if (previewer != null)
+                {
+                    previewer.SetMesh();
+                }
             }
         }
 
@@ -280,6 +288,15 @@ namespace UABEANext3.ViewModels
             return baseField;
         }
 
+        public async Task OpenFiles(IEnumerable<string> files)
+        {
+            var jobs = files.Select(file => new OpenFilesWorkspaceJob(_workspace, file)).Cast<IWorkspaceJob>().ToList();
+            if (jobs.Count > 0)
+            {
+                await _workspace.JobManager.ProcessJobs(jobs);
+            }
+        }
+
         public async void FileOpen_Menu()
         {
             var storageProvider = StorageService.GetStorageProvider();
@@ -298,139 +315,26 @@ namespace UABEANext3.ViewModels
                 AllowMultiple = true
             });
 
-            // todo: FileDialogUtils
-            var jobs = result.Select(file => new OpenFilesWorkspaceJob(_workspace, HttpUtility.UrlDecode(file.Path.AbsolutePath))).Cast<IWorkspaceJob>().ToList();
-            if (result != null)
+            var fileNames = FileDialogUtils.GetOpenFileDialogFiles(result);
+            await OpenFiles(fileNames);
+        }
+
+        public async void FileSaveAs_Menu()
+        {
+            var explorer = _factory?.GetDockable<WorkspaceExplorerToolViewModel>("WorkspaceExplorer");
+            if (explorer == null)
+                return;
+
+            var items = explorer.SelectedItems.Cast<WorkspaceItem>();
+            foreach (var item in items)
             {
-                await _workspace.JobManager.ProcessJobs(jobs);
+                await _workspace.SaveAs(item);
             }
         }
 
         public async void FileSaveAllAs_Menu()
         {
-            var storageProvider = StorageService.GetStorageProvider();
-            if (storageProvider is null)
-            {
-                return;
-            }
-
-            var unsavedAssetsFiles = _workspace.UnsavedItems.Where(i => i.ObjectType == WorkspaceItemType.AssetsFile);
-            foreach (var unsavedAssetsFile in unsavedAssetsFiles)
-            {
-                // skip assets files in bundles
-                if (unsavedAssetsFile.Parent != null)
-                    continue;
-
-                var result = await storageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
-                {
-                    Title = "Save file",
-                    FileTypeChoices = new FilePickerFileType[]
-                    {
-                        new FilePickerFileType("All files (*.*)") { Patterns = new[] {"*.*"} }
-                    },
-                    SuggestedFileName = unsavedAssetsFile.Name
-                });
-
-                if (result != null)
-                {
-                    using var stream = await result.OpenWriteAsync();
-                    var fileInst = (AssetsFileInstance)unsavedAssetsFile.Object!;
-                    fileInst.file.Write(new AssetsFileWriter(stream));
-                }
-            }
-
-            var unsavedBundleFiles = _workspace.UnsavedItems.Where(i => i.ObjectType == WorkspaceItemType.BundleFile);
-            foreach (var unsavedBundleFile in unsavedBundleFiles)
-            {
-                // todo dupe
-                var result = await storageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
-                {
-                    Title = "Save file",
-                    FileTypeChoices = new FilePickerFileType[]
-                    {
-                        new FilePickerFileType("All files (*.*)") { Patterns = new[] {"*.*"} }
-                    },
-                    SuggestedFileName = unsavedBundleFile.Name
-                });
-                // /////////
-
-                if (result != null)
-                {
-                    using var stream = await result.OpenWriteAsync();
-                    var bunInst = (BundleFileInstance)unsavedBundleFile.Object!;
-
-                    // files that are both unsaved and part of this bundle
-                    var childrenFiles = unsavedBundleFile.Children
-                        .Intersect(_workspace.UnsavedItems)
-                        .ToDictionary(f => f.Name);
-
-                    // sync up directory infos
-                    var infos = bunInst.file.BlockAndDirInfo.DirectoryInfos;
-                    foreach (var info in infos)
-                    {
-                        if (childrenFiles.TryGetValue(info.Name, out var unsavedAssetsFile))
-                        {
-                            if (unsavedAssetsFile.Object is AssetsFileInstance fileInst)
-                            {
-                                info.SetNewData(fileInst.file);
-                            }
-                            else if (unsavedAssetsFile.Object is AssetBundleDirectoryInfo matchingInfo && info == matchingInfo)
-                            {
-                                // do nothing, already handled by replacer
-                            }
-                            else
-                            {
-                                // shouldn't happen
-                                info.Replacer = null;
-                            }
-                        }
-                        else
-                        {
-                            // remove replacer (if there was one ever set)
-                            info.Replacer = null;
-                        }
-                    }
-
-                    bunInst.file.Write(new AssetsFileWriter(stream));
-                }
-            }
-
-            var unsavedResourceFiles = _workspace.UnsavedItems.Where(i => i.ObjectType == WorkspaceItemType.ResourceFile);
-            foreach (var unsavedResourceFile in unsavedResourceFiles)
-            {
-                // todo dupe
-                var result = await storageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
-                {
-                    Title = "Save file",
-                    FileTypeChoices = new FilePickerFileType[]
-                    {
-                        new FilePickerFileType("All files (*.*)") { Patterns = new[] {"*.*"} }
-                    },
-                    SuggestedFileName = unsavedResourceFile.Name
-                });
-                // /////////
-
-                if (result != null)
-                {
-                    using var stream = await result!.OpenWriteAsync();
-                    var dirInfo = (AssetBundleDirectoryInfo)unsavedResourceFile.Object!;
-                    if (dirInfo.IsReplacerPreviewable)
-                    {
-                        dirInfo.Replacer.GetPreviewStream().CopyTo(stream);
-                    }
-                    else if (unsavedResourceFile.Parent != null)
-                    {
-                        var parentBundle = (BundleFileInstance)unsavedResourceFile.Parent.Object!;
-                        var reader = parentBundle.file.DataReader;
-                        reader.Position = dirInfo.Offset;
-                        reader.BaseStream.CopyToCompat(stream, dirInfo.DecompressedSize);
-                    }
-                    else
-                    {
-                        // we can't do anything, not enough information
-                    }
-                }
-            }
+            await _workspace.SaveAllAs();
         }
 
         public async void FileXrefs_Menu()

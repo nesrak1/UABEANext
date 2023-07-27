@@ -66,10 +66,12 @@ namespace UABEANext3.Converters
                     AssetClassID.Rigidbody => GetBitmap("UABEANext3/Assets/Icons/asset-rigidbody.png"),
                     AssetClassID.Shader => GetBitmap("UABEANext3/Assets/Icons/asset-shader.png"),
                     AssetClassID.ShaderVariantCollection => GetBitmap("UABEANext3/Assets/Icons/asset-shader-collection.png"),
+                    AssetClassID.SkinnedMeshRenderer => GetBitmap("UABEANext3/Assets/Icons/asset-mesh-renderer.png"), // todo
                     AssetClassID.Sprite => GetBitmap("UABEANext3/Assets/Icons/asset-sprite.png"),
                     AssetClassID.SpriteRenderer => GetBitmap("UABEANext3/Assets/Icons/asset-sprite-renderer.png"),
                     AssetClassID.Terrain => GetBitmap("UABEANext3/Assets/Icons/asset-terrain.png"),
                     AssetClassID.TerrainCollider => GetBitmap("UABEANext3/Assets/Icons/asset-terrain-collider.png"),
+                    AssetClassID.TextAsset => GetBitmap("UABEANext3/Assets/Icons/asset-text-asset.png"),
                     AssetClassID.Texture2D => GetBitmap("UABEANext3/Assets/Icons/asset-texture2d.png"),
                     AssetClassID.Texture3D => GetBitmap("UABEANext3/Assets/Icons/asset-texture2d.png"),
                     AssetClassID.Transform => GetBitmap("UABEANext3/Assets/Icons/asset-transform.png"),

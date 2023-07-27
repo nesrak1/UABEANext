@@ -10,7 +10,7 @@ using UABEANext3.Util;
 
 namespace UABEANext3.AssetWorkspace
 {
-    public class Workspace
+    public partial class Workspace
     {
         public AssetsManager Manager { get; } = new AssetsManager();
         public WorkspaceJobManager JobManager { get; } = new WorkspaceJobManager();
@@ -21,7 +21,7 @@ namespace UABEANext3.AssetWorkspace
         // items modified and unsaved
         public HashSet<WorkspaceItem> UnsavedItems { get; } = new();
         // items modified and saved
-        // we track this since the base AssetsFile is still reading form the old file
+        // we track this since the base AssetsFile is still reading from the old file
         public HashSet<WorkspaceItem> ModifiedItems { get; } = new();
 
         public delegate void MonoTemplateFailureEvent(string path);
