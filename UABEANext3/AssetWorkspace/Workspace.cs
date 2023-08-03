@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 using UABEANext3.Util;
 
 namespace UABEANext3.AssetWorkspace
@@ -34,6 +35,7 @@ namespace UABEANext3.AssetWorkspace
             if (File.Exists("classdata.tpk"))
                 Manager.LoadClassPackage("classdata.tpk");
 
+            Manager.UseRefTypeManagerCache = true;
             Manager.UseTemplateFieldCache = true;
             Manager.UseQuickLookup = true;
         }
@@ -121,8 +123,10 @@ namespace UABEANext3.AssetWorkspace
         public AssetTypeTemplateField GetTemplateField(AssetInst asset, bool skipMonoBehaviourFields = false)
         {
             AssetReadFlags readFlags = AssetReadFlags.None;
-            if (skipMonoBehaviourFields)
-                readFlags |= AssetReadFlags.SkipMonoBehaviourFields;
+            if (skipMonoBehaviourFields && asset.Type == AssetClassID.MonoBehaviour)
+            {
+                readFlags |= AssetReadFlags.SkipMonoBehaviourFields | AssetReadFlags.ForceFromCldb;
+            }
 
             return Manager.GetTemplateBaseField(asset.FileInstance, asset, readFlags);
         }
@@ -130,8 +134,10 @@ namespace UABEANext3.AssetWorkspace
         public AssetTypeTemplateField GetTemplateField(AssetsFileInstance fileInst, AssetFileInfo info, bool skipMonoBehaviourFields = false)
         {
             AssetReadFlags readFlags = AssetReadFlags.None;
-            if (skipMonoBehaviourFields)
-                readFlags |= AssetReadFlags.SkipMonoBehaviourFields;
+            if (skipMonoBehaviourFields && info.TypeId == (int)AssetClassID.MonoBehaviour)
+            {
+                readFlags |= AssetReadFlags.SkipMonoBehaviourFields | AssetReadFlags.ForceFromCldb;
+            }
 
             return Manager.GetTemplateBaseField(fileInst, info, readFlags);
         }
@@ -154,20 +160,23 @@ namespace UABEANext3.AssetWorkspace
             if (!_setMonoTempGeneratorsYet)
             {
                 _setMonoTempGeneratorsYet = true;
+
+                string managedDir = Path.Combine(fileDir, "Managed");
+                if (Directory.Exists(managedDir))
+                {
+                    bool hasDll = Directory.GetFiles(managedDir, "*.dll").Any();
+                    if (hasDll)
+                    {
+                        Manager.MonoTempGenerator = new MonoCecilTempGenerator(managedDir);
+                        return true;
+                    }
+                }
+
                 FindCpp2IlFilesResult il2cppFiles = FindCpp2IlFiles.Find(fileDir);
                 if (il2cppFiles.success && true/*ConfigurationManager.Settings.UseCpp2Il*/)
                 {
                     Manager.MonoTempGenerator = new Cpp2IlTempGenerator(il2cppFiles.metaPath, il2cppFiles.asmPath);
                     return true;
-                }
-                else
-                {
-                    string managedDir = Path.Combine(fileDir, "Managed");
-                    if (Directory.Exists(managedDir))
-                    {
-                        Manager.MonoTempGenerator = new MonoCecilTempGenerator(managedDir);
-                        return true;
-                    }
                 }
             }
             return false;
@@ -261,6 +270,15 @@ namespace UABEANext3.AssetWorkspace
             {
                 Dirty(item.Parent);
             }
+        }
+
+        public void CloseAll()
+        {
+            Manager.UnloadAll();
+            RootItems.Clear();
+            ItemLookup.Clear();
+            UnsavedItems.Clear();
+            ModifiedItems.Clear();
         }
     }
 }
