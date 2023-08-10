@@ -19,6 +19,7 @@
         <MenuItem Header="Save All" />
         <MenuItem Header="Save All As..." Command="{Binding FileSaveAllAs_Menu}" />
         <MenuItem Header="Xrefs" Command="{Binding FileXrefs_Menu}" />
+        <MenuItem Header="Close All" Command="{Binding FileCloseAll_Menu}" />
       </MenuItem>
     </Menu>
     <DockControl Layout="{Binding Layout}" Margin="4" Grid.Row="1" />

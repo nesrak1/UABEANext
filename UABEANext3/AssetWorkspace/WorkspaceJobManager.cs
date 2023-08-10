@@ -6,7 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using UABEANext3.AssetWorkspace;
 
-public class WorkspaceJobManager // WorkspaceJobProcessor
+public class WorkspaceJobManager
 {
     private readonly ConcurrentQueue<IWorkspaceJob> jobQueue;
     private readonly ConcurrentBag<IWorkspaceJob> successfulJobs;
@@ -50,6 +50,8 @@ public class WorkspaceJobManager // WorkspaceJobProcessor
 
         startingJobCount += newJobs.Count;
 
+        Interlocked.Add(ref runningJobCount, jobQueue.Count);
+
         int initialJobCount = Math.Min(semaphore.CurrentCount, jobQueue.Count);
         for (int i = 0; i < initialJobCount; i++)
         {
@@ -59,14 +61,15 @@ public class WorkspaceJobManager // WorkspaceJobProcessor
                 break;
             }
 
-            Interlocked.Increment(ref runningJobCount);
             new Thread(() => RunJob(job)).Start();
         }
 
         await jobsFinishedSemaphore.WaitAsync();
+        ProgressChanged?.Invoke(null, 1f);
         JobsRunning?.Invoke(null, false);
         ResetSemaphores();
         startingJobCount = 0;
+        runningJobCount = 0;
     }
 
     private void RunJob(IWorkspaceJob job)
@@ -90,38 +93,33 @@ public class WorkspaceJobManager // WorkspaceJobProcessor
             failedJobs.Add(job);
         }
 
-        //Interlocked.Increment(ref completedJobsCount);
         Interlocked.Decrement(ref runningJobCount);
 
-        //float progressValue = (float)completedJobsCount / jobQueue.Count;
-        float progressValue = 1f - (float)runningJobCount / startingJobCount;
-        //if (completedJobsCount % 10 == 0 || runningJobCount == 0)
         if (runningJobCount % 10 == 0 || runningJobCount == 0)
         {
             Dispatcher.UIThread.Post(() =>
             {
+                float progressValue = 1f - ((float)runningJobCount / startingJobCount);
                 ProgressChanged?.Invoke(null, progressValue);
             }, DispatcherPriority.Background);
         }
 
-        Dispatcher.UIThread.Post(() =>
-        {
-            JobProgressMessageFired?.Invoke(null, $"{job.GetTaskName()}... done.");
-        }, DispatcherPriority.ContextIdle);
+        //Dispatcher.UIThread.Post(() =>
+        //{
+        //    JobProgressMessageFired?.Invoke(null, $"{job.GetTaskName()}... done.");
+        //}, DispatcherPriority.ContextIdle);
 
         bool dequeueSuccess = jobQueue.TryDequeue(out IWorkspaceJob? nextJob);
         if (dequeueSuccess && nextJob != null)
         {
             new Thread(() => RunJob(nextJob)).Start();
         }
-        else
+
+        lock (jobsFinishedSemaphore)
         {
-            lock (jobsFinishedSemaphore)
+            if (runningJobCount == 0 && jobsFinishedSemaphore.CurrentCount == 0)
             {
-                if (jobsFinishedSemaphore.CurrentCount == 0)
-                {
-                    jobsFinishedSemaphore.Release();
-                }
+                jobsFinishedSemaphore.Release();
             }
         }
     }

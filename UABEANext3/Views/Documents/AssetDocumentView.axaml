@@ -62,7 +62,6 @@
     <DataGrid
       Grid.Row="1" AutoGenerateColumns="False" CanUserResizeColumns="True"
       IsReadOnly="True" Name="dataGrid" ItemsSource="{Binding Items}"
-      SelectedItem="{Binding SelectedItem}"
       SelectionChanged="DataGrid_SelectionChanged" Margin="0,0,0,0">
       <DataGrid.RowTheme>
         <ControlTheme TargetType="DataGridRow" BasedOn="{StaticResource {x:Type DataGridRow}}">

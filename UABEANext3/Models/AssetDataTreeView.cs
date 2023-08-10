@@ -193,7 +193,7 @@ namespace UABEANext3.Models
                 TreeViewItem errorItem2 = CreateTreeItem("The asset was a MonoBehaviour that didn't read correctly");
                 TreeViewItem errorItem2I = CreateTreeItem("Try disabling Cpp2IL and dumping dlls manually into a (new) folder called Managed.");
                 TreeViewItem errorItem3 = CreateTreeItem("The game uses a custom engine");
-                TreeViewItem errorItem3I = CreateTreeItem("I can't help with custom/encrypted engines. You'll need to make a fork.");
+                TreeViewItem errorItem3I = CreateTreeItem("I can't help with custom/encrypted engines. You're on your own.");
                 errorItem0.ItemsSource = new List<TreeViewItem>() { errorItem1, errorItem2, errorItem3 };
                 errorItem1.ItemsSource = new List<TreeViewItem>() { errorItem1I };
                 errorItem2.ItemsSource = new List<TreeViewItem>() { errorItem2I };

@@ -24,8 +24,7 @@ namespace UABEANext3.Views.Dialogs
 
             if (DataContext is EditDataViewModel edvm)
             {
-                edvm.CloseAction = new Action<byte[]?>(Close);
-                //edvm.Document = textEditor.Document; // bypass crash when binding in xaml for now
+                edvm.CloseAction = new Action<byte[]?>(a => Close(a));
             }
         }
     }

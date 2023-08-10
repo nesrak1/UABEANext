@@ -32,8 +32,9 @@ namespace UABEANext3.AssetWorkspace
 
         public Workspace()
         {
-            if (File.Exists("classdata.tpk"))
-                Manager.LoadClassPackage("classdata.tpk");
+            string classDataPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "classdata.tpk");
+            if (File.Exists(classDataPath))
+                Manager.LoadClassPackage(classDataPath);
 
             Manager.UseRefTypeManagerCache = true;
             Manager.UseTemplateFieldCache = true;

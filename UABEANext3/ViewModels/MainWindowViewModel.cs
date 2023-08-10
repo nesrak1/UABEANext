@@ -47,6 +47,19 @@ namespace UABEANext3.ViewModels
             ? ExtendClientAreaChromeHints.PreferSystemChrome
             : ExtendClientAreaChromeHints.Default;
 
+        [Obsolete("This is a previewer-only constructor")]
+        public MainWindowViewModel()
+        {
+            _workspace = new();
+            _factory = new MainDockFactory(_sc, _workspace);
+
+            Layout = _factory.CreateLayout();
+            if (Layout is { })
+            {
+                _factory.InitLayout(Layout);
+            }
+        }
+
         public MainWindowViewModel(ServiceContainer sc)
         {
             _sc = sc;
@@ -351,6 +364,17 @@ namespace UABEANext3.ViewModels
 
             using var writer = new AssetsFileWriter($"scans/{Path.GetFileName(assetsFiles[0].name)}.uxrs");
             scanner.Save(writer);
+        }
+
+        public void FileCloseAll_Menu()
+        {
+            _workspace.CloseAll();
+            var files = _factory?.GetDockable<IDocumentDock>("Files");
+            if (files is { } && files.VisibleDockables != null && files.VisibleDockables.Count > 0)
+            {
+                // lol you have to pass in a child
+                _factory?.CloseAllDockables(files.VisibleDockables[0]);
+            }
         }
     }
 }

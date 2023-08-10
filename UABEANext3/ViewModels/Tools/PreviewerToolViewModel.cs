@@ -40,7 +40,7 @@ namespace UABEANext3.ViewModels.Tools
         const int TEXT_ASSET_MAX_LENGTH = 100000;
 
         [Reactive]
-        public PreviewerToolPreviewType ActivePreviewType { get; set; } = PreviewerToolPreviewType.Image;
+        public PreviewerToolPreviewType ActivePreviewType { get; set; } = PreviewerToolPreviewType.Mesh;
 
         [Obsolete("This is a previewer-only constructor")]
         public PreviewerToolViewModel()
@@ -83,13 +83,13 @@ namespace UABEANext3.ViewModels.Tools
         {
             ActivePreviewType = PreviewerToolPreviewType.Text;
             string trimmedText;
-            if (text.Length > TEXT_ASSET_MAX_LENGTH)
+            if (text.Length <= TEXT_ASSET_MAX_LENGTH)
             {
-                trimmedText = Encoding.UTF8.GetString(text[..TEXT_ASSET_MAX_LENGTH]);
+                trimmedText = Encoding.UTF8.GetString(text);
             }
             else
             {
-                trimmedText = Encoding.UTF8.GetString(text) + $"... (and {text.Length - TEXT_ASSET_MAX_LENGTH} bytes more)";
+                trimmedText = Encoding.UTF8.GetString(text[..TEXT_ASSET_MAX_LENGTH]) + $"... (and {text.Length - TEXT_ASSET_MAX_LENGTH} bytes more)";
             }
             ActiveDocument = new TextDocument(trimmedText.ToCharArray());
         }

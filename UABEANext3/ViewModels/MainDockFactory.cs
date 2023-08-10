@@ -73,11 +73,11 @@ namespace UABEANext3.ViewModels
                     helloAssetDocument
                 ),
                 CanCreateDocument = true,
+                IsCollapsable = false,
                 Proportion = double.NaN
             };
 
             _fileDocumentDock = documentDock;
-
 
             /*
             var inspectorDock = new ToolDock
