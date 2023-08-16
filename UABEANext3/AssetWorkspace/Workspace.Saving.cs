@@ -29,6 +29,7 @@ namespace UABEANext3.AssetWorkspace
             fileInst.file.Write(new AssetsFileWriter(stream));
         }
 
+        // warning! OriginalName needs to be updated if save overwrite is used
         private void WriteBundleFile(WorkspaceItem item, Stream stream)
         {
             var bunInst = (BundleFileInstance)item.Object!;
@@ -36,7 +37,7 @@ namespace UABEANext3.AssetWorkspace
             // files that are both unsaved and part of this bundle
             var childrenFiles = item.Children
                 .Intersect(UnsavedItems)
-                .ToDictionary(f => f.Name);
+                .ToDictionary(f => f.OriginalName);
 
             // sync up directory infos
             var infos = bunInst.file.BlockAndDirInfo.DirectoryInfos;
@@ -44,6 +45,11 @@ namespace UABEANext3.AssetWorkspace
             {
                 if (childrenFiles.TryGetValue(info.Name, out var unsavedAssetsFile))
                 {
+                    if (unsavedAssetsFile.Name != unsavedAssetsFile.OriginalName)
+                    {
+                        info.Name = unsavedAssetsFile.Name;
+                    }
+
                     if (unsavedAssetsFile.Object is AssetsFileInstance fileInst)
                     {
                         info.SetNewData(fileInst.file);

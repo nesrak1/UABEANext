@@ -90,11 +90,6 @@ namespace UABEANext3.ViewModels
             _workspace.JobManager.JobsRunning += JobManager_JobsRunning;
         }
 
-        public async void DragDrop_Drop(object? sender, DragEventArgs e)
-        {
-            await MessageBoxUtil.ShowDialog("test", "test2");
-        }
-
         private void JobManager_JobProgressMessageFired(object? sender, string e)
         {
             _outputToolViewModel.DisplayText += e + "\n";

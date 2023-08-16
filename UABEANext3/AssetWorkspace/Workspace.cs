@@ -255,7 +255,14 @@ namespace UABEANext3.AssetWorkspace
 
             CheckAndSetMonoTempGenerators(fileInst, info);
 
-            return Manager.GetBaseField(fileInst, info);
+            try
+            {
+                return Manager.GetBaseField(fileInst, info);
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         public AssetTypeValueField? GetBaseField(AssetsFileInstance fileInst, long pathId)

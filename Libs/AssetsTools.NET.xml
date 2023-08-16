@@ -280,6 +280,14 @@
             Set the asset to be removed when the AssetBundleFile is written.
             </summary>
         </member>
+        <member name="M:AssetsTools.NET.AssetBundleDirectoryInfo.Create(System.String,System.Boolean)">
+            <summary>
+            Creates a new directory info.
+            </summary>
+            <param name="name">Name of the file.</param>
+            <param name="isSerialized">Is the file serialized (i.e. is it an assets file)?</param>
+            <returns>The new directory info</returns>
+        </member>
         <member name="P:AssetsTools.NET.AssetBundleFile.Header">
             <summary>
             Bundle header. Contains bundle engine version.

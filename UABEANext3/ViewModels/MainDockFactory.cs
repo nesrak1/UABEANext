@@ -42,7 +42,7 @@ namespace UABEANext3.ViewModels
 
         public override IRootDock CreateLayout()
         {
-            _workspaceExplorerTool = new WorkspaceExplorerToolViewModel(_workspace);
+            _workspaceExplorerTool = new WorkspaceExplorerToolViewModel(_sc, _workspace);
             _sceneExplorerTool = new SceneExplorerToolViewModel(_workspace);
             _errorTool = new ErrorToolViewModel(_workspace);
             _outputTool = new OutputToolViewModel(_workspace);

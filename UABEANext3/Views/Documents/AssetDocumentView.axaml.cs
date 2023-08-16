@@ -37,40 +37,40 @@ namespace UABEANext3.Views.Documents
 
         private async Task DoShowEditDataAsync(InteractionContext<EditDataViewModel, byte[]?> interaction)
         {
-            if (DataContext is AssetDocumentViewModel docVm)
+            if (ViewModel == null)
+                return;
+
+            var dialogService = ViewModel.Container.GetService<IDialogService>();
+            if (dialogService == null)
             {
-                var dialogService = docVm.Container.GetService<IDialogService>();
-                if (dialogService == null)
-                {
-                    interaction.SetOutput(null);
-                    return;
-                }
-
-                var dialog = new EditDataView();
-                dialog.DataContext = interaction.Input;
-
-                var result = await dialogService.ShowDialog<byte[]?>(dialog);
-                interaction.SetOutput(result);
+                interaction.SetOutput(null);
+                return;
             }
+
+            var dialog = new EditDataView();
+            dialog.DataContext = interaction.Input;
+
+            var result = await dialogService.ShowDialog<byte[]?>(dialog);
+            interaction.SetOutput(result);
         }
 
         private async Task DoShowBatchImportAsync(InteractionContext<BatchImportViewModel, List<ImportBatchInfo>> interaction)
         {
-            if (DataContext is AssetDocumentViewModel docVm)
+            if (ViewModel == null)
+                return;
+
+            var dialogService = ViewModel.Container.GetService<IDialogService>();
+            if (dialogService == null)
             {
-                var dialogService = docVm.Container.GetService<IDialogService>();
-                if (dialogService == null)
-                {
-                    interaction.SetOutput(new List<ImportBatchInfo>(0));
-                    return;
-                }
-
-                var dialog = new BatchImportView();
-                dialog.DataContext = interaction.Input;
-
-                var result = await dialogService.ShowDialog<List<ImportBatchInfo>>(dialog);
-                interaction.SetOutput(result);
+                interaction.SetOutput(new List<ImportBatchInfo>(0));
+                return;
             }
+
+            var dialog = new BatchImportView();
+            dialog.DataContext = interaction.Input;
+
+            var result = await dialogService.ShowDialog<List<ImportBatchInfo>>(dialog);
+            interaction.SetOutput(result);
         }
 
         private async Task DoShowSelectDumpAsync(InteractionContext<SelectDumpViewModel, SelectedDumpType?> interaction)

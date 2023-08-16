@@ -3,11 +3,13 @@ using AssetsTools.NET.Extra;
 using Avalonia.Media;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 
 namespace UABEANext3.AssetWorkspace
 {
-    public class WorkspaceItem
+    public class WorkspaceItem : INotifyPropertyChanged
     {
+        public string OriginalName { get; set; }
         public string Name { get; set; }
         public WorkspaceItem? Parent { get; set; }
         public List<WorkspaceItem> Children { get; set; }
@@ -39,6 +41,7 @@ namespace UABEANext3.AssetWorkspace
         public WorkspaceItem(AssetsFileInstance fileInst)
         {
             Name = fileInst.name;
+            OriginalName = Name;
             Parent = null;
             Children = new List<WorkspaceItem>(0);
             Object = fileInst;
@@ -48,6 +51,7 @@ namespace UABEANext3.AssetWorkspace
         public WorkspaceItem(Workspace workspace, BundleFileInstance bunInst)
         {
             Name = bunInst.name;
+            OriginalName = Name;
             int fileCount = bunInst.file.BlockAndDirInfo.DirectoryInfos.Count;
             Parent = null;
             Children = new List<WorkspaceItem>(fileCount);
@@ -100,10 +104,18 @@ namespace UABEANext3.AssetWorkspace
         public WorkspaceItem(string name, object? obj, WorkspaceItemType type = WorkspaceItemType.OtherFile)
         {
             Name = name;
+            OriginalName = Name;
             Parent = null;
             Children = new List<WorkspaceItem>(0);
             Object = obj;
             ObjectType = type;
+        }
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        public void Update(string propertyName = "")
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }
