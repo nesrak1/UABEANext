@@ -35,7 +35,7 @@ namespace UABEANext3.ViewModels.Dialogs
             StreamWriter sw = new StreamWriter(ms);
 
             AssetImportExport impexp = new AssetImportExport();
-            impexp.DumpTextAsset(sw, _baseField);
+            impexp.DumpJsonAsset(sw, _baseField);
 
             sw.Flush();
             ms.Position = 0;
@@ -50,7 +50,7 @@ namespace UABEANext3.ViewModels.Dialogs
             using MemoryStream ms = new MemoryStream(Encoding.UTF8.GetBytes(text));
             StreamReader sr = new StreamReader(ms);
             AssetImportExport impexp = new AssetImportExport();
-            byte[]? data = impexp.ImportTextAsset(sr, out string? exceptionMessage);
+            byte[]? data = impexp.ImportJsonAsset(_baseField.TemplateField, sr, out string? exceptionMessage);
             if (data == null)
             {
                 await MessageBoxUtil.ShowDialog("Compile Error", "Problem with import:\n" + exceptionMessage);

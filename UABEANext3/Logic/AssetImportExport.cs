@@ -509,6 +509,13 @@ namespace UABEANext3.Logic
         {
             bool align = tempField.IsAligned;
 
+            if (tempField.Children.Count == 1 && tempField.Children[0].IsArray &&
+                token.Type == JTokenType.Array)
+            {
+                RecurseJsonImport(tempField.Children[0], token);
+                return;
+            }
+
             if (!tempField.HasValue && !tempField.IsArray)
             {
                 foreach (AssetTypeTemplateField childTempField in tempField.Children)
@@ -526,7 +533,7 @@ namespace UABEANext3.Logic
                             throw new Exception($"Missing field {childTempField.Name} in JSON.");
                         }
                     }
-                        
+
                     RecurseJsonImport(childTempField, childToken);
                 }
 

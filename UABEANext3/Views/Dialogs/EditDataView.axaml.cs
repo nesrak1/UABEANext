@@ -18,9 +18,10 @@ namespace UABEANext3.Views.Dialogs
 
         private void EditDataView_Loaded(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
         {
-            var registryOptions = new UABEDumpRegistryOptions(/*ThemeHandler.UseDarkTheme ? ThemeName.DarkPlus : ThemeName.LightPlus*/ThemeName.DarkPlus);
+            //var registryOptions = new UABEDumpRegistryOptions(/*ThemeHandler.UseDarkTheme ? ThemeName.DarkPlus : ThemeName.LightPlus*/ThemeName.DarkPlus);
+            var registryOptions = new RegistryOptions(ThemeName.DarkPlus);
             var textMateInstallation = textEditor.InstallTextMate(registryOptions);
-            textMateInstallation.SetGrammar("source.utxt");
+            textMateInstallation.SetGrammar(registryOptions.GetScopeByLanguageId(registryOptions.GetLanguageByExtension(".json").Id));
 
             if (DataContext is EditDataViewModel edvm)
             {
