@@ -46,7 +46,7 @@ namespace UABEANext3.ViewModels
             _sceneExplorerTool = new SceneExplorerToolViewModel(_workspace);
             _errorTool = new ErrorToolViewModel(_workspace);
             _outputTool = new OutputToolViewModel(_workspace);
-            _inspectorTool = new InspectorToolViewModel(_workspace);
+            _inspectorTool = new InspectorToolViewModel(_sc, _workspace);
             _previewerTool = new PreviewerToolViewModel(_workspace);
 
             var helloAssetDocument = new WelcomeDocumentViewModel();
@@ -78,43 +78,6 @@ namespace UABEANext3.ViewModels
             };
 
             _fileDocumentDock = documentDock;
-
-            /*
-            var inspectorDock = new ToolDock
-            {
-                ActiveDockable = _inspectorTool,
-                VisibleDockables = CreateList<IDockable>
-                (
-                    _inspectorTool
-                ),
-                Alignment = Alignment.Top,
-                GripMode = GripMode.Visible,
-                Proportion = 0.7
-            };
-
-            var previewDock = new ToolDock
-            {
-                ActiveDockable = _previewerTool,
-                VisibleDockables = CreateList<IDockable>
-                (
-                    _previewerTool
-                ),
-                Alignment = Alignment.Bottom,
-                GripMode = GripMode.Visible,
-                Proportion = 0.3
-            };
-            var topRightRightPane = new ProportionalDock
-            {
-                Orientation = Orientation.Vertical,
-                VisibleDockables = CreateList<IDockable>
-                (
-                    inspectorDock,
-                    new ProportionalDockSplitter(),
-                    previewDock
-                ),
-                Proportion = 0.3
-            };
-            */
 
             var topRightRightPane = new ToolDock
             {
@@ -188,19 +151,6 @@ namespace UABEANext3.ViewModels
             _rootDock.VisibleDockables = CreateList<IDockable>(windowLayout);
             _rootDock.ActiveDockable = windowLayout;
             _rootDock.DefaultDockable = windowLayout;
-
-            /*
-            new ToolDock
-            {
-                ActiveDockable = _workspaceExplorerTool,
-                VisibleDockables = CreateList<IDockable>
-                (
-                    _workspaceExplorerTool
-                ),
-                Alignment = Alignment.Right,
-                GripMode = GripMode.Visible
-            }
-            */
 
             return _rootDock;
         }

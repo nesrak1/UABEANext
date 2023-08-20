@@ -1,12 +1,12 @@
 using AssetsTools.NET;
 using AssetsTools.NET.Extra;
 using AssetsTools.NET.Texture;
-using Avalonia.Input;
 using Avalonia.Platform;
 using Avalonia.Platform.Storage;
 using Dock.Model.Controls;
 using Dock.Model.Core;
 using DynamicData;
+using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using System;
 using System.Collections.Generic;
@@ -26,9 +26,6 @@ namespace UABEANext3.ViewModels
     public class MainWindowViewModel : ViewModelBase
     {
         private readonly IFactory _factory;
-        private IRootDock? _layout;
-        private double _progressValue;
-        private string _progressText = "Done.";
 
         private readonly ServiceContainer _sc;
         private readonly Workspace _workspace;
@@ -88,6 +85,28 @@ namespace UABEANext3.ViewModels
             _workspace.JobManager.JobProgressMessageFired += JobManager_JobProgressMessageFired;
             _workspace.JobManager.ProgressChanged += JobManager_ProgressChanged;
             _workspace.JobManager.JobsRunning += JobManager_JobsRunning;
+
+            var files = _factory?.GetDockable<IDocumentDock>("Files");
+            if (Layout is not null && files is not null)
+            {
+                files.ObservableForProperty(x => x.ActiveDockable).Subscribe(x =>
+                {
+                    if (x.Value is AssetDocumentViewModel assetDocument)
+                    {
+                        var files = assetDocument.FileInsts;
+
+                        var scene = _factory?.GetDockable<SceneExplorerToolViewModel>("SceneExplorer");
+                        if (Layout is not null && scene is not null)
+                        {
+                            for (var i = 0; i < files.Count; i++)
+                            {
+                                var file = files[i];
+                                scene.LoadHierarchy(file, i == 0);
+                            }
+                        }
+                    }
+                });
+            }
         }
 
         private void JobManager_JobProgressMessageFired(object? sender, string e)
@@ -165,10 +184,10 @@ namespace UABEANext3.ViewModels
                 {
                     var oldDockable = files.ActiveDockable;
                     _factory?.AddDockable(files, document);
-                    _factory?.SetActiveDockable(document);
-                    _factory?.SetFocusedDockable(files, document);
                     _factory?.SwapDockable(files, oldDockable, document);
                     _factory?.CloseDockable(oldDockable);
+                    _factory?.SetActiveDockable(document);
+                    _factory?.SetFocusedDockable(files, document);
                 }
                 else
                 {
@@ -176,12 +195,6 @@ namespace UABEANext3.ViewModels
                     _factory?.SetActiveDockable(document);
                     _factory?.SetFocusedDockable(files, document);
                 }
-            }
-
-            var scene = _factory?.GetDockable<SceneExplorerToolViewModel>("SceneExplorer");
-            if (Layout is not null && scene is not null)
-            {
-                scene.LoadHierarchy(mainFileInst);
             }
         }
 
@@ -369,6 +382,19 @@ namespace UABEANext3.ViewModels
             {
                 // lol you have to pass in a child
                 _factory?.CloseAllDockables(files.VisibleDockables[0]);
+            }
+        }
+
+        public void ViewDuplicateTab_Menu()
+        {
+            var files = _factory?.GetDockable<IDocumentDock>("Files");
+            if (Layout is not null && files is not null)
+            {
+                if (files.ActiveDockable != null)
+                {
+                    var oldDockable = files.ActiveDockable;
+                    _factory?.AddDockable(files, oldDockable);
+                }
             }
         }
     }

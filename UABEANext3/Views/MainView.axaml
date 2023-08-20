@@ -21,6 +21,9 @@
         <MenuItem Header="Xrefs" Command="{Binding FileXrefs_Menu}" />
         <MenuItem Header="Close All" Command="{Binding FileCloseAll_Menu}" />
       </MenuItem>
+      <MenuItem Header="View">
+        <MenuItem Header="Duplicate Tab" Command="{Binding ViewDuplicateTab_Menu}" />
+      </MenuItem>
     </Menu>
     <DockControl Layout="{Binding Layout}" Margin="4" Grid.Row="1" />
     <Grid ColumnDefinitions="1*,4,2*" Margin="4,0,0,4" Grid.Row="2">

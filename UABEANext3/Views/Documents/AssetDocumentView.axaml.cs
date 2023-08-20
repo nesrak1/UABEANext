@@ -20,9 +20,11 @@ namespace UABEANext3.Views.Documents
         {
             InitializeComponent();
 
-            this.WhenActivated(action => action(ViewModel!.ShowEditData.RegisterHandler(DoShowEditDataAsync)));
-            this.WhenActivated(action => action(ViewModel!.ShowBatchImport.RegisterHandler(DoShowBatchImportAsync)));
-            this.WhenActivated(action => action(ViewModel!.ShowSelectDump.RegisterHandler(DoShowSelectDumpAsync)));
+            this.WhenActivated(action => {
+                action(ViewModel!.ShowEditData.RegisterHandler(DoShowEditDataAsync));
+                action(ViewModel!.ShowBatchImport.RegisterHandler(DoShowBatchImportAsync));
+                action(ViewModel!.ShowSelectDump.RegisterHandler(DoShowSelectDumpAsync));
+            });
         }
 
         // necessary since SelectedItems isn't bindable

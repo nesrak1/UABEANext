@@ -5,6 +5,10 @@
              xmlns:um="using:UABEANext3.Models"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="UABEANext3.Views.Tools.InspectorToolView">
-  <um:AssetDataTreeView Workspace="{Binding Workspace}" ActiveAssets="{Binding ActiveAssets}" Margin="0,0,0,0">
+  <um:AssetDataTreeView
+    Workspace="{Binding Workspace}" ActiveAssets="{Binding ActiveAssets}"
+    RequestEditAsset="{Binding EditAssetRequestedCommand}"
+    RequestVisitAsset="{Binding VisitAssetRequestedCommand}"
+    Margin="0,0,0,0">
   </um:AssetDataTreeView>
 </UserControl>

@@ -37,7 +37,6 @@ namespace UABEANext3.ViewModels.Documents
 
         private IDisposable? _disposableLastList;
 
-        public ICommand EditDataCommand { get; }
         public Interaction<EditDataViewModel, byte[]?> ShowEditData { get; }
         public Interaction<BatchImportViewModel, List<ImportBatchInfo>> ShowBatchImport { get; }
         public Interaction<SelectDumpViewModel, SelectedDumpType?> ShowSelectDump { get; }
@@ -53,7 +52,6 @@ namespace UABEANext3.ViewModels.Documents
             ShowEditData = new Interaction<EditDataViewModel, byte[]?>();
             ShowBatchImport = new Interaction<BatchImportViewModel, List<ImportBatchInfo>>();
             ShowSelectDump = new Interaction<SelectDumpViewModel, SelectedDumpType?>();
-            EditDataCommand = ReactiveCommand.CreateFromTask<AssetInst>(EditDataCommandMethod);
             SelectedItems = new List<AssetInst>();
             FileInsts = new List<AssetsFileInstance>();
         }
@@ -68,40 +66,8 @@ namespace UABEANext3.ViewModels.Documents
             ShowEditData = new Interaction<EditDataViewModel, byte[]?>();
             ShowBatchImport = new Interaction<BatchImportViewModel, List<ImportBatchInfo>>();
             ShowSelectDump = new Interaction<SelectDumpViewModel, SelectedDumpType?>();
-            EditDataCommand = ReactiveCommand.CreateFromTask<AssetInst>(EditDataCommandMethod);
             SelectedItems = new List<AssetInst>();
             FileInsts = new List<AssetsFileInstance>();
-        }
-
-        private async Task EditDataCommandMethod(AssetInst asset)
-        {
-            var baseField = Workspace.GetBaseField(asset);
-            if (baseField == null)
-            {
-                return;
-            }
-
-            var data = await ShowEditData.Handle(new EditDataViewModel(baseField));
-            if (data == null)
-            {
-                return;
-            }
-
-            UpdateAssetDataAndRow(asset, data);
-
-            var workspaceItem = Workspace.ItemLookup[asset.FileInstance.name];
-            Workspace.Dirty(workspaceItem);
-        }
-
-        private void UpdateAssetDataAndRow(AssetInst asset, byte[] data)
-        {
-            asset.SetNewData(data);
-            asset.BaseValueField = null; // clear basefield cache
-            AssetNameUtils.GetDisplayNameFast(Workspace, asset, true, out string assetName, out string _);
-            asset.DisplayName = assetName;
-            asset.Update(nameof(asset.DisplayName));
-            asset.Update(nameof(asset.ByteSizeModified));
-            asset.Update(nameof(asset.ModifiedString));
         }
 
         public void Load(List<AssetsFileInstance> fileInsts)
@@ -219,7 +185,7 @@ namespace UABEANext3.ViewModels.Documents
                         goto dirtyFiles;
                     }
 
-                    UpdateAssetDataAndRow(selectedAsset, data);
+                    selectedAsset.UpdateAssetDataAndRow(Workspace, data);
                     fileNamesToDirty.Add(selectedAsset.FileInstance.name);
                 }
             }
@@ -285,7 +251,7 @@ namespace UABEANext3.ViewModels.Documents
 
             if (data != null)
             {
-                UpdateAssetDataAndRow(asset, data);
+                asset.UpdateAssetDataAndRow(Workspace, data);
             }
 
             var fileToDirty = Workspace.ItemLookup[asset.FileInstance.name];
@@ -305,6 +271,11 @@ namespace UABEANext3.ViewModels.Documents
             if (selectedAssets.Count() > 1)
             {
                 var exportType = await ShowSelectDump.Handle(new SelectDumpViewModel(true));
+                if (exportType == null)
+                {
+                    return;
+                }
+
                 var exportExt = exportType switch
                 {
                     SelectedDumpType.JsonDump => ".json",
@@ -406,12 +377,27 @@ namespace UABEANext3.ViewModels.Documents
             return $"{assetName}-{Path.GetFileName(asset.FileInstance.path)}-{asset.PathId}{ext}";
         }
 
-        public void EditData()
+        public async void EditData()
         {
             var selectedAssetInsts = SelectedItems.Cast<AssetInst>();
             var asset = selectedAssetInsts.First();
 
-            EditDataCommand.Execute(asset);
+            var baseField = Workspace.GetBaseField(asset);
+            if (baseField == null)
+            {
+                return;
+            }
+
+            var data = await ShowEditData.Handle(new EditDataViewModel(baseField));
+            if (data == null)
+            {
+                return;
+            }
+
+            asset.UpdateAssetDataAndRow(Workspace, data);
+
+            var workspaceItem = Workspace.ItemLookup[asset.FileInstance.name];
+            Workspace.Dirty(workspaceItem);
         }
 
         public void InvokeAssetOpened(List<AssetInst> assets)

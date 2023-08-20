@@ -38,9 +38,13 @@ namespace UABEANext3.ViewModels.Tools
         }
 
         // slow!
-        public void LoadHierarchy(AssetsFileInstance fileInst)
+        public void LoadHierarchy(AssetsFileInstance fileInst, bool first)
         {
-            //return;
+            if (first)
+            {
+                RootItems.Clear();
+            }
+
             foreach (var asset in fileInst.file.AssetInfos)
             {
                 var assetInst = (AssetInst)asset;

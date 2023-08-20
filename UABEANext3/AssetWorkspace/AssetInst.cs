@@ -2,6 +2,7 @@
 using AssetsTools.NET.Extra;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
+using UABEANext3.Util;
 
 namespace UABEANext3.AssetWorkspace
 {
@@ -40,6 +41,17 @@ namespace UABEANext3.AssetWorkspace
 
             DisplayName = "Unnamed asset";
             FileInstance = parentFile;
+        }
+
+        public void UpdateAssetDataAndRow(Workspace workspace, byte[] data)
+        {
+            SetNewData(data);
+            BaseValueField = null; // clear basefield cache
+            AssetNameUtils.GetDisplayNameFast(workspace, this, true, out string assetName, out string _);
+            DisplayName = assetName;
+            Update(nameof(DisplayName));
+            Update(nameof(ByteSizeModified));
+            Update(nameof(ModifiedString));
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;

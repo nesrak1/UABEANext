@@ -5,27 +5,30 @@ using Avalonia.Collections;
 using Avalonia.Controls;
 using Avalonia.Controls.Documents;
 using Avalonia.Media;
-using Avalonia.Styling;
+using Newtonsoft.Json.Linq;
+using ReactiveUI;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
+using System.Reactive;
 using System.Runtime.Serialization;
 using System.Text;
+using System.Windows.Input;
 using UABEANext3.AssetWorkspace;
 using UABEANext3.Util;
 
 namespace UABEANext3.Models
 {
-    public class AssetDataTreeView : TreeView, IStyleable
+    public class AssetDataTreeView : TreeView
     {
-        Type IStyleable.StyleKey => typeof(TreeView);
+        protected override Type StyleKeyOverride => typeof(TreeView);
 
         //private Workspace _workspace;
 
-        private AvaloniaList<object> ListItems;// => (AvaloniaList<object>)Items;
+        private AvaloniaList<object> ListItems = new AvaloniaList<object>();
 
         private static SolidColorBrush PrimNameBrushDark = SolidColorBrush.Parse("#569cd6");
         private static SolidColorBrush PrimNameBrushLight = SolidColorBrush.Parse("#0000ff");
@@ -100,12 +103,20 @@ namespace UABEANext3.Models
                 menuCollapseSel
             };
 
-            //ControlTool?.Control = this;
+            ActiveAssetsProperty.Changed.Subscribe(e =>
+            {
+                var value = e.NewValue.Value;
+                if (value != null)
+                {
+                    value.CollectionChanged += (s, e) => LoadAssets();
+                    LoadAssets();
+                }
+            });
         }
 
         private async void MenuEditAsset_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
         {
-            if (SelectedItem != null)
+            if (SelectedItem != null && _workspace != null)
             {
                 TreeViewItem item = (TreeViewItem)SelectedItem;
                 if (item.Tag != null)
@@ -118,6 +129,7 @@ namespace UABEANext3.Models
                         return;
                     }
 
+                    _requestEditAsset?.Execute(cont);
                     //await _win.ShowEditAssetWindow(cont);
                     //await MessageBoxUtil.ShowDialog(null, "Note", "Asset updated. Changes will be shown next time you open this asset.");
                 }
@@ -135,13 +147,19 @@ namespace UABEANext3.Models
 
         private void MenuVisitAsset_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
         {
-            if (SelectedItem != null)
+            if (SelectedItem != null && _workspace != null)
             {
                 TreeViewItem item = (TreeViewItem)SelectedItem;
                 if (item != null && item.Tag != null)
                 {
                     AssetDataTreeViewItem info = (AssetDataTreeViewItem)item.Tag;
-                    //_win.SelectAsset(info.fromFile, info.fromPathId);//todo
+                    AssetInst? cont = _workspace.GetAssetInst(info.fromFile, 0, info.fromPathId);
+                    if (cont == null || cont.BaseValueField == null)
+                    {
+                        return;
+                    }
+
+                    _requestVisitAsset?.Execute(cont);
                 }
             }
         }
@@ -238,9 +256,12 @@ namespace UABEANext3.Models
             {
                 treeItem.IsExpanded = true;
 
-                foreach (TreeViewItem treeItemChild in treeItem.Items)
+                foreach (TreeViewItem? treeItemChild in treeItem.Items)
                 {
-                    ExpandAllChildren(treeItemChild);
+                    if (treeItemChild != null)
+                    {
+                        ExpandAllChildren(treeItemChild);
+                    }
                 }
             }
         }
@@ -259,9 +280,12 @@ namespace UABEANext3.Models
 
             if (text != "[view asset]")
             {
-                foreach (TreeViewItem treeItemChild in treeItem.Items)
+                foreach (TreeViewItem? treeItemChild in treeItem.Items)
                 {
-                    CollapseAllChildren(treeItemChild);
+                    if (treeItemChild != null)
+                    {
+                        CollapseAllChildren(treeItemChild);
+                    }
                 }
 
                 treeItem.IsExpanded = false;
@@ -284,7 +308,7 @@ namespace UABEANext3.Models
             Bold bold1 = new Bold();
             bold1.Inlines.Add(typeName);
             span1.Inlines.Add(bold1);
-            tb.Inlines.Add(span1);
+            tb.Inlines!.Add(span1);
 
             Bold bold2 = new Bold();
             bold2.Inlines.Add($" {fieldName}");
@@ -357,7 +381,7 @@ namespace UABEANext3.Models
             }));
         }
 
-        private void SetPPtrEvents(TreeViewItem item, AssetsFileInstance fromFile, long fromPathId, AssetInst asset)
+        private void SetPPtrEvents(TreeViewItem item, AssetsFileInstance fromFile, long fromPathId, AssetInst? asset)
         {
             item.Tag = new AssetDataTreeViewItem(fromFile, fromPathId);
             var expandObs = item.GetObservable(TreeViewItem.IsExpandedProperty);
@@ -606,7 +630,7 @@ namespace UABEANext3.Models
                     int fileId = fileIdField.AsInt;
                     long pathId = pathIdField.AsLong;
 
-                    AssetInst cont = _workspace.GetAssetInst(fromFile, fileId, pathId);
+                    AssetInst? cont = _workspace!.GetAssetInst(fromFile, fileId, pathId);
 
                     TreeViewItem childTreeItem = CreateTreeItem("[view asset]");
                     items.Add(childTreeItem);
@@ -638,32 +662,42 @@ namespace UABEANext3.Models
             return sb.ToString();
         }
 
-        private ObservableCollection<AssetInst>? _activeAssets = null;
         private Workspace? _workspace = null;
+        private ObservableCollection<AssetInst>? _activeAssets = null;
+        private ICommand? _requestEditAsset = null;
+        private ICommand? _requestVisitAsset = null;
 
-        public static readonly DirectProperty<AssetDataTreeView, ObservableCollection<AssetInst>?> ActiveAssetsProperty =
-            AvaloniaProperty.RegisterDirect<AssetDataTreeView, ObservableCollection<AssetInst>?>(nameof(ActiveAssets), o => o.ActiveAssets, (o, v) => o.ActiveAssets = v);
         public static readonly DirectProperty<AssetDataTreeView, Workspace?> WorkspaceProperty =
             AvaloniaProperty.RegisterDirect<AssetDataTreeView, Workspace?>(nameof(Workspace), o => o.Workspace, (o, v) => o.Workspace = v);
+        public static readonly DirectProperty<AssetDataTreeView, ObservableCollection<AssetInst>?> ActiveAssetsProperty =
+            AvaloniaProperty.RegisterDirect<AssetDataTreeView, ObservableCollection<AssetInst>?>(nameof(ActiveAssets), o => o.ActiveAssets, (o, v) => o.ActiveAssets = v);
+        public static readonly DirectProperty<AssetDataTreeView, ICommand?> RequestEditAssetProperty =
+            AvaloniaProperty.RegisterDirect<AssetDataTreeView, ICommand?>(nameof(RequestEditAsset), o => o.RequestEditAsset, (o, v) => o.RequestEditAsset = v);
+        public static readonly DirectProperty<AssetDataTreeView, ICommand?> RequestVisitAssetProperty =
+            AvaloniaProperty.RegisterDirect<AssetDataTreeView, ICommand?>(nameof(RequestVisitAsset), o => o.RequestVisitAsset, (o, v) => o.RequestVisitAsset = v);
 
-        [DataMember(IsRequired = true, EmitDefaultValue = true)]
+        public Workspace? Workspace
+        {
+            get => _workspace;
+            set => SetAndRaise(WorkspaceProperty, ref _workspace, value);
+        }
+
         public ObservableCollection<AssetInst>? ActiveAssets
         {
             get => _activeAssets;
-            set
-            {
-                SetAndRaise(ActiveAssetsProperty, ref _activeAssets, value);
-                if (value != null)
-                {
-                    _activeAssets!.CollectionChanged += ActiveAssets_CollectionChanged;
-                    LoadAssets();
-                }
-            }
+            set => SetAndRaise(ActiveAssetsProperty, ref _activeAssets, value);
         }
 
-        private void ActiveAssets_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+        public ICommand? RequestEditAsset
         {
-            LoadAssets();
+            get => _requestEditAsset;
+            set => SetAndRaise(RequestEditAssetProperty, ref _requestEditAsset, value);
+        }
+
+        public ICommand? RequestVisitAsset
+        {
+            get => _requestVisitAsset;
+            set => SetAndRaise(RequestVisitAssetProperty, ref _requestVisitAsset, value);
         }
 
         private void LoadAssets()
@@ -673,13 +707,6 @@ namespace UABEANext3.Models
             {
                 LoadComponent(item);
             }
-        }
-
-        [DataMember(IsRequired = true, EmitDefaultValue = true)]
-        public Workspace? Workspace
-        {
-            get => _workspace;
-            set => SetAndRaise(WorkspaceProperty, ref _workspace, value);
         }
     }
 
