@@ -11,7 +11,7 @@ namespace UABEANext3.AssetWorkspace
         public string DisplayName { get; set; }
         public string? DisplayContainer { get; set; }
         public AssetsFileInstance FileInstance { get; }
-        public AssetTypeValueField? BaseValueField { get; set; }
+        public AssetTypeValueField? BaseValueField { get; set; } // use Workspace.GetBaseField instead!
 
         [MemberNotNullWhen(true, nameof(BaseValueField))]
         public bool HasValueField => BaseValueField != null;

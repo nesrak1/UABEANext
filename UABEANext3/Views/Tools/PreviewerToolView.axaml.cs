@@ -1,15 +1,14 @@
-using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
-using Avalonia.Markup.Xaml.Templates;
 using Avalonia.Metadata;
-using System.Collections.Generic;
+using Avalonia.ReactiveUI;
 using System;
+using System.Collections.Generic;
 using UABEANext3.ViewModels.Tools;
 
 namespace UABEANext3.Views.Tools
 {
-    public partial class PreviewerToolView : UserControl
+    public partial class PreviewerToolView : ReactiveUserControl<PreviewerToolViewModel>
     {
         public PreviewerToolView()
         {

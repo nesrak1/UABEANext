@@ -271,7 +271,7 @@ namespace UABEANext3.ViewModels
                 var previewer = _factory?.GetDockable<PreviewerToolViewModel>("Previewer");
                 if (previewer != null)
                 {
-                    previewer.SetMesh();
+                    previewer.SetMesh(asset);
                 }
             }
         }

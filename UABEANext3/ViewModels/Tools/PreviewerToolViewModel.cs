@@ -3,44 +3,32 @@ using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using AvaloniaEdit.Document;
 using Dock.Model.ReactiveUI.Controls;
-using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using System;
 using System.Runtime.InteropServices;
 using System.Text;
+using UABEANext3.AssetHandlers.Mesh;
 using UABEANext3.AssetWorkspace;
 
 namespace UABEANext3.ViewModels.Tools
 {
-    internal class PreviewerToolViewModel : Tool
+    public class PreviewerToolViewModel : Tool
     {
         const string TOOL_TITLE = "Previewer";
 
-        private Workspace _workspace;
-        public Workspace Workspace
-        {
-            get => _workspace;
-            set => this.RaiseAndSetIfChanged(ref _workspace, value);
-        }
-
-        private Bitmap? _activeImage;
-        public Bitmap? ActiveImage
-        {
-            get => _activeImage;
-            set => this.RaiseAndSetIfChanged(ref _activeImage, value);
-        }
-
-        private TextDocument? _activeDocument;
-        public TextDocument? ActiveDocument
-        {
-            get => _activeDocument;
-            set => this.RaiseAndSetIfChanged(ref _activeDocument, value);
-        }
-
-        const int TEXT_ASSET_MAX_LENGTH = 100000;
+        [Reactive]
+        public Workspace Workspace { get; set; }
+        [Reactive]
+        public Bitmap? ActiveImage { get; set; }
+        [Reactive]
+        public TextDocument? ActiveDocument { get; set; }
+        [Reactive]
+        public MeshToOpenGL? ActiveMesh { get; set; }
 
         [Reactive]
         public PreviewerToolPreviewType ActivePreviewType { get; set; } = PreviewerToolPreviewType.Mesh;
+
+        const int TEXT_ASSET_MAX_LENGTH = 100000;
 
         [Obsolete("This is a previewer-only constructor")]
         public PreviewerToolViewModel()
@@ -94,9 +82,31 @@ namespace UABEANext3.ViewModels.Tools
             ActiveDocument = new TextDocument(trimmedText.ToCharArray());
         }
 
-        public void SetMesh()
+        public async void SetMesh(AssetInst asset)
         {
             ActivePreviewType = PreviewerToolPreviewType.Mesh;
+            var baseField = Workspace.GetBaseField(asset);
+            if (baseField != null)
+            {
+                MeshToOpenGL m2ogl = new MeshToOpenGL(Workspace, asset.FileInstance, baseField);
+                ActiveMesh = m2ogl;
+            }
+            //if (SetActiveMesh != null)
+            //{
+            //    await SetActiveMesh.Handle(new MeshPreviewParams(Workspace, asset));
+            //}
+        }
+    }
+
+    public class MeshPreviewParams
+    {
+        public Workspace Workspace;
+        public AssetInst Asset;
+
+        public MeshPreviewParams(Workspace workspace, AssetInst asset)
+        {
+            Workspace = workspace;
+            Asset = asset;
         }
     }
 

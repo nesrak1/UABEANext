@@ -21,11 +21,11 @@
         <avedit:TextEditor FontFamily="Cascadia Code,Consolas,Monospace,Courier,DejaVu Sans Mono,Roboto Mono,Menlo" Document="{Binding $parent[UserControl].DataContext.ActiveDocument}" IsReadOnly="True" />
       </DataTemplate>
       <DataTemplate x:Key="Mesh" DataType="m:PreviewerToolPreviewType">
-        <mprev:MeshPreviewerControl />
+        <mprev:MeshPreviewerControl ActiveMesh="{Binding $parent[UserControl].DataContext.ActiveMesh}" />
       </DataTemplate>
     </v:PreviewerTemplateSelector>
   </UserControl.DataTemplates>
   <Grid>
-    <ContentControl Content="{Binding ActivePreviewType}" />
+    <ContentControl Content="{Binding ActivePreviewType}" Name="contentControl" />
   </Grid>
 </UserControl>
