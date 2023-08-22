@@ -108,8 +108,8 @@ namespace UABEANext3.Models
                 var value = e.NewValue.Value;
                 if (value != null)
                 {
-                    value.CollectionChanged += (s, e) => LoadAssets();
-                    LoadAssets();
+                    value.CollectionChanged += (s, e) => LoadAssets(value);
+                    LoadAssets(value);
                 }
             });
         }
@@ -700,10 +700,10 @@ namespace UABEANext3.Models
             set => SetAndRaise(RequestVisitAssetProperty, ref _requestVisitAsset, value);
         }
 
-        private void LoadAssets()
+        private void LoadAssets(ObservableCollection<AssetInst> activeAssets)
         {
             Reset();
-            foreach (var item in _activeAssets!)
+            foreach (var item in activeAssets)
             {
                 LoadComponent(item);
             }

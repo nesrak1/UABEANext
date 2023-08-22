@@ -39,7 +39,7 @@ namespace UABEANext3.ViewModels
         [Reactive]
         public string ProgressText { get; set; }
 
-        public bool UsesChrome => OperatingSystem.IsWindows();
+        public bool UsesChrome => !OperatingSystem.IsWindows();
         public ExtendClientAreaChromeHints ChromeHints => UsesChrome
             ? ExtendClientAreaChromeHints.PreferSystemChrome
             : ExtendClientAreaChromeHints.Default;
