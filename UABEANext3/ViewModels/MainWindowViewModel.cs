@@ -244,49 +244,53 @@ namespace UABEANext3.ViewModels
                 }
             }
 
-            if (asset.Type == AssetClassID.Texture2D)
+            try
             {
-                var previewer = _factory?.GetDockable<PreviewerToolViewModel>("Previewer");
-                if (previewer != null)
+                if (asset.Type == AssetClassID.Texture2D)
                 {
-                    var textureEditBf = GetByteArrayTexture(_workspace, asset);
-                    var texture = TextureFile.ReadTextureFile(textureEditBf);
-                    var textureRgba = texture.GetTextureData(asset.FileInstance);
-
-                    if (textureRgba == null)
-                        return;
-
-                    for (int i = 0; i < textureRgba.Length; i += 4)
+                    var previewer = _factory?.GetDockable<PreviewerToolViewModel>("Previewer");
+                    if (previewer != null)
                     {
-                        byte temp = textureRgba[i];
-                        textureRgba[i] = textureRgba[i + 2];
-                        textureRgba[i + 2] = temp;
+                        var textureEditBf = GetByteArrayTexture(_workspace, asset);
+                        var texture = TextureFile.ReadTextureFile(textureEditBf);
+                        var textureRgba = texture.GetTextureData(asset.FileInstance);
+
+                        if (textureRgba == null)
+                            return;
+
+                        for (int i = 0; i < textureRgba.Length; i += 4)
+                        {
+                            byte temp = textureRgba[i];
+                            textureRgba[i] = textureRgba[i + 2];
+                            textureRgba[i + 2] = temp;
+                        }
+
+                        previewer.SetImage(textureRgba, texture.m_Width, texture.m_Height);
                     }
-
-                    previewer.SetImage(textureRgba, texture.m_Width, texture.m_Height);
                 }
-            }
-            else if (asset.Type == AssetClassID.TextAsset)
-            {
-                var previewer = _factory?.GetDockable<PreviewerToolViewModel>("Previewer");
-                if (previewer != null)
+                else if (asset.Type == AssetClassID.TextAsset)
                 {
-                    var textAssetBf = _workspace.GetBaseField(asset);
-                    if (textAssetBf == null)
-                        return;
+                    var previewer = _factory?.GetDockable<PreviewerToolViewModel>("Previewer");
+                    if (previewer != null)
+                    {
+                        var textAssetBf = _workspace.GetBaseField(asset);
+                        if (textAssetBf == null)
+                            return;
 
-                    byte[] data = textAssetBf["m_Script"].AsByteArray;
-                    previewer.SetText(data);
+                        byte[] data = textAssetBf["m_Script"].AsByteArray;
+                        previewer.SetText(data);
+                    }
                 }
-            }
-            else if (asset.Type == AssetClassID.Mesh)
-            {
-                var previewer = _factory?.GetDockable<PreviewerToolViewModel>("Previewer");
-                if (previewer != null)
+                else if (asset.Type == AssetClassID.Mesh)
                 {
-                    previewer.SetMesh(asset);
+                    var previewer = _factory?.GetDockable<PreviewerToolViewModel>("Previewer");
+                    if (previewer != null)
+                    {
+                        previewer.SetMesh(asset);
+                    }
                 }
             }
+            catch { }
         }
 
         public static AssetTypeValueField? GetByteArrayTexture(Workspace workspace, AssetInst tex)

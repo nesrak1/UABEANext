@@ -20,10 +20,14 @@ namespace UABEANext3.Views.Documents
         {
             InitializeComponent();
 
-            this.WhenActivated(action => {
-                action(ViewModel!.ShowEditData.RegisterHandler(DoShowEditDataAsync));
-                action(ViewModel!.ShowBatchImport.RegisterHandler(DoShowBatchImportAsync));
-                action(ViewModel!.ShowSelectDump.RegisterHandler(DoShowSelectDumpAsync));
+            this.WhenActivated(action =>
+            {
+                if (ViewModel is not null)
+                {
+                    action(ViewModel.ShowEditData.RegisterHandler(DoShowEditDataAsync));
+                    action(ViewModel.ShowBatchImport.RegisterHandler(DoShowBatchImportAsync));
+                    action(ViewModel.ShowSelectDump.RegisterHandler(DoShowSelectDumpAsync));
+                }
             });
         }
 
