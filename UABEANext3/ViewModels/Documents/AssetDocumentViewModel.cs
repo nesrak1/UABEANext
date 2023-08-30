@@ -5,6 +5,7 @@ using Dock.Model.ReactiveUI.Controls;
 using DynamicData;
 using DynamicData.Binding;
 using ReactiveUI;
+using ReactiveUI.Fody.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -12,8 +13,6 @@ using System.ComponentModel.Design;
 using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Threading.Tasks;
-using System.Windows.Input;
 using UABEANext3.AssetWorkspace;
 using UABEANext3.Logic;
 using UABEANext3.Util;
@@ -36,10 +35,14 @@ namespace UABEANext3.ViewModels.Documents
         public List<AssetsFileInstance> FileInsts { get; set; }
 
         private IDisposable? _disposableLastList;
+        private IObservable<Func<AssetInst, bool>> _filter;
 
         public Interaction<EditDataViewModel, byte[]?> ShowEditData { get; }
         public Interaction<BatchImportViewModel, List<ImportBatchInfo>> ShowBatchImport { get; }
         public Interaction<SelectDumpViewModel, SelectedDumpType?> ShowSelectDump { get; }
+
+        [Reactive]
+        public string SearchText { get; set; } = "";
 
         // preview
         [Obsolete("This is a previewer-only constructor")]
@@ -54,6 +57,10 @@ namespace UABEANext3.ViewModels.Documents
             ShowSelectDump = new Interaction<SelectDumpViewModel, SelectedDumpType?>();
             SelectedItems = new List<AssetInst>();
             FileInsts = new List<AssetsFileInstance>();
+
+            _filter = this.WhenAnyValue(x => x.SearchText)
+                .Throttle(TimeSpan.FromMilliseconds(250))
+                .Select(BuildFilter);
         }
         // ///////
 
@@ -68,6 +75,19 @@ namespace UABEANext3.ViewModels.Documents
             ShowSelectDump = new Interaction<SelectDumpViewModel, SelectedDumpType?>();
             SelectedItems = new List<AssetInst>();
             FileInsts = new List<AssetsFileInstance>();
+
+            _filter = this.WhenAnyValue(x => x.SearchText)
+                .Throttle(TimeSpan.FromMilliseconds(250))
+                .Select(BuildFilter);
+        }
+
+        private Func<AssetInst, bool> BuildFilter(string searchText)
+        {
+            if (string.IsNullOrEmpty(SearchText))
+                return a => true;
+
+            return a => a.DisplayName.Contains(SearchText, StringComparison.OrdinalIgnoreCase)
+                     || a.Type.ToString().Contains(SearchText, StringComparison.OrdinalIgnoreCase);
         }
 
         public void Load(List<AssetsFileInstance> fileInsts)
@@ -102,7 +122,11 @@ namespace UABEANext3.ViewModels.Documents
             var observableList = sourceList
                 .Connect()
                 .MergeMany(e => e.ToObservableChangeSet())
-                .Transform(a => (AssetInst)a);
+                .Transform(a => (AssetInst)a)
+                .ObserveOn(RxApp.TaskpoolScheduler)
+                .Filter(_filter)
+                .ObserveOn(RxApp.MainThreadScheduler);
+
             _disposableLastList = observableList.Bind(out var items).Subscribe();
             Items = items;
             FileInsts = fileInsts;

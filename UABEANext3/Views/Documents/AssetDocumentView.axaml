@@ -11,6 +11,7 @@
     </Grid.Resources>
     <Grid.RowDefinitions>
       <RowDefinition Height="25"/>
+      <RowDefinition Height="26"/>
       <RowDefinition Height="*"/>
     </Grid.RowDefinitions>
 
@@ -59,8 +60,13 @@
       </Button>
     </UniformGrid>
 
+    <Grid Grid.Row="1" ColumnDefinitions="80,10,*">
+      <Label VerticalContentAlignment="Center" Grid.Column="0">Search: </Label>
+      <TextBox Grid.Column="2" Text="{Binding SearchText}" />
+    </Grid>
+
     <DataGrid
-      Grid.Row="1" AutoGenerateColumns="False" CanUserResizeColumns="True"
+      Grid.Row="2" AutoGenerateColumns="False" CanUserResizeColumns="True"
       IsReadOnly="True" Name="dataGrid" ItemsSource="{Binding Items}"
       SelectionChanged="DataGrid_SelectionChanged" Margin="0,0,0,0">
       <DataGrid.RowTheme>
