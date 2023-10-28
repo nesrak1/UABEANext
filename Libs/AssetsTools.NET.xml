@@ -190,6 +190,124 @@
             instead only the ones that have been loaded so far.
             </remarks>
         </member>
+        <member name="F:AssetsTools.NET.Extra.MD4.BLOCK_LENGTH">
+            <summary>
+              The size in bytes of the input block to the transformation algorithm
+            </summary>
+        </member>
+        <member name="F:AssetsTools.NET.Extra.MD4.X">
+            <summary>
+              512-bit work buffer = 16 x 32-bit words
+            </summary>
+        </member>
+        <member name="F:AssetsTools.NET.Extra.MD4.context">
+            <summary>
+              4 32-bit words (interim result)
+            </summary>
+        </member>
+        <member name="F:AssetsTools.NET.Extra.MD4.buffer">
+            <summary>
+              512-bit input buffer = 16 x 32-bit words holds until it reaches 512 bits
+            </summary>
+        </member>
+        <member name="F:AssetsTools.NET.Extra.MD4.count">
+            <summary>
+              Number of bytes procesed so far mod. 2 power of 64.
+            </summary>
+        </member>
+        <member name="M:AssetsTools.NET.Extra.MD4.#ctor(AssetsTools.NET.Extra.MD4)">
+            <summary>
+              This constructor is here to implement the clonability of this class
+            </summary>
+            <param name = "md"> </param>
+        </member>
+        <member name="M:AssetsTools.NET.Extra.MD4.EngineReset">
+            <summary>
+              Resets this object disregarding any temporary data present at the
+              time of the invocation of this call.
+            </summary>
+        </member>
+        <member name="M:AssetsTools.NET.Extra.MD4.EngineUpdate(System.Byte)">
+            <summary>
+              Continues an MD4 message digest using the input byte
+            </summary>
+            <param name = "b">byte to input</param>
+        </member>
+        <member name="M:AssetsTools.NET.Extra.MD4.EngineUpdate(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+              MD4 block update operation
+            </summary>
+            <remarks>
+              Continues an MD4 message digest operation by filling the buffer, 
+              transform(ing) data in 512-bit message block(s), updating the variables
+              context and count, and leaving (buffering) the remaining bytes in buffer
+              for the next update or finish.
+            </remarks>
+            <param name = "input">input block</param>
+            <param name = "offset">start of meaningful bytes in input</param>
+            <param name = "len">count of bytes in input blcok to consider</param>
+        </member>
+        <member name="M:AssetsTools.NET.Extra.MD4.EngineDigest">
+            <summary>
+              Completes the hash computation by performing final operations such
+              as padding.  At the return of this engineDigest, the MD engine is
+              reset.
+            </summary>
+            <returns>the array of bytes for the resulting hash value.</returns>
+        </member>
+        <member name="M:AssetsTools.NET.Extra.MD4.GetByteHashFromString(System.String)">
+            <summary>
+              Returns a byte hash from a string
+            </summary>
+            <param name = "s">string to hash</param>
+            <returns>byte-array that contains the hash</returns>
+        </member>
+        <member name="M:AssetsTools.NET.Extra.MD4.GetByteHashFromBytes(System.Byte[])">
+            <summary>
+              Returns a binary hash from an input byte array
+            </summary>
+            <param name = "b">byte-array to hash</param>
+            <returns>binary hash of input</returns>
+        </member>
+        <member name="M:AssetsTools.NET.Extra.MD4.GetHexHashFromBytes(System.Byte[])">
+            <summary>
+              Returns a string that contains the hexadecimal hash
+            </summary>
+            <param name = "b">byte-array to input</param>
+            <returns>String that contains the hex of the hash</returns>
+        </member>
+        <member name="M:AssetsTools.NET.Extra.MD4.GetByteHashFromByte(System.Byte)">
+            <summary>
+              Returns a byte hash from the input byte
+            </summary>
+            <param name = "b">byte to hash</param>
+            <returns>binary hash of the input byte</returns>
+        </member>
+        <member name="M:AssetsTools.NET.Extra.MD4.GetHexHashFromByte(System.Byte)">
+            <summary>
+              Returns a string that contains the hexadecimal hash
+            </summary>
+            <param name = "b">byte to hash</param>
+            <returns>String that contains the hex of the hash</returns>
+        </member>
+        <member name="M:AssetsTools.NET.Extra.MD4.GetHexHashFromString(System.String)">
+            <summary>
+              Returns a string that contains the hexadecimal hash
+            </summary>
+            <param name = "s">string to hash</param>
+            <returns>String that contains the hex of the hash</returns>
+        </member>
+        <member name="M:AssetsTools.NET.Extra.MD4.Transform(System.Byte[]@,System.Int32)">
+            <summary>
+              MD4 basic transformation
+            </summary>
+            <remarks>
+              Transforms context based on 512 bits from input block starting
+              from the offset'th byte.
+            </remarks>
+            <param name = "block">input sub-array</param>
+            <param name = "offset">starting position of sub-array</param>
+        </member>
         <member name="P:AssetsTools.NET.AssetBundleBlockAndDirInfo.Hash">
             <summary>
             Hash of this entry.
@@ -869,7 +987,7 @@
             It is suggested to set <see cref="P:AssetsTools.NET.AssetFileInfo.Replacer"/> to
             <see cref="T:AssetsTools.NET.ContentRemover"/> if you want to keep the info in the list but save without it.
             </remarks>
-            <param name="info">The info to add</param>
+            <param name="info">The info to remove</param>
         </member>
         <member name="M:AssetsTools.NET.AssetsFileMetadata.GenerateQuickLookup">
             <summary>
@@ -1051,7 +1169,7 @@
             <param name="writer">The writer to use.</param>
             <param name="version">The version of the file.</param>
         </member>
-        <member name="M:AssetsTools.NET.TypeTreeNode.GetTypeString(System.String,System.String)">
+        <member name="M:AssetsTools.NET.TypeTreeNode.GetTypeString(System.Byte[],System.Byte[])">
             <summary>
             Get the type name from the string table (from <see cref="P:AssetsTools.NET.TypeTreeType.StringBuffer"/>).
             </summary>
@@ -1062,7 +1180,7 @@
             </param>
             <returns>The node type name.</returns>
         </member>
-        <member name="M:AssetsTools.NET.TypeTreeNode.GetNameString(System.String,System.String)">
+        <member name="M:AssetsTools.NET.TypeTreeNode.GetNameString(System.Byte[],System.Byte[])">
             <summary>
             Get the name name from the string table (from <see cref="P:AssetsTools.NET.TypeTreeType.StringBuffer"/>).
             </summary>
