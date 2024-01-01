@@ -4,7 +4,10 @@ using Avalonia.ReactiveUI;
 using Avalonia.Styling;
 using System.Linq;
 using System.Threading.Tasks;
+using ReactiveUI;
 using UABEANext3.ViewModels;
+using UABEANext3.ViewModels.Dialogs;
+using UABEANext3.Views.Dialogs;
 
 namespace UABEANext3.Views
 {
@@ -19,6 +22,8 @@ namespace UABEANext3.Views
             RequestedThemeVariant = ThemeVariant.Dark;
 
             AddHandler(DragDrop.DropEvent, Drop);
+            this.WhenActivated(action => 
+                action(ViewModel!.ShowAssetInfo.RegisterHandler(DoShowAssetInfoAsync)));
         }
 
         private async Task Drop(object? sender, DragEventArgs e)
@@ -28,6 +33,18 @@ namespace UABEANext3.Views
                 var fileNames = files.Select(sf => sf.TryGetLocalPath()).Where(p => p != null);
                 await ViewModel.OpenFiles(fileNames!);
             }
+        }
+        
+        private async Task DoShowAssetInfoAsync(InteractionContext<AssetInfoViewModel,
+            AssetInfoViewModel?> interaction)
+        {
+            var dialog = new AssetInfoView
+            {
+                DataContext = interaction.Input
+            };
+
+            var result = await dialog.ShowDialog<AssetInfoViewModel?>(this);
+            interaction.SetOutput(result);
         }
     }
 }

@@ -10,6 +10,8 @@
   <Application.Styles>
     <SimpleTheme/>
     <StyleInclude Source="avares://UABEANext3/Themes/DockSimpleThemeEdit.axaml" />
+    <StyleInclude Source="avares://UABEANext3/Themes/HeaderedContentControlTheme.axaml" />
+    <StyleInclude Source="avares://UABEANext3/Themes/TabTheme.axaml" />
     <!--<StyleInclude Source="avares://Dock.Avalonia/Themes/DockSimpleTheme.axaml" />-->
     <StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Simple.xaml"/>
     <StyleInclude Source="avares://AvaloniaEdit/Themes/Simple/AvaloniaEdit.xaml" />

@@ -13,10 +13,13 @@ using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.IO;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Threading.Tasks;
+using System.Windows.Input;
 using UABEANext3.AssetWorkspace;
 using UABEANext3.AssetWorkspace.WorkspaceJobs;
 using UABEANext3.Util;
+using UABEANext3.ViewModels.Dialogs;
 using UABEANext3.ViewModels.Documents;
 using UABEANext3.ViewModels.Tools;
 using UABEAvalonia;
@@ -38,6 +41,10 @@ namespace UABEANext3.ViewModels
         public double ProgressValue { get; set; }
         [Reactive]
         public string ProgressText { get; set; }
+        
+        public Interaction<AssetInfoViewModel, AssetInfoViewModel?> ShowAssetInfo { get; }
+
+        public ICommand GetAssetInfoCommand { get; }
 
         public bool UsesChrome => OperatingSystem.IsWindows();
         public ExtendClientAreaChromeHints ChromeHints => UsesChrome
@@ -55,6 +62,7 @@ namespace UABEANext3.ViewModels
             {
                 _factory.InitLayout(Layout);
             }
+
         }
 
         public MainWindowViewModel(ServiceContainer sc)
@@ -70,6 +78,14 @@ namespace UABEANext3.ViewModels
             }
 
             SetupEvents();
+            
+            ShowAssetInfo = new Interaction<AssetInfoViewModel, AssetInfoViewModel?>();
+            
+            GetAssetInfoCommand = ReactiveCommand.CreateFromTask(async () =>
+            {
+                var store = new AssetInfoViewModel();
+                var result = await ShowAssetInfo.Handle(store);
+            });
         }
 
         private void SetupEvents()
@@ -400,6 +416,18 @@ namespace UABEANext3.ViewModels
                     _factory?.AddDockable(files, oldDockable);
                 }
             }
+        }
+
+        public async void ToolsGeneralInfo_Menu()
+        {
+            var explorer = _factory?.GetDockable<WorkspaceExplorerToolViewModel>("WorkspaceExplorer");
+            if (explorer == null)
+                return;
+
+            if (explorer.SelectedItems.Cast<WorkspaceItem>().LastOrDefault(x => x.ObjectType == WorkspaceItemType.BundleFile) is not { } item)
+                return;
+            
+            var a = await ShowAssetInfo.Handle(new AssetInfoViewModel(item));
         }
     }
 }
