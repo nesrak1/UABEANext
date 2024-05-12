@@ -116,7 +116,7 @@ public partial class PreviewerToolViewModel : Tool
             return null;
         }
 
-        var bitmap = new WriteableBitmap(new PixelSize(texture.m_Width, texture.m_Height), new Vector(96, 96), PixelFormat.Bgra8888, AlphaFormat.Unpremul);
+        var bitmap = new WriteableBitmap(new PixelSize(texture.m_Width, texture.m_Height), new Vector(96, 96), PixelFormat.Rgba8888, AlphaFormat.Unpremul);
         using (var frameBuffer = bitmap.Lock())
         {
             Marshal.Copy(textureData, 0, frameBuffer.Address, textureData.Length);
