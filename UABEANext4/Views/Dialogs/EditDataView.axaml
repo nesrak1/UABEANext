@@ -1,0 +1,27 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:avedit="using:AvaloniaEdit"
+             xmlns:dlg="using:UABEANext4.ViewModels.Dialogs"
+             mc:Ignorable="d" d:DesignWidth="350" d:DesignHeight="550"
+             x:Class="UABEANext4.Views.Dialogs.EditDataView"
+             x:DataType="dlg:EditDataViewModel">
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="*" />
+      <RowDefinition Height="30" />
+    </Grid.RowDefinitions>
+    <avedit:TextEditor
+      FontFamily="Cascadia Code,Consolas,Monospace,Courier,DejaVu Sans Mono,Roboto Mono,Menlo"
+      Grid.Row="0" Name="textEditor" Document="{Binding Document}" />
+    <Grid Grid.Row="1">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*" />
+        <ColumnDefinition Width="*" />
+      </Grid.ColumnDefinitions>
+      <Button Grid.Column="0" Command="{Binding BtnOk_Click}">Ok</Button>
+      <Button Grid.Column="1" Command="{Binding BtnCancel_Click}">Cancel</Button>
+    </Grid>
+  </Grid>
+</UserControl>

@@ -1,0 +1,27 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:sys="clr-namespace:System;assembly=netstandard"
+             xmlns:local="using:PluginPreviewer.Desktop"
+             x:Class="PluginPreviewer.Desktop.App"
+             RequestedThemeVariant="Default">
+  <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
+
+  <Application.Styles>
+    <SimpleTheme />
+
+    <Style Selector="Button">
+      <Setter Property="BorderBrush" Value="#555555" />
+    </Style>
+    <Style Selector="Button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="BorderBrush" Value="#0097fb" />
+    </Style>
+    <Style Selector="Button:pressed /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="#0097fb" />
+    </Style>
+    <Style>
+      <Style.Resources>
+        <sys:Double x:Key="ScrollBarThumbThickness">14</sys:Double>
+      </Style.Resources>
+    </Style>
+  </Application.Styles>
+</Application>

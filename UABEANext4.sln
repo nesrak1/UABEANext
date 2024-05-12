@@ -1,0 +1,43 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.7.34302.85
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UABEANext4", "UABEANext4\UABEANext4.csproj", "{DE00D8E3-B8F4-4CDA-AEAD-8F72A7719339}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UABEANext4.Desktop", "UABEANext4.Desktop\UABEANext4.Desktop.csproj", "{4AD8576E-DDC9-4604-8561-9EF0EEF19C7A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TexturePlugin", "TexturePlugin\TexturePlugin.csproj", "{E672D051-E9AE-4880-96E5-A91CB6649B29}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PluginPreviewer.Desktop", "PluginPreviewer.Desktop\PluginPreviewer.Desktop.csproj", "{42858703-FF35-4288-9E2C-5E9BEFC8F33D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DE00D8E3-B8F4-4CDA-AEAD-8F72A7719339}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DE00D8E3-B8F4-4CDA-AEAD-8F72A7719339}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DE00D8E3-B8F4-4CDA-AEAD-8F72A7719339}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DE00D8E3-B8F4-4CDA-AEAD-8F72A7719339}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4AD8576E-DDC9-4604-8561-9EF0EEF19C7A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4AD8576E-DDC9-4604-8561-9EF0EEF19C7A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4AD8576E-DDC9-4604-8561-9EF0EEF19C7A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4AD8576E-DDC9-4604-8561-9EF0EEF19C7A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E672D051-E9AE-4880-96E5-A91CB6649B29}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E672D051-E9AE-4880-96E5-A91CB6649B29}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E672D051-E9AE-4880-96E5-A91CB6649B29}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E672D051-E9AE-4880-96E5-A91CB6649B29}.Release|Any CPU.Build.0 = Release|Any CPU
+		{42858703-FF35-4288-9E2C-5E9BEFC8F33D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{42858703-FF35-4288-9E2C-5E9BEFC8F33D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{42858703-FF35-4288-9E2C-5E9BEFC8F33D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{42858703-FF35-4288-9E2C-5E9BEFC8F33D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2723FEAD-A636-403F-A3F0-F4B885E82C48}
+	EndGlobalSection
+EndGlobal

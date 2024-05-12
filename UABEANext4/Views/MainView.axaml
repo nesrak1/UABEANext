@@ -1,0 +1,40 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:UABEANext4.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="UABEANext4.Views.MainView"
+             x:DataType="vm:MainViewModel"
+             RenderOptions.BitmapInterpolationMode="MediumQuality">
+  <Design.DataContext>
+    <!-- This only sets the DataContext for the previewer in an IDE,
+         to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
+    <vm:MainViewModel />
+  </Design.DataContext>
+  <Grid RowDefinitions="Auto,*,22" Margin="4">
+    <Menu Grid.Row="0" Padding="0,6">
+      <MenuItem Header="File">
+        <MenuItem Header="Open" Command="{Binding FileOpen}" />
+        <MenuItem Header="Save" Command="{Binding FileSave}" />
+        <MenuItem Header="Save As..." Command="{Binding FileSaveAs}" />
+        <!--<MenuItem Header="Save All" />-->
+        <!--<MenuItem Header="Save All As..." Command="{Binding FileSaveAllAs}" />-->
+        <MenuItem Header="Close All" Command="{Binding FileCloseAll}" />
+      </MenuItem>
+      <MenuItem Header="View">
+        <MenuItem Header="Duplicate Tab" Command="{Binding ViewDuplicateTab}" />
+      </MenuItem>
+      <!--
+      <MenuItem Header="Tools">
+        <MenuItem Header="Xrefs" Command="{Binding FileXrefs}" />
+      </MenuItem>
+      -->
+    </Menu>
+    <DockControl Layout="{Binding Layout}" Margin="4" Grid.Row="1" />
+    <Grid ColumnDefinitions="1*,4,2*" Margin="4,0,0,4" Grid.Row="2">
+      <ProgressBar Value="{Binding Workspace.ProgressValue}" Minimum="0" Maximum="1" Grid.Column="0" />
+      <Label Content="{Binding Workspace.ProgressText}" Grid.Column="2" Padding="0" />
+    </Grid>
+  </Grid>
+</UserControl>

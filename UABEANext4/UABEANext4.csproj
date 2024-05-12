@@ -1,0 +1,70 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <AvaloniaResource Include="Assets\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Assets\logo-new.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AssetRipper.TextureDecoder" Version="2.1.1" />
+    <PackageReference Include="Avalonia" Version="11.0.7" />
+    <PackageReference Include="Avalonia.AvaloniaEdit" Version="11.0.6" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.0.7" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="11.0.7" />
+    <PackageReference Include="Avalonia.Themes.Simple" Version="11.0.7" />
+    <PackageReference Include="AvaloniaEdit.TextMate" Version="11.0.6" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
+
+    <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
+    <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.0.7" />
+    <PackageReference Include="Dock.Avalonia" Version="11.0.0.5" />
+    <PackageReference Include="Dock.Model" Version="11.0.0.5" />
+    <PackageReference Include="Dock.Model.Mvvm" Version="11.0.0.5" />
+    <PackageReference Include="DynamicData" Version="8.3.27" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
+    <PackageReference Include="Mono.Cecil" Version="0.11.3" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="Silk.NET.OpenGL" Version="2.20.0" />
+    <PackageReference Include="StbImageSharp" Version="2.27.13" />
+    <PackageReference Include="StbImageWriteSharp" Version="1.16.7" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="AssetsTools.NET">
+      <HintPath>..\Libs\AssetsTools.NET.dll</HintPath>
+    </Reference>
+    <Reference Include="AssetsTools.NET.Cpp2IL">
+      <HintPath>..\Libs\AssetsTools.NET.Cpp2IL.dll</HintPath>
+    </Reference>
+    <Reference Include="AssetsTools.NET.MonoCecil">
+      <HintPath>..\Libs\AssetsTools.NET.MonoCecil.dll</HintPath>
+    </Reference>
+    <Reference Include="AssetsTools.NET.Texture">
+      <HintPath>..\Libs\AssetsTools.NET.Texture.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Views\Dialogs\MessageBoxView.axaml.cs">
+      <DependentUpon>MessageBoxView.axaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\Dialogs\SelectDumpView.axaml.cs">
+      <DependentUpon>SelectDumpView.axaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\Dialogs\BatchImportView.axaml.cs">
+      <DependentUpon>BatchImportView.axaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\Tools\PreviewerToolView.axaml.cs">
+      <DependentUpon>PreviewerToolView.axaml</DependentUpon>
+    </Compile>
+  </ItemGroup>
+</Project>

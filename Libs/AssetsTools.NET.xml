@@ -58,6 +58,11 @@
             The stream the assets file uses.
             </summary>
         </member>
+        <member name="P:AssetsTools.NET.Extra.AssetsFileInstance.LockReader">
+            <summary>
+            The reader used for locking.
+            </summary>
+        </member>
         <member name="M:AssetsTools.NET.Extra.AssetsManager.LoadAssetsFile(System.IO.Stream,System.String,System.Boolean,AssetsTools.NET.Extra.BundleFileInstance)">
             <summary>
             Load an <see cref="T:AssetsTools.NET.Extra.AssetsFileInstance"/> from a stream with a path.
@@ -89,6 +94,16 @@
             <param name="loadDeps">Load all dependencies immediately?</param>
             <returns>The loaded <see cref="T:AssetsTools.NET.Extra.AssetsFileInstance"/>.</returns>
         </member>
+        <member name="M:AssetsTools.NET.Extra.AssetsManager.AddAssetsFile(AssetsTools.NET.AssetsFile,System.String,System.Boolean)">
+            <summary>
+            Load an <see cref="T:AssetsTools.NET.Extra.AssetsFileInstance"/> from an existing loaded <see cref="T:AssetsTools.NET.AssetsFile"/>.
+            If a file with that name is already loaded, it will be returned instead.
+            </summary>
+            <param name="file">The assets file to use.</param>
+            <param name="path">The path of the file to read from.</param>
+            <param name="loadDeps">Load all dependencies immediately?</param>
+            <returns>The loaded <see cref="T:AssetsTools.NET.Extra.AssetsFileInstance"/>.</returns>
+        </member>
         <member name="M:AssetsTools.NET.Extra.AssetsManager.UnloadAssetsFile(System.String)">
             <summary>
             Unload an <see cref="T:AssetsTools.NET.Extra.AssetsFileInstance"/> by path.
@@ -107,7 +122,7 @@
             <summary>
             Unload all <see cref="T:AssetsTools.NET.Extra.AssetsFileInstance"/>s.
             </summary>
-            <param name="clearCache">Clear the cache? Recommended if you plan on reopening files later.</param>
+            <param name="clearCache">Clear the cache? Cache is recommended if you plan on reopening files later.</param>
             <returns>True if there are files that can be cleared, and false if no files are loaded.</returns>
         </member>
         <member name="M:AssetsTools.NET.Extra.AssetsManager.LoadBundleFile(System.IO.Stream,System.String,System.Boolean)">
@@ -589,8 +604,8 @@
         <member name="P:AssetsTools.NET.AssetFileInfo.ScriptTypeIndex">
             <summary>
             Script type index of the asset. Assets other than MonoBehaviours will have 0xffff for
-            this field. This value is stored in the type tree starting at version 17. Note this is
-            not the same as taking
+            this field. This value is stored in the type tree starting at version 17. You should use
+            <see cref="M:AssetsTools.NET.AssetFileInfo.GetScriptIndex(AssetsTools.NET.AssetsFile)"/> instead.
             </summary>
         </member>
         <member name="P:AssetsTools.NET.AssetFileInfo.Stripped">
@@ -635,6 +650,21 @@
         <member name="M:AssetsTools.NET.AssetFileInfo.GetTypeId(System.Collections.Generic.List{AssetsTools.NET.TypeTreeType},System.UInt32)">
             <summary>
             Get the Type ID of the asset.
+            </summary>
+        </member>
+        <member name="M:AssetsTools.NET.AssetFileInfo.GetScriptIndex(AssetsTools.NET.AssetsFile)">
+            <summary>
+            Get the Script ID of the asset.
+            </summary>
+        </member>
+        <member name="M:AssetsTools.NET.AssetFileInfo.GetScriptIndex(AssetsTools.NET.AssetsFileMetadata,System.UInt32)">
+            <summary>
+            Get the Script ID of the asset.
+            </summary>
+        </member>
+        <member name="M:AssetsTools.NET.AssetFileInfo.GetScriptIndex(System.Collections.Generic.List{AssetsTools.NET.TypeTreeType},System.UInt32)">
+            <summary>
+            Get the Script ID of the asset.
             </summary>
         </member>
         <member name="M:AssetsTools.NET.AssetFileInfo.GetAbsoluteByteOffset(AssetsTools.NET.AssetsFile)">
@@ -1318,6 +1348,11 @@
             Does the field have value? (i.e. is the field a numeric / string / array type?)
             </summary>
         </member>
+        <member name="P:AssetsTools.NET.AssetTypeTemplateField.Version">
+            <summary>
+            Version of the field. This value is updated when the type changes across engine versions.
+            </summary>
+        </member>
         <member name="P:AssetsTools.NET.AssetTypeTemplateField.Children">
             <summary>
             Children of the field.
@@ -1420,7 +1455,7 @@
             </summary>
             <param name="metadata">The metadata to load from.</param>
         </member>
-        <member name="M:AssetsTools.NET.RefTypeManager.WithMonoTemplateGenerator(AssetsTools.NET.AssetsFileMetadata,AssetsTools.NET.Extra.IMonoBehaviourTemplateGenerator,System.Collections.Generic.Dictionary{AssetsTools.NET.AssetTypeReference,AssetsTools.NET.AssetTypeTemplateField})">
+        <member name="M:AssetsTools.NET.RefTypeManager.WithMonoTemplateGenerator(AssetsTools.NET.AssetsFileMetadata,AssetsTools.NET.Extra.IMonoBehaviourTemplateGenerator,System.Collections.Generic.IDictionary{AssetsTools.NET.AssetTypeReference,AssetsTools.NET.AssetTypeTemplateField})">
             <summary>
             Initialize a lookup for MonoBehaviours.
             </summary>
@@ -1711,7 +1746,8 @@
         </member>
         <member name="M:AssetsTools.NET.IContentReplacer.GetPreviewStream">
             <summary>
-            Returns the preview stream.
+            Returns the preview stream. The position is not guaranteed to be at
+            the beginning of the stream.
             </summary>
         </member>
         <member name="M:AssetsTools.NET.IContentReplacer.GetReplacerType">
