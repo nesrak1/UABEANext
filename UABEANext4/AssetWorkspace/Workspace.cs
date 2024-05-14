@@ -367,6 +367,11 @@ public partial class Workspace : ObservableObject
 
     public AssetTypeValueField? GetBaseField(AssetsFileInstance fileInst, int fileId, long pathId)
     {
+        if (fileId != 0)
+        {
+            fileInst = fileInst.GetDependency(Manager, fileId - 1);
+        }
+
         AssetFileInfo? info = GetAssetFileInfo(fileInst, fileId, pathId);
         if (info == null)
         {
