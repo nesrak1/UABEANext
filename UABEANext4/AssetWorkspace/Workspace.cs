@@ -411,6 +411,9 @@ public partial class Workspace : ObservableObject
             }
         }
         Manager.UnloadAll();
+        Manager.UnloadClassDatabase();
+        Manager.MonoTempGenerator = null;
+        _setMonoTempGeneratorsYet = false;
         RootItems.Clear();
         ItemLookup.Clear();
         UnsavedItems.Clear();
