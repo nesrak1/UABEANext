@@ -371,8 +371,12 @@ public partial class Workspace : ObservableObject
         {
             fileInst = fileInst.GetDependency(Manager, fileId - 1);
         }
+        if (fileInst == null)
+        {
+            return null;
+        }
 
-        AssetFileInfo? info = GetAssetFileInfo(fileInst, fileId, pathId);
+        AssetFileInfo? info = fileInst.file.GetAssetInfo(pathId);
         if (info == null)
         {
             return null;

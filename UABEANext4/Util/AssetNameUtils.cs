@@ -157,6 +157,11 @@ public static class AssetNameUtils
             bool wasUsingCache = workspace.Manager.UseTemplateFieldCache;
             workspace.Manager.UseTemplateFieldCache = false;
             AssetTypeTemplateField monoTemp = workspace.GetTemplateField(asset, true);
+            int nameIndex = monoTemp.Children.FindIndex(monoTemp => monoTemp.Name == "m_Script");
+            if (nameIndex != -1)
+            {
+                monoTemp.Children.RemoveRange(nameIndex + 1, monoTemp.Children.Count - (nameIndex + 1));
+            }
             workspace.Manager.UseTemplateFieldCache = wasUsingCache;
 
             monoBf = monoTemp.MakeValue(asset.FileReader, asset.AbsoluteByteStart);
