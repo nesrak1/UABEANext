@@ -1,0 +1,20 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:dlg="using:UABEANext4.ViewModels.Dialogs"
+             mc:Ignorable="d" d:DesignWidth="350" d:DesignHeight="80"
+             x:Class="UABEANext4.Views.Dialogs.RenameFileView"
+             x:DataType="dlg:RenameFileViewModel">
+  <Grid Margin="10,10,10,10">
+    <TextBox VerticalAlignment="Top" Height="26" Text="{Binding NewName}"  Name="defaultBox" />
+    <Grid VerticalAlignment="Bottom">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"></ColumnDefinition>
+        <ColumnDefinition Width="*"></ColumnDefinition>
+      </Grid.ColumnDefinitions>
+      <Button Grid.Column="0" Command="{Binding BtnOk_Click}">Ok</Button>
+      <Button Grid.Column="1" Command="{Binding BtnCancel_Click}">Cancel</Button>
+    </Grid>
+  </Grid>
+</UserControl>

@@ -1,0 +1,56 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:dlg="using:UABEANext4.ViewModels.Dialogs"
+             mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="200"
+             x:Class="UABEANext4.Views.Dialogs.MessageBoxView"
+             x:DataType="dlg:MessageBoxViewModel">
+  <Design.DataContext>
+    <dlg:MessageBoxViewModel />
+  </Design.DataContext>
+  <UserControl.DataTemplates>
+    <dlg:MessageBoxTemplateSelector>
+      <DataTemplate x:Key="OK" DataType="dlg:MessageBoxType">
+        <StackPanel Orientation="Horizontal" Spacing="10" FlowDirection="RightToLeft">
+          <Button MinWidth="70" Command="{Binding $parent[UserControl].((dlg:MessageBoxViewModel)DataContext).BtnA_Click}">OK</Button>
+        </StackPanel>
+      </DataTemplate>
+      <DataTemplate x:Key="OKCancel" DataType="dlg:MessageBoxType">
+        <StackPanel Orientation="Horizontal" Spacing="10" FlowDirection="RightToLeft">
+          <Button MinWidth="70" Command="{Binding $parent[UserControl].((dlg:MessageBoxViewModel)DataContext).BtnB_Click}">Cancel</Button>
+          <Button MinWidth="70" Command="{Binding $parent[UserControl].((dlg:MessageBoxViewModel)DataContext).BtnA_Click}">OK</Button>
+        </StackPanel>
+      </DataTemplate>
+      <DataTemplate x:Key="YesNo" DataType="dlg:MessageBoxType">
+        <StackPanel Orientation="Horizontal" Spacing="10" FlowDirection="RightToLeft">
+          <Button MinWidth="70" Command="{Binding $parent[UserControl].((dlg:MessageBoxViewModel)DataContext).BtnB_Click}">No</Button>
+          <Button MinWidth="70" Command="{Binding $parent[UserControl].((dlg:MessageBoxViewModel)DataContext).BtnA_Click}">Yes</Button>
+        </StackPanel>
+      </DataTemplate>
+      <DataTemplate x:Key="YesNoCancel" DataType="dlg:MessageBoxType">
+        <StackPanel Orientation="Horizontal" Spacing="10" FlowDirection="RightToLeft">
+          <Button MinWidth="70" Command="{Binding $parent[UserControl].((dlg:MessageBoxViewModel)DataContext).BtnC_Click}">Cancel</Button>
+          <Button MinWidth="70" Command="{Binding $parent[UserControl].((dlg:MessageBoxViewModel)DataContext).BtnB_Click}">No</Button>
+          <Button MinWidth="70" Command="{Binding $parent[UserControl].((dlg:MessageBoxViewModel)DataContext).BtnA_Click}">Yes</Button>
+        </StackPanel>
+      </DataTemplate>
+      <DataTemplate x:Key="Custom" DataType="dlg:MessageBoxType">
+        <StackPanel Orientation="Horizontal" Spacing="10" FlowDirection="RightToLeft">
+          <Button MinWidth="70" Command="{Binding $parent[UserControl].((dlg:MessageBoxViewModel)DataContext).BtnC_Click}" Content="{Binding $parent[UserControl].((dlg:MessageBoxViewModel)DataContext).ButtonTextA}"/>
+          <Button MinWidth="70" Command="{Binding $parent[UserControl].((dlg:MessageBoxViewModel)DataContext).BtnB_Click}" Content="{Binding $parent[UserControl].((dlg:MessageBoxViewModel)DataContext).ButtonTextB}"/>
+          <Button MinWidth="70" Command="{Binding $parent[UserControl].((dlg:MessageBoxViewModel)DataContext).BtnA_Click}" Content="{Binding $parent[UserControl].((dlg:MessageBoxViewModel)DataContext).ButtonTextC}"/>
+        </StackPanel>
+      </DataTemplate>
+    </dlg:MessageBoxTemplateSelector>
+  </UserControl.DataTemplates>
+  <Grid Margin="10,10,10,10">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="*" />
+      <RowDefinition Height="8" />
+      <RowDefinition Height="30" />
+    </Grid.RowDefinitions>
+    <TextBox IsReadOnly="True" TextWrapping="Wrap" Grid.Row="0" Name="msgTextBox" BorderBrush="Transparent" Text="{Binding MsgText}" />
+    <ContentControl Content="{Binding MsgType}" Grid.Row="2" />
+  </Grid>
+</UserControl>

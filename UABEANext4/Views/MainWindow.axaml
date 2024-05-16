@@ -1,0 +1,41 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:UABEANext4.ViewModels"
+        xmlns:v="using:UABEANext4.Views"
+        xmlns:i="using:Avalonia.Xaml.Interactivity"
+        xmlns:ia="using:Avalonia.Xaml.Interactions.Core"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:id="using:Dock.Avalonia"
+        xmlns:c="using:Avalonia.Controls"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="UABEANext4.Views.MainWindow"
+        x:DataType="vm:MainViewModel"
+        x:CompileBindings="True"
+        Icon="/Assets/logo-new.ico"
+        Title="UABEAvalonia"
+        Name="MainWindowName"
+        ExtendClientAreaToDecorationsHint="{Binding UsesChrome}"
+        ExtendClientAreaChromeHints="{Binding ChromeHints}"
+        DragDrop.AllowDrop="True">
+  <Design.DataContext>
+    <vm:MainViewModel/>
+  </Design.DataContext>
+
+  <Panel Margin="{Binding #MainWindowName.OffScreenMargin}">
+    <Panel Height="30" HorizontalAlignment="Center" VerticalAlignment="Top">
+      <Label Content="{Binding Path=Title, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"
+             Margin="4,8,4,0"
+             FontSize="14"
+             FontWeight="Normal"
+             FontFamily="Consolas,Monospace,Courier,DejaVu Sans Mono,Roboto Mono"
+             VerticalAlignment="Center"
+             VerticalContentAlignment="Center"
+             IsHitTestVisible="False"
+             IsVisible="{Binding UsesChrome}"/>
+    </Panel>
+    <Panel Margin="0,0,0,0">
+      <v:MainView/>
+    </Panel>
+  </Panel>
+</Window>
