@@ -1,19 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using AssetsTools.NET.Extra;
-using Avalonia;
-using ReactiveUI.Fody.Helpers;
-using UABEANext3.AssetWorkspace;
-using UABEANext3.Models;
-using UABEANext3.Models.AssetInfo;
+using CommunityToolkit.Mvvm.ComponentModel;
+using UABEANext4.AssetInfo;
+using UABEANext4.AssetWorkspace;
 
-namespace UABEANext3.ViewModels.Dialogs;
+namespace UABEANext4.ViewModels.Dialogs;
 
-public class AssetInfoViewModel : ViewModelBase
+public partial class AssetInfoViewModel : ViewModelBase
 {
     private readonly WorkspaceItem? _rootItem;
     private readonly AssetInfoService _assetInfoService;
@@ -35,8 +28,7 @@ public class AssetInfoViewModel : ViewModelBase
         }
     }
 
-    [Reactive]
-    public GeneralInfo? GeneralInfo { get; set; }
+    [ObservableProperty] private GeneralInfo? _generalInfo;
 
     public AssetInfoViewModel()
     {

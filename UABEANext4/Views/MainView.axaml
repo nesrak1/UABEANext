@@ -26,7 +26,7 @@
         <MenuItem Header="Duplicate Tab" Command="{Binding ViewDuplicateTab}" />
       </MenuItem>
       <MenuItem Header="Tools">
-        <MenuItem Header="General Info" Command="{Binding ToolsGeneralInfo_Menu}"></MenuItem>
+        <!-- <MenuItem Header="General Info" Command="{Binding ToolsGeneralInfo_Menu}"></MenuItem> -->
       </MenuItem>
     </Menu>
     <DockControl Layout="{Binding Layout}" Margin="4" Grid.Row="1" />

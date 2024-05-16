@@ -1,12 +1,8 @@
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
-using UABEANext3.ViewModels.Dialogs;
+using UABEANext4.ViewModels.Dialogs;
 
-namespace UABEANext3.Views.Dialogs
+namespace UABEANext4.Views.Dialogs
 {
     public partial class AssetInfoView : Window
     {

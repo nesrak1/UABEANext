@@ -1,7 +1,6 @@
-using System.Globalization;
 using AssetsTools.NET.Extra;
 
-namespace UABEANext3.Models.AssetInfo;
+namespace UABEANext4.AssetInfo;
 
 public class GeneralInfo
 {

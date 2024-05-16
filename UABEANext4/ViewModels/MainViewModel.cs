@@ -12,6 +12,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Input;
 using UABEANext4.AssetWorkspace;
 using UABEANext4.Logic;
 using UABEANext4.Services;
@@ -28,7 +29,7 @@ public partial class MainViewModel : ViewModelBase
     public IRootDock? _layout;
 
     public Workspace Workspace { get; }
-
+    
     public bool UsesChrome => OperatingSystem.IsWindows();
     public ExtendClientAreaChromeHints ChromeHints => UsesChrome
         ? ExtendClientAreaChromeHints.PreferSystemChrome
