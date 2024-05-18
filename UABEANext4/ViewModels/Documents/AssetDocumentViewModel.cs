@@ -30,7 +30,7 @@ public partial class AssetDocumentViewModel : Document
 {
     const string TOOL_TITLE = "Asset Document";
 
-    private Workspace Workspace { get; }
+    public Workspace Workspace { get; }
 
     public List<AssetInst> SelectedItems { get; set; }
     public List<AssetsFileInstance> FileInsts { get; set; }
@@ -152,7 +152,7 @@ public partial class AssetDocumentViewModel : Document
         {
             ImportBatch(SelectedItems.ToList());
         }
-        else
+        else if (SelectedItems.Count == 1)
         {
             ImportSingle(SelectedItems.First());
         }
@@ -222,7 +222,7 @@ public partial class AssetDocumentViewModel : Document
 
             if (data == null)
             {
-                //await MessageBoxUtil.ShowDialog("Parse error", "Something went wrong when reading the dump file:\n" + exceptionMessage);
+                await MessageBoxUtil.ShowDialog("Parse error", "Something went wrong when reading the dump file:\n" + exceptionMessage);
                 goto dirtyFiles;
             }
 
@@ -314,8 +314,7 @@ public partial class AssetDocumentViewModel : Document
         }
 
         var filesToWrite = new List<(AssetInst, string)>();
-        var selectedAssets = SelectedItems.Cast<AssetInst>();
-        if (selectedAssets.Count() > 1)
+        if (SelectedItems.Count > 1)
         {
             var dialogService = Ioc.Default.GetRequiredService<IDialogService>();
 
@@ -346,16 +345,16 @@ public partial class AssetDocumentViewModel : Document
             }
 
             var folder = folders[0];
-            foreach (var asset in selectedAssets)
+            foreach (var asset in SelectedItems)
             {
-                var exportFileName = Path.Combine(folder, GetAssetFileName(asset, exportExt));
+                var exportFileName = Path.Combine(folder, AssetNameUtils.GetAssetFileName(Workspace, asset, exportExt));
                 filesToWrite.Add((asset, exportFileName));
             }
         }
-        else
+        else if (SelectedItems.Count == 1)
         {
-            var asset = selectedAssets.First();
-            var exportFileName = GetAssetFileName(asset, string.Empty);
+            var asset = SelectedItems.First();
+            var exportFileName = AssetNameUtils.GetAssetFileName(Workspace, asset, string.Empty);
 
             var result = await storageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
             {
@@ -424,7 +423,7 @@ public partial class AssetDocumentViewModel : Document
         if (SelectedItems.Count == 0)
         {
             PluginsItems.Clear();
-            PluginsItems.Add(new PluginItemInfo("No assets selected", null, Workspace));
+            PluginsItems.Add(new PluginItemInfo("No assets selected", null, this));
             return;
         }
 
@@ -438,37 +437,18 @@ public partial class AssetDocumentViewModel : Document
         if (pluginsList.Count == 0)
         {
             PluginsItems.Clear();
-            PluginsItems.Add(new PluginItemInfo("No plugins available", null, Workspace));
+            PluginsItems.Add(new PluginItemInfo("No plugins available", null, this));
         }
         else
         {
             PluginsItems.Clear();
             foreach (var plugin in pluginsList)
             {
-                PluginsItems.Add(new PluginItemInfo(plugin.Option.Name, plugin.Option, Workspace));
+                PluginsItems.Add(new PluginItemInfo(plugin.Option.Name, plugin.Option, this));
             }
         }
 
         ShowPluginsContextMenu?.Invoke();
-    }
-
-    //public async void PluginItemClicked(PluginItemInfo selection)
-    //{
-    //    if (selection.Option == null)
-    //    {
-    //        return;
-    //    }
-    //
-    //    var option = selection.Option;
-    //    // todo selected items could change in the meantime
-    //    await option.Execute(Workspace, new UavPluginFunctions(), option.Options, SelectedItems);
-    //}
-
-    private string GetAssetFileName(AssetInst asset, string ext)
-    {
-        AssetNameUtils.GetDisplayNameFast(Workspace, asset, false, out string assetName, out string _);
-        assetName = PathUtils.ReplaceInvalidPathChars(assetName);
-        return $"{assetName}-{Path.GetFileName(asset.FileInstance.path)}-{asset.PathId}{ext}";
     }
 
     public void EditDump()
@@ -489,6 +469,14 @@ public partial class AssetDocumentViewModel : Document
         SelectedItems = assets;
     }
 
+    public void ResendSelectedAssetsSelected()
+    {
+        if (SelectedItems.Count > 0)
+        {
+            WeakReferenceMessenger.Default.Send(new AssetsSelectedMessage(SelectedItems));
+        }
+    }
+
     private async Task OnWorkspaceClosing(object recipient, WorkspaceClosingMessage message)
     {
         await Load([]);
@@ -500,20 +488,25 @@ public class PluginItemInfo
     public string Name { get; }
 
     private IUavPluginOption? _option;
-    private Workspace _workspace;
+    private AssetDocumentViewModel _docViewModel;
 
-    public PluginItemInfo(string name, IUavPluginOption? option, Workspace workspace)
+    public PluginItemInfo(string name, IUavPluginOption? option, AssetDocumentViewModel docViewModel)
     {
         Name = name;
         _option = option;
-        _workspace = workspace;
+        _docViewModel = docViewModel;
     }
 
     public async Task Execute(object selectedItems)
     {
         if (_option != null)
         {
-            await _option.Execute(_workspace, new UavPluginFunctions(), _option.Options, (List<AssetInst>)selectedItems);
+            var workspace = _docViewModel.Workspace;
+            var res = await _option.Execute(workspace, new UavPluginFunctions(), _option.Options, (List<AssetInst>)selectedItems);
+            if (res)
+            {
+                _docViewModel.ResendSelectedAssetsSelected();
+            }
         }
     }
 

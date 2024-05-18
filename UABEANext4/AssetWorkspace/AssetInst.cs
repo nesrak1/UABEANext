@@ -8,7 +8,7 @@ namespace UABEANext4.AssetWorkspace;
 // assetfileinfo wrapper for extra info
 public class AssetInst : AssetFileInfo, INotifyPropertyChanged
 {
-    public string DisplayName { get; set; }
+    public string? AssetName { get; set; }
     public string? DisplayContainer { get; set; }
     public AssetsFileInstance FileInstance { get; }
 
@@ -22,6 +22,7 @@ public class AssetInst : AssetFileInfo, INotifyPropertyChanged
     public uint ByteSizeModified => Replacer != null && Replacer.HasPreview()
         ? (uint)Replacer.GetPreviewStream().Length
         : ByteSize;
+    public string DisplayName => AssetNameUtils.GetFallbackName(this, AssetName);
 
     public AssetInst(AssetsFileInstance parentFile, AssetFileInfo origInfo)
     {
@@ -35,15 +36,20 @@ public class AssetInst : AssetFileInfo, INotifyPropertyChanged
         TypeId = origInfo.TypeId;
         Replacer = origInfo.Replacer;
 
-        DisplayName = "Unnamed asset";
+        AssetName = "Unnamed asset";
         FileInstance = parentFile;
+    }
+
+    public void UpdateAssetDataAndRow(Workspace workspace, AssetTypeValueField baseField)
+    {
+        UpdateAssetDataAndRow(workspace, baseField.WriteToByteArray());
     }
 
     public void UpdateAssetDataAndRow(Workspace workspace, byte[] data)
     {
         SetNewData(data);
-        AssetNameUtils.GetDisplayNameFast(workspace, this, true, out string assetName, out string _);
-        DisplayName = assetName;
+        AssetNameUtils.GetDisplayNameFast(workspace, this, true, out string? assetName, out string _);
+        AssetName = assetName;
         Update(nameof(DisplayName));
         Update(nameof(ByteSizeModified));
         Update(nameof(ModifiedString));

@@ -147,8 +147,8 @@ public partial class Workspace : ObservableObject
                 // todo: partial loading will obsolete this (and remove the lock)
                 lock (asset.FileInstance.LockReader)
                 {
-                    AssetNameUtils.GetDisplayNameFast(this, asset, true, out string assetName, out string _);
-                    asset.DisplayName = assetName;
+                    AssetNameUtils.GetDisplayNameFast(this, asset, true, out string? assetName, out string _);
+                    asset.AssetName = assetName;
                 }
                 tmp.Add(asset);
             }

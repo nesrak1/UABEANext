@@ -4,8 +4,10 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using System;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 using UABEANext4.Interfaces;
 using UABEANext4.Logic.ImportExport;
+using UABEANext4.Util;
 
 namespace UABEANext4.ViewModels.Dialogs;
 public partial class EditDataViewModel : ViewModelBase, IDialogAware<byte[]?>
@@ -22,6 +24,8 @@ public partial class EditDataViewModel : ViewModelBase, IDialogAware<byte[]?>
     [Obsolete("This constructor is for the designer only and should not be used directly.", true)]
     public EditDataViewModel()
     {
+        _document = new TextDocument();
+        _baseField = new AssetTypeValueField();
     }
 
     public EditDataViewModel(AssetTypeValueField baseField)
@@ -38,7 +42,7 @@ public partial class EditDataViewModel : ViewModelBase, IDialogAware<byte[]?>
         Document = new TextDocument(str);
     }
 
-    public void BtnOk_Click()
+    public async Task BtnOk_Click()
     {
         var text = Document!.Text;
         using var ms = new MemoryStream(Encoding.UTF8.GetBytes(text));
@@ -46,7 +50,7 @@ public partial class EditDataViewModel : ViewModelBase, IDialogAware<byte[]?>
         var data = importer.ImportJsonAsset(_baseField.TemplateField, out string? exceptionMessage);
         if (data == null)
         {
-            //await MessageBoxUtil.ShowDialog("Compile Error", "Problem with import:\n" + exceptionMessage);
+            await MessageBoxUtil.ShowDialog("Compile Error", "Problem with import:\n" + exceptionMessage);
             return;
         }
 

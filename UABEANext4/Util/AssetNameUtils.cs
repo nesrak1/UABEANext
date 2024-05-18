@@ -1,6 +1,7 @@
 ﻿using AssetsTools.NET;
 using AssetsTools.NET.Extra;
 using System.Collections.Generic;
+using System.IO;
 using UABEANext4.AssetWorkspace;
 
 namespace UABEANext4.Util;
@@ -8,10 +9,10 @@ namespace UABEANext4.Util;
 public static class AssetNameUtils
 {
     // codeflow needs work but should be fine for now
-    public static void GetDisplayNameFast(Workspace workspace, AssetInst asset, bool usePrefix, out string assetName, out string typeName)
+    public static void GetDisplayNameFast(Workspace workspace, AssetInst asset, bool usePrefix, out string? assetName, out string typeName)
     {
-        assetName = "Unnamed asset";
-        typeName = "Unknown type";
+        assetName = "Error reading name";
+        typeName = "Error reading type";
 
         try
         {
@@ -39,7 +40,7 @@ public static class AssetNameUtils
                         reader.Position = filePosition;
                         assetName = reader.ReadCountStringInt32();
                         if (assetName == "")
-                            assetName = $"{typeName} #{pathId}";
+                            assetName = null;
 
                         return;
                     }
@@ -65,11 +66,11 @@ public static class AssetNameUtils
                         {
                             assetName = GetMonoBehaviourNameFast(workspace, asset);
                             if (assetName == "")
-                                assetName = $"{typeName} #{pathId}";
+                                assetName = null;
                         }
                         return;
                     }
-                    assetName = $"{typeName} #{pathId}";
+                    assetName = null;
                     return;
                 }
             }
@@ -79,7 +80,7 @@ public static class AssetNameUtils
             if (type == null || cldb == null)
             {
                 typeName = $"0x{classId:X8}";
-                assetName = $"Unnamed asset #{pathId}";
+                assetName = null;
                 return;
             }
 
@@ -88,7 +89,7 @@ public static class AssetNameUtils
 
             if (cldbNodes.Count == 0)
             {
-                assetName = $"{typeName} #{pathId}";
+                assetName = null;
                 return;
             }
 
@@ -97,7 +98,8 @@ public static class AssetNameUtils
                 reader.Position = filePosition;
                 assetName = reader.ReadCountStringInt32();
                 if (assetName == "")
-                    assetName = $"{typeName} #{pathId}";
+                    assetName = null;
+
                 return;
             }
             else if (typeName == "GameObject")
@@ -110,6 +112,7 @@ public static class AssetNameUtils
                 assetName = reader.ReadCountStringInt32();
                 if (usePrefix)
                     assetName = $"GameObject {assetName}";
+
                 return;
             }
             else if (typeName == "MonoBehaviour")
@@ -121,15 +124,34 @@ public static class AssetNameUtils
                 {
                     assetName = GetMonoBehaviourNameFast(workspace, asset);
                     if (assetName == "")
-                        assetName = $"{typeName} #{pathId}";
+                        assetName = null;
                 }
                 return;
             }
-            assetName = $"{typeName} #{pathId}";
+            assetName = null;
         }
         catch
         {
         }
+    }
+
+    public static string GetFallbackName(AssetInst asset, string? name)
+    {
+        return name ?? $"{asset.Type} #{asset.PathId}";
+    }
+
+    public static string GetAssetFileName(Workspace workspace, AssetInst asset, string ext)
+    {
+        GetDisplayNameFast(workspace, asset, false, out string? assetName, out string _);
+        assetName = GetFallbackName(asset, assetName);
+        assetName = PathUtils.ReplaceInvalidPathChars(assetName);
+        return $"{assetName}-{Path.GetFileName(asset.FileInstance.path)}-{asset.PathId}{ext}";
+    }
+
+    public static string GetAssetFileName(AssetInst asset, string assetNameOverride, string ext)
+    {
+        string assetName = PathUtils.ReplaceInvalidPathChars(assetNameOverride);
+        return $"{assetName}-{Path.GetFileName(asset.FileInstance.path)}-{asset.PathId}{ext}";
     }
 
     // not very fast but w/e at least it's stable
@@ -140,33 +162,29 @@ public static class AssetNameUtils
             if (asset.Type != AssetClassID.MonoBehaviour && asset.TypeId >= 0)
                 return string.Empty;
 
-            AssetTypeValueField monoBf;
-            //if (asset.HasValueField)
-            //{
-            //    monoBf = asset.BaseValueField;
-            //}
-            //else
-            //{
             // hasTypeTree is set to false to ignore type tree (to prevent
             // reading the entire MonoBehaviour if type trees are provided)
+            // however, this relies on knowing the unity version of the file
+            // and having a class database loaded. when this isn't the case,
+            // our only option is to extract the entire type tree and trim off
+            // everything after the m_Script field so it doesn't load a lot.
 
-            // it might be a better idea to just temporarily remove the extra
-            // fields from a single MonoBehaviour so we don't have to read
-            // from the cldb (especially so for stripped versions of bundles)
-
+            // don't cache since the cached version might make us read more
+            // than we really want to
             bool wasUsingCache = workspace.Manager.UseTemplateFieldCache;
             workspace.Manager.UseTemplateFieldCache = false;
+
             AssetTypeTemplateField monoTemp = workspace.GetTemplateField(asset, true);
+            // trim off extra (needs a speedup. findindex isn't going to be the fastest.)
             int nameIndex = monoTemp.Children.FindIndex(monoTemp => monoTemp.Name == "m_Script");
             if (nameIndex != -1)
             {
                 monoTemp.Children.RemoveRange(nameIndex + 1, monoTemp.Children.Count - (nameIndex + 1));
             }
+
             workspace.Manager.UseTemplateFieldCache = wasUsingCache;
 
-            monoBf = monoTemp.MakeValue(asset.FileReader, asset.AbsoluteByteStart);
-            //}
-
+            AssetTypeValueField monoBf = monoTemp.MakeValue(asset.FileReader, asset.AbsoluteByteStart);
             AssetTypeValueField? scriptBaseField = workspace.GetBaseField(asset.FileInstance, monoBf["m_Script"]);
             if (scriptBaseField == null)
             {

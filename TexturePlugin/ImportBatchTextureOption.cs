@@ -61,10 +61,16 @@ public class ImportBatchTextureOption : IUavPluginOption
         foreach (var info in infos)
         {
             var asset = info.Asset;
-            var baseField = workspace.GetBaseField(asset);
-            var tex = TextureFile.ReadTextureFile(baseField);
-
             var errorAssetName = $"{Path.GetFileName(asset.FileInstance.path)}/{asset.PathId}";
+
+            var baseField = workspace.GetBaseField(asset);
+            if (baseField == null)
+            {
+                errorBuilder.AppendLine($"[{errorAssetName}]: failed to read");
+                continue;
+            }
+
+            var tex = TextureFile.ReadTextureFile(baseField);
             if (info.ImportFile == null || !File.Exists(info.ImportFile))
             {
                 errorBuilder.AppendLine($"[{errorAssetName}]: failed to import because {info.ImportFile ?? "[null]"} does not exist.");
@@ -73,18 +79,20 @@ public class ImportBatchTextureOption : IUavPluginOption
             try
             {
                 tex.SetTextureData(info.ImportFile);
+                tex.WriteTo(baseField);
+                asset.UpdateAssetDataAndRow(workspace, baseField);
             }
             catch (Exception e)
             {
                 errorBuilder.AppendLine($"[{errorAssetName}]: failed to import: {e.Message}");
             }
+        }
 
-            if (errorBuilder.Length > 0)
-            {
-                string[] firstLines = errorBuilder.ToString().Split('\n').Take(20).ToArray();
-                string firstLinesStr = string.Join('\n', firstLines);
-                await funcs.ShowMessageDialog("Error", firstLinesStr);
-            }
+        if (errorBuilder.Length > 0)
+        {
+            string[] firstLines = errorBuilder.ToString().Split('\n').Take(20).ToArray();
+            string firstLinesStr = string.Join('\n', firstLines);
+            await funcs.ShowMessageDialog("Error", firstLinesStr);
         }
 
         return true;

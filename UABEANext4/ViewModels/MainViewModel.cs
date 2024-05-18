@@ -91,7 +91,7 @@ public partial class MainViewModel : ViewModelBase
 
         if (Workspace.Manager.ClassDatabase == null)
         {
-            // ask user about class database version
+            await MessageBoxUtil.ShowDialog("Warning", "This file has no version information. Some functionality will be disabled until one is provided.");
         }
     }
 
@@ -229,6 +229,13 @@ public partial class MainViewModel : ViewModelBase
     {
         Workspace.CloseAll();
         WeakReferenceMessenger.Default.Send(new WorkspaceClosingMessage());
+
+        var files = _factory?.GetDockable<IDocumentDock>("Files");
+        if (files is { } && files.VisibleDockables != null && files.VisibleDockables.Count > 0)
+        {
+            // lol you have to pass in a child
+            _factory?.CloseAllDockables(files.VisibleDockables[0]);
+        }
     }
 
     public void ViewDuplicateTab()
