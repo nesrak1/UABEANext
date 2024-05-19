@@ -1,17 +1,16 @@
-<Window xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:dialogs="clr-namespace:UABEANext4.ViewModels.Dialogs"
-        mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="350"
-        Width="750" Height="450"
-        x:Class="UABEANext4.Views.Dialogs.AssetInfoView"
-        x:DataType="dialogs:AssetInfoViewModel"
-        WindowStartupLocation="CenterOwner"
-        Title="Assets File Header/Metadata Info">
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:avedit="using:AvaloniaEdit"
+             xmlns:dlg="using:UABEANext4.ViewModels.Dialogs"
+             xmlns:assetWorkspace="clr-namespace:UABEANext4.AssetWorkspace"
+             mc:Ignorable="d" d:DesignWidth="350" d:DesignHeight="550"
+             x:Class="UABEANext4.Views.Dialogs.AssetInfoView"
+             x:DataType="dlg:AssetInfoViewModel">
 
   <Design.DataContext>
-    <dialogs:AssetInfoViewModel />
+    <dlg:AssetInfoViewModel />
   </Design.DataContext>
 
   <TabControl Margin="5">
@@ -84,20 +83,20 @@
                        IsEnabled="false" />
             </Grid>
           </HeaderedContentControl>
-          <!-- <ContentControl Margin="5"> -->
-          <!--   <StackPanel> -->
-          <!--     <TextBlock>Selected asset</TextBlock> -->
-          <!--     <ComboBox x:Name="SelectedAssetComboBox" SelectedIndex="0" SelectedItem="{Binding SelectedItem}"> -->
-          <!--       <ComboBox.ItemTemplate> -->
-          <!--         <DataTemplate> -->
-          <!--           <TextBlock Text="{Binding Name}"></TextBlock> -->
-          <!--         </DataTemplate> -->
-          <!--       </ComboBox.ItemTemplate> -->
-          <!--     </ComboBox> -->
-          <!--   </StackPanel> -->
-          <!-- </ContentControl> -->
+          <ContentControl Margin="5">
+            <StackPanel>
+              <TextBlock>Selected asset</TextBlock>
+              <ComboBox x:Name="SelectedAssetComboBox" SelectedIndex="0" SelectedItem="{Binding SelectedItem}">
+                <ComboBox.ItemTemplate>
+                  <DataTemplate x:DataType="assetWorkspace:WorkspaceItem">
+                    <TextBlock Text="{Binding Name}"></TextBlock>
+                  </DataTemplate>
+                </ComboBox.ItemTemplate>
+              </ComboBox>
+            </StackPanel>
+          </ContentControl>
         </StackPanel>
       </ScrollViewer>
     </TabItem>
   </TabControl>
-</Window>
+</UserControl>

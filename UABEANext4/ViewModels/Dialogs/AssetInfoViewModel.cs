@@ -1,32 +1,51 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using AssetsTools.NET.Extra;
 using CommunityToolkit.Mvvm.ComponentModel;
-using UABEANext4.AssetInfo;
 using UABEANext4.AssetWorkspace;
 using UABEANext4.Interfaces;
+using UABEANext4.Logic.AssetInfo;
 
 namespace UABEANext4.ViewModels.Dialogs;
 
-public partial class AssetInfoViewModel : ViewModelBase, IDialogAware<string>
+public partial class AssetInfoViewModel : ViewModelBase, IDialogAware
 {
     private readonly AssetInfoService _assetInfoService;
+    
+    public IEnumerable<WorkspaceItem> Items { get; }
+    private WorkspaceItem? _selectedItem;
+    
+    public WorkspaceItem? SelectedItem
+    {
+        get => _selectedItem;
+        set
+        {
+            _selectedItem = value;
+
+            if (_selectedItem is not { Object: AssetsFileInstance inst })
+            {
+                GeneralInfo = GeneralInfo.Empty;
+                return;
+            }
+
+            GeneralInfo = _assetInfoService.GetGeneralInfo(inst);
+        }
+    }
     
     [ObservableProperty] private GeneralInfo? _generalInfo;
 
     public AssetInfoViewModel()
     {
+        Items = [];
         _assetInfoService = new();
     }
     
-    public AssetInfoViewModel(AssetsFileInstance assetsFileInstance)
+    public AssetInfoViewModel(IEnumerable<WorkspaceItem> items)
     {
+        Items = items;
         _assetInfoService = new();
-        GeneralInfo = _assetInfoService.GetGeneralInfo(assetsFileInstance);
     }
 
-    public string Title => "Asset General Info";
-    public int Width => 450;
-    public int Height => 300;
-    public event Action<string?>? RequestClose;
+    public string Title => "Asset Info";
+    public int Width => 500;
+    public int Height => 450;
 }

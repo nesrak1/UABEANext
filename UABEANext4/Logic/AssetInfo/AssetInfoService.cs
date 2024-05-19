@@ -1,6 +1,6 @@
 using AssetsTools.NET.Extra;
 
-namespace UABEANext4.AssetInfo;
+namespace UABEANext4.Logic.AssetInfo;
 
 public class AssetInfoService
 {

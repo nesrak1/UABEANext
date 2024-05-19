@@ -26,7 +26,7 @@
         <MenuItem Header="Duplicate Tab" Command="{Binding ViewDuplicateTab}" />
       </MenuItem>
       <MenuItem Header="Tools">
-        <MenuItem Header="General Info" Command="{Binding ShowAssetGeneralInfoDialog}"></MenuItem>
+        <MenuItem Header="Asset Info" Command="{Binding ShowAssetInfoDialog}" IsEnabled="{Binding Workspace.RootItems.Count}"/>
       </MenuItem>
     </Menu>
     <DockControl Layout="{Binding Layout}" Margin="4" Grid.Row="1" />

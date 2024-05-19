@@ -1,4 +1,4 @@
-namespace UABEANext4.Models.AssetInfo;
+namespace UABEANext4.Logic.AssetInfo;
 
 public enum BuildTarget
 {
