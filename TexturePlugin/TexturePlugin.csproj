@@ -75,11 +75,10 @@
       <UABEABinDir>$(SolutionDir)UABEANext4.Desktop\$(OutputPath)</UABEABinDir>
     </PropertyGroup>
 
-    <!-- copy textoolwrap and deps -->
-    <Copy SourceFiles="$(TexToolWrapBinDir)" DestinationFolder="$(UABEABinDir)runtimes\$(UABEANativeConfig)\native" ContinueOnError="true" />
+    <!-- copy texture encoder and deps -->
+    <Copy SourceFiles="$(TextureEncoderBinPath)" DestinationFolder="$(UABEABinDir)runtimes\$(UABEANativeConfig)\native" ContinueOnError="true" />
+    <Copy SourceFiles="$(CuttlefishBinPath)" DestinationFolder="$(UABEABinDir)runtimes\$(UABEANativeConfig)\native" ContinueOnError="true" />
     <Copy SourceFiles="$(PVRTexToolBinDir)" DestinationFolder="$(UABEABinDir)runtimes\$(UABEANativeConfig)\native" ContinueOnError="true" />
-    <Copy SourceFiles="$(ISPCBinDir)" DestinationFolder="$(UABEABinDir)runtimes\$(UABEANativeConfig)\native" ContinueOnError="true" />
-    <Copy SourceFiles="$(CrunchBinDir)" DestinationFolder="$(UABEABinDir)runtimes\$(UABEANativeConfig)\native" ContinueOnError="true" />
 
     <!-- copy textureplugin -->
     <Copy SourceFiles="$(OutputPath)TexturePlugin.dll" DestinationFolder="$(UABEABinDir)plugins" ContinueOnError="true" />
@@ -92,10 +91,9 @@
     </PropertyGroup>
 
     <!-- copy textoolwrap and deps -->
-    <Copy SourceFiles="$(TexToolWrapBinDir)" DestinationFolder="$(UABEABinDir)runtimes\$(UABEANativeConfig)\native" ContinueOnError="true" />
+    <Copy SourceFiles="$(TextureEncoderBinPath)" DestinationFolder="$(UABEABinDir)runtimes\$(UABEANativeConfig)\native" ContinueOnError="true" />
+    <Copy SourceFiles="$(CuttlefishBinPath)" DestinationFolder="$(UABEABinDir)runtimes\$(UABEANativeConfig)\native" ContinueOnError="true" />
     <Copy SourceFiles="$(PVRTexToolBinDir)" DestinationFolder="$(UABEABinDir)runtimes\$(UABEANativeConfig)\native" ContinueOnError="true" />
-    <Copy SourceFiles="$(ISPCBinDir)" DestinationFolder="$(UABEABinDir)runtimes\$(UABEANativeConfig)\native" ContinueOnError="true" />
-    <Copy SourceFiles="$(CrunchBinDir)" DestinationFolder="$(UABEABinDir)runtimes\$(UABEANativeConfig)\native" ContinueOnError="true" />
 
     <!-- copy textureplugin -->
     <Copy SourceFiles="$(OutputPath)TexturePlugin.dll" DestinationFolder="$(UABEABinDir)plugins" ContinueOnError="true" />
