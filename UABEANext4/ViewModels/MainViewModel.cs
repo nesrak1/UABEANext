@@ -29,7 +29,7 @@ public partial class MainViewModel : ViewModelBase
     public IRootDock? _layout;
 
     public Workspace Workspace { get; }
-    
+
     public bool UsesChrome => OperatingSystem.IsWindows();
 
     public ExtendClientAreaChromeHints ChromeHints => UsesChrome

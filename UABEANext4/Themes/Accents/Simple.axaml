@@ -16,9 +16,7 @@
     <sys:Double x:Key="DockFontSizeNormal">12</sys:Double>
     
     <SolidColorBrush x:Key="ThemeAccentBrush" Color="#007ACC" />
-    
     <SolidColorBrush x:Key="TabViewSelectedBackgroundBrush"  Color="#007ACC" />
-    <SolidColorBrush x:Key="TabItemFocusBackgroundColor" Color="#ff0000" />
 
 </ResourceDictionary>
 
