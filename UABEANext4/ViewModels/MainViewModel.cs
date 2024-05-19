@@ -347,4 +347,10 @@ public partial class MainViewModel : ViewModelBase
             WeakReferenceMessenger.Default.Send(new AssetsUpdatedMessage(asset));
         }
     }
+
+    private async Task ShowAssetGeneralInfoDialog(AssetInst asset)
+    {
+        var dialogService = Ioc.Default.GetRequiredService<IDialogService>();
+        await dialogService.ShowDialog(new AssetInfoViewModel(asset.FileInstance));
+    }
 }

@@ -84,18 +84,18 @@
                        IsEnabled="false" />
             </Grid>
           </HeaderedContentControl>
-          <ContentControl Margin="5">
-            <StackPanel>
-              <TextBlock>Selected asset</TextBlock>
-              <ComboBox x:Name="SelectedAssetComboBox" SelectedIndex="0" SelectedItem="{Binding SelectedItem}">
-                <ComboBox.ItemTemplate>
-                  <!-- <DataTemplate> -->
-                  <!--   <TextBlock Text="{Binding Name}"></TextBlock> -->
-                  <!-- </DataTemplate> -->
-                </ComboBox.ItemTemplate>
-              </ComboBox>
-            </StackPanel>
-          </ContentControl>
+          <!-- <ContentControl Margin="5"> -->
+          <!--   <StackPanel> -->
+          <!--     <TextBlock>Selected asset</TextBlock> -->
+          <!--     <ComboBox x:Name="SelectedAssetComboBox" SelectedIndex="0" SelectedItem="{Binding SelectedItem}"> -->
+          <!--       <ComboBox.ItemTemplate> -->
+          <!--         <DataTemplate> -->
+          <!--           <TextBlock Text="{Binding Name}"></TextBlock> -->
+          <!--         </DataTemplate> -->
+          <!--       </ComboBox.ItemTemplate> -->
+          <!--     </ComboBox> -->
+          <!--   </StackPanel> -->
+          <!-- </ContentControl> -->
         </StackPanel>
       </ScrollViewer>
     </TabItem>

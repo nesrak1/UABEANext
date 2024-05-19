@@ -9,21 +9,19 @@ namespace UABEANext4.Views.Dialogs
         public AssetInfoView()
         {
             InitializeComponent();
-
-            Loaded += AssetInfoView_Loaded;
         }
 
-        private void AssetInfoView_Loaded(
-            object? sender,
-            Avalonia.Interactivity.RoutedEventArgs e
-        ) 
-        {  
-            if (DataContext is AssetInfoViewModel aivm)
-            {
-                this.SelectedAssetComboBox.ItemsSource = aivm.Items;
-                this.SelectedAssetComboBox.SelectedIndex = 0;
-                aivm.SelectedItem = aivm.Items.FirstOrDefault();
-            }
-        }
+        // private void AssetInfoView_Loaded(
+        //     object? sender,
+        //     Avalonia.Interactivity.RoutedEventArgs e
+        // ) 
+        // {  
+        //     if (DataContext is AssetInfoViewModel aivm)
+        //     {
+        //         this.SelectedAssetComboBox.ItemsSource = aivm.Items;
+        //         this.SelectedAssetComboBox.SelectedIndex = 0;
+        //         aivm.SelectedItem = aivm.Items.FirstOrDefault();
+        //     }
+        // }
     }
 }
