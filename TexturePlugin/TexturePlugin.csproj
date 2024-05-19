@@ -55,13 +55,13 @@
     <PropertyGroup Condition="$([MSBuild]::IsOsPlatform(Linux)) AND '$(LinuxUnameM)' == 'x86_64'">
       <UABEANativeConfig>linux-x64</UABEANativeConfig>
       <TextureEncoderBinPath>$(SolutionDir)NativeLibs\linux-x64\libtextureencoder.so</TextureEncoderBinPath>
-      <CuttlefishBinPath>$(SolutionDir)NativeLibs\linux-x64\libcuttlefish.so</CuttlefishBinPath>
+      <CuttlefishBinPath>$(SolutionDir)NativeLibs\linux-x64\libcuttlefish.so.2.7</CuttlefishBinPath>
       <PVRTexToolBinDir>$(SolutionDir)NativeLibs\linux-x64\libPVRTexLib.so</PVRTexToolBinDir>
     </PropertyGroup>
     <PropertyGroup Condition="$([MSBuild]::IsOsPlatform(Linux)) AND ('$(LinuxUnameM)' == 'i386' OR '$(LinuxUnameM)' == 'i686')">
       <UABEANativeConfig>linux-x86</UABEANativeConfig>
       <TextureEncoderBinPath>$(SolutionDir)NativeLibs\linux-x86\libtextureencoder.so</TextureEncoderBinPath>
-      <CuttlefishBinPath>$(SolutionDir)NativeLibs\linux-x86\libcuttlefish.so</CuttlefishBinPath>
+      <CuttlefishBinPath>$(SolutionDir)NativeLibs\linux-x86\libcuttlefish.so.2.7</CuttlefishBinPath>
       <PVRTexToolBinDir>$(SolutionDir)NativeLibs\linux-x86\libPVRTexLib.so</PVRTexToolBinDir>
     </PropertyGroup>
   </Target>

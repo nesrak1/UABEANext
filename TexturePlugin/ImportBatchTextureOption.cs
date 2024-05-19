@@ -44,14 +44,21 @@ public class ImportBatchTextureOption : IUavPluginOption
             return false;
         }
 
-        var extensions = new List<string>() { "png", "tga", "bmp", "tga" };
-        var batchInfos = await funcs.ShowDialog(new BatchImportViewModel(workspace, selection.ToList(), dir, extensions));
-        if (batchInfos == null)
+        var extensions = new List<string>() { "bmp", "png", "jpg", "jpeg", "tga" };
+        var batchInfosViewModel = new BatchImportViewModel(workspace, selection.ToList(), dir, extensions);
+        if (batchInfosViewModel.DataGridItems.Count == 0)
+        {
+            await funcs.ShowMessageDialog("Error", "No matching files found in the directory. Make sure the file names are in UABEA's format.");
+            return false;
+        }
+
+        var batchInfosResult = await funcs.ShowDialog(batchInfosViewModel);
+        if (batchInfosResult == null)
         {
             return false;
         }
 
-        var success = await ImportTextures(workspace, funcs, batchInfos);
+        var success = await ImportTextures(workspace, funcs, batchInfosResult);
         return success;
     }
 

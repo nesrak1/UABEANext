@@ -112,9 +112,9 @@ public partial class Workspace : ObservableObject
             fileInst = Manager.LoadAssetsFile(stream, name);
         }
 
-        FixupAssetsFile(fileInst);
-
         TryLoadClassDatabase(fileInst.file);
+
+        FixupAssetsFile(fileInst);
 
         var item = new WorkspaceItem(fileInst, loadOrder);
         AddRootItemThreadSafe(item, fileInst.name);
@@ -127,9 +127,9 @@ public partial class Workspace : ObservableObject
         var dirInf = BundleHelper.GetDirInfo(bunInst.file, index);
         var fileInst = Manager.LoadAssetsFileFromBundle(bunInst, index);
 
-        FixupAssetsFile(fileInst);
-
         TryLoadClassDatabase(fileInst.file);
+
+        FixupAssetsFile(fileInst);
 
         var item = new WorkspaceItem(dirInf.Name, fileInst, -1, WorkspaceItemType.AssetsFile);
         return item;
