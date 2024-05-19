@@ -58,6 +58,7 @@ public partial class BatchImportViewModel : ViewModelBase, IDialogAware<List<Imp
         foreach (var asset in selection)
         {
             AssetNameUtils.GetDisplayNameFast(workspace, asset, true, out var assetName, out var _);
+            assetName = AssetNameUtils.GetFallbackName(asset, assetName);
 
             var gridItem = new ImportBatchDataGridItem(
                 new ImportBatchInfo(

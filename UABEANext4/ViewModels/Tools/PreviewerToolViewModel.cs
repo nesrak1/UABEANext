@@ -55,6 +55,7 @@ public partial class PreviewerToolViewModel : Tool
         _activeDocument = new TextDocument("No preview available.");
 
         WeakReferenceMessenger.Default.Register<AssetsSelectedMessage>(this, OnAssetsSelected);
+        WeakReferenceMessenger.Default.Register<WorkspaceClosingMessage>(this, OnWorkspaceClosing);
     }
 
     private void OnAssetsSelected(object recipient, AssetsSelectedMessage message)
@@ -69,39 +70,46 @@ public partial class PreviewerToolViewModel : Tool
         HandleAssetPreview(asset);
     }
 
-    private void HandleAssetPreview(AssetInst asset)
+    private void OnWorkspaceClosing(object recipient, WorkspaceClosingMessage message)
     {
-        if (asset.Type == AssetClassID.Texture2D)
-        {
-            ActivePreviewType = PreviewerToolPreviewType.Image;
-            if (ActiveImage != null)
-            {
-                ActiveImage.Dispose();
-                ActiveImage = null;
-            }
+        HandleAssetPreview(null);
+    }
 
-            var image = GetTexture2DBitmap(asset, out TextureFormat format);
-            if (image != null)
+    private void HandleAssetPreview(AssetInst? asset)
+    {
+        if (asset != null)
+        {
+            if (asset.Type == AssetClassID.Texture2D)
             {
-                ActiveImage = image;
+                ActivePreviewType = PreviewerToolPreviewType.Image;
+                if (ActiveImage != null)
+                {
+                    ActiveImage.Dispose();
+                    ActiveImage = null;
+                }
+
+                var image = GetTexture2DBitmap(asset, out TextureFormat format);
+                if (image != null)
+                {
+                    ActiveImage = image;
+                }
+                else
+                {
+                    ActivePreviewType = PreviewerToolPreviewType.Text;
+                    ActiveDocument = new TextDocument(
+                        $"Texture failed to decode. Image format may not be supported. ({format})");
+                }
+                return;
             }
-            else
+            else if (asset.Type == AssetClassID.TextAsset)
             {
                 ActivePreviewType = PreviewerToolPreviewType.Text;
-                ActiveDocument = new TextDocument(
-                    $"Texture failed to decode. Image format may not be supported. ({format})");
+                ActiveDocument = new TextDocument(GetTextAssetText(asset));
+                return;
             }
         }
-        else if (asset.Type == AssetClassID.TextAsset)
-        {
-            ActivePreviewType = PreviewerToolPreviewType.Text;
-            ActiveDocument = new TextDocument(GetTextAssetText(asset));
-        }
-        else
-        {
-            ActivePreviewType = PreviewerToolPreviewType.Text;
-            ActiveDocument = new TextDocument("No preview available.");
-        }
+        ActivePreviewType = PreviewerToolPreviewType.Text;
+        ActiveDocument = new TextDocument("No preview available.");
     }
 
     private Bitmap? GetTexture2DBitmap(AssetInst asset, out TextureFormat format)

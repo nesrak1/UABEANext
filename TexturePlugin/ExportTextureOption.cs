@@ -69,10 +69,17 @@ public class ExportTextureOption : IUavPluginOption
 
         foreach (AssetInst asset in selection)
         {
-            AssetTypeValueField? texBaseField = TextureHelper.GetByteArrayTexture(workspace, asset);
-            TextureFile texFile = TextureFile.ReadTextureFile(texBaseField);
+            var errorAssetName = $"{Path.GetFileName(asset.FileInstance.path)}/{asset.PathId}";
+            var texBaseField = TextureHelper.GetByteArrayTexture(workspace, asset);
+            if (texBaseField == null)
+            {
+                errorBuilder.AppendLine($"[{errorAssetName}]: failed to read");
+                continue;
+            }
 
-            // 0x0 texture, usually called like Font Texture or smth
+            var texFile = TextureFile.ReadTextureFile(texBaseField);
+
+            // 0x0 texture, usually called like Font Texture or something
             if (texFile.m_Width == 0 && texFile.m_Height == 0)
             {
                 emptyTextureCount++;
@@ -80,13 +87,12 @@ public class ExportTextureOption : IUavPluginOption
             }
 
             string assetName = PathUtils.ReplaceInvalidPathChars(texFile.m_Name);
-            string filePath = Path.Combine(dir, $"{assetName}-{Path.GetFileName(asset.FileInstance.path)}-{asset.PathId}{fileExtension}");
+            string filePath = AssetNameUtils.GetAssetFileName(asset, assetName, fileExtension);
 
             using FileStream outputStream = File.OpenWrite(filePath);
             bool success = texFile.SaveTextureDataToImage(asset.FileInstance, outputStream, exportType);
             if (!success)
             {
-                string errorAssetName = $"{Path.GetFileName(asset.FileInstance.path)}/{asset.PathId}";
                 errorBuilder.AppendLine($"[{errorAssetName}]: failed to decode (missing resS, invalid texture format, etc.)");
             }
         }
@@ -114,7 +120,7 @@ public class ExportTextureOption : IUavPluginOption
         AssetTypeValueField? texBaseField = TextureHelper.GetByteArrayTexture(workspace, asset);
         TextureFile texFile = TextureFile.ReadTextureFile(texBaseField);
 
-        // 0x0 texture, usually called like Font Texture or smth
+        // 0x0 texture, usually called like Font Texture or something
         if (texFile.m_Width == 0 && texFile.m_Height == 0)
         {
             await funcs.ShowMessageDialog("Error", "Texture size is 0x0 which is not exportable.");
@@ -132,7 +138,7 @@ public class ExportTextureOption : IUavPluginOption
                 new FilePickerFileType("JPG file") { Patterns = new List<string>() { "*.jpg", "*.jpeg" } },
                 new FilePickerFileType("TGA file") { Patterns = new List<string>() { "*.tga" } },
             },
-            SuggestedFileName = $"{assetName}-{Path.GetFileName(asset.FileInstance.path)}-{asset.PathId}",
+            SuggestedFileName = AssetNameUtils.GetAssetFileName(asset, assetName, string.Empty),
             DefaultExtension = "png"
         });
 
