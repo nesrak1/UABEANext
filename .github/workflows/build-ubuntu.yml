@@ -1,4 +1,4 @@
-name: Build UABEA Windows
+name: Build UABEA Ubuntu
 
 on:
   push:
@@ -28,10 +28,10 @@ jobs:
       run: dotnet build --configuration Release --no-restore
 
     - name: Remove unused platforms
-      run: find UABEAvalonia/bin/Release/net6.0/runtimes/* -maxdepth 0 ! -name linux-x64 -type d -exec rm -r {} +
+      run: find UABEAvalonia/bin/Release/net8.0/runtimes/* -maxdepth 0 ! -name linux-x64 -type d -exec rm -r {} +
       
     - name: Upload
       uses: actions/upload-artifact@v2
       with:
-        name: uabea-windows
+        name: uabea-ubuntu
         path: UABEANext4.Desktop/bin/Release/net8.0
