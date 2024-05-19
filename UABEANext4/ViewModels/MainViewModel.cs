@@ -53,6 +53,12 @@ public partial class MainViewModel : ViewModelBase
 
     public async Task OpenFiles(IEnumerable<string?> enumerable)
     {
+        int totalCount = enumerable.Count();
+        if (totalCount == 0)
+        {
+            return;
+        }
+
         var options = new ParallelOptions
         {
             MaxDegreeOfParallelism = Math.Min(Environment.ProcessorCount - 1, 4)
@@ -64,7 +70,6 @@ public partial class MainViewModel : ViewModelBase
             Workspace.ProgressValue = 0;
             int startLoadOrder = Workspace.NextLoadIndex;
             int currentCount = 0;
-            int totalCount = enumerable.Count();
             Parallel.ForEach(enumerable, options, (fileName, state, index) =>
             {
                 if (fileName is not null)
