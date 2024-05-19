@@ -31,7 +31,7 @@ jobs:
       run: find UABEANext4.Desktop/bin/Release/net8.0/runtimes/* -maxdepth 0 ! -name linux-x64 -type d -exec rm -r {} +
 
     - name: Fix libonigwrap directory
-      run: cp UABEAvalonia/bin/Release/net6.0/runtimes/linux/native/libonigwrap.so UABEAvalonia/bin/Release/net6.0/runtimes/linux-x64/native/libonigwrap.so
+      run: cp UABEANext4.Desktop/bin/Release/net8.0/runtimes/linux/native/libonigwrap.so UABEAvalonia/bin/Release/net6.0/runtimes/linux-x64/native/libonigwrap.so
       
     - name: Upload
       uses: actions/upload-artifact@v2
