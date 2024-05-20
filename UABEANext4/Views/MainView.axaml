@@ -25,11 +25,9 @@
       <MenuItem Header="View">
         <MenuItem Header="Duplicate Tab" Command="{Binding ViewDuplicateTab}" />
       </MenuItem>
-      <!--
       <MenuItem Header="Tools">
-        <MenuItem Header="Xrefs" Command="{Binding FileXrefs}" />
+        <MenuItem Header="Asset Info" Command="{Binding ShowAssetInfoDialog}" IsEnabled="{Binding Workspace.RootItems.Count}"/>
       </MenuItem>
-      -->
     </Menu>
     <DockControl Layout="{Binding Layout}" Margin="4" Grid.Row="1" />
     <Grid ColumnDefinitions="1*,4,2*" Margin="4,0,0,4" Grid.Row="2">

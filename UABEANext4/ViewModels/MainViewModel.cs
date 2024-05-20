@@ -12,6 +12,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Input;
 using UABEANext4.AssetWorkspace;
 using UABEANext4.Logic;
 using UABEANext4.Services;
@@ -30,6 +31,7 @@ public partial class MainViewModel : ViewModelBase
     public Workspace Workspace { get; }
 
     public bool UsesChrome => OperatingSystem.IsWindows();
+
     public ExtendClientAreaChromeHints ChromeHints => UsesChrome
         ? ExtendClientAreaChromeHints.PreferSystemChrome
         : ExtendClientAreaChromeHints.Default;
@@ -356,6 +358,57 @@ public partial class MainViewModel : ViewModelBase
         {
             asset.UpdateAssetDataAndRow(Workspace, newData);
             WeakReferenceMessenger.Default.Send(new AssetsUpdatedMessage(asset));
+        }
+    }
+
+    public async Task ShowAssetInfoDialog()
+    {
+        var dialogService = Ioc.Default.GetRequiredService<IDialogService>();
+        var explorer = _factory.GetDockable<WorkspaceExplorerToolViewModel>("WorkspaceExplorer");
+
+        if (explorer is null)
+        {
+            return;
+        }
+
+        HashSet<WorkspaceItem> items = [];
+
+        if (explorer.SelectedItems.Count != 0)
+        {
+            foreach (var item in GetAssetsFileWorkspaceItems(explorer.SelectedItems.OfType<WorkspaceItem>()))
+            {
+                items.Add(item);
+            }
+        }
+        else
+        {
+            foreach (var item in GetAssetsFileWorkspaceItems(Workspace.RootItems))
+            {
+                items.Add(item);
+            }
+        }
+
+        await dialogService.ShowDialog(new AssetInfoViewModel(items));
+        
+        return;
+
+        static IEnumerable<WorkspaceItem> GetAssetsFileWorkspaceItems(IEnumerable<WorkspaceItem> workspaceItems)
+        {
+            foreach (var item in workspaceItems)
+            {
+                if (item.ObjectType == WorkspaceItemType.AssetsFile)
+                {
+                    yield return item;
+                }
+
+                if (item.ObjectType == WorkspaceItemType.BundleFile)
+                {
+                    foreach (var assetFileChild in item.Children.Where(x => x.ObjectType == WorkspaceItemType.AssetsFile))
+                    {
+                        yield return assetFileChild;
+                    }
+                }
+            }
         }
     }
 }
