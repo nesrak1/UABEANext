@@ -94,6 +94,8 @@ public partial class Workspace : ObservableObject
             bunInst = Manager.LoadBundleFile(stream, name);
         }
 
+        TryLoadClassDatabase(bunInst.file);
+
         var item = new WorkspaceItem(this, bunInst, loadOrder);
         AddRootItemThreadSafe(item, bunInst.name);
 
@@ -155,6 +157,18 @@ public partial class Workspace : ObservableObject
             assetInsts.AddRange(tmp);
             fileInst.file.Metadata.AssetInfos = assetInsts;
             fileInst.file.GenerateQuickLookup();
+        }
+    }
+
+    public void TryLoadClassDatabase(AssetBundleFile file)
+    {
+        if (Manager.ClassDatabase == null)
+        {
+            var fileVersion = file.Header.EngineVersion;
+            if (fileVersion != "0.0.0")
+            {
+                Manager.LoadClassDatabaseFromPackage(fileVersion);
+            }
         }
     }
 
