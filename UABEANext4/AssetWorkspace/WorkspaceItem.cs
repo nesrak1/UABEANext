@@ -3,6 +3,7 @@ using AssetsTools.NET.Extra;
 using Avalonia.Media;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 
 namespace UABEANext4.AssetWorkspace;
 
@@ -91,6 +92,25 @@ public class WorkspaceItem : INotifyPropertyChanged
         Object = obj;
         ObjectType = type;
         LoadIndex = loadOrder;
+    }
+
+    public static IEnumerable<WorkspaceItem> GetAssetsFileWorkspaceItems(IEnumerable<WorkspaceItem> workspaceItems)
+    {
+        foreach (var item in workspaceItems)
+        {
+            if (item.ObjectType == WorkspaceItemType.AssetsFile)
+            {
+                yield return item;
+            }
+
+            if (item.ObjectType == WorkspaceItemType.BundleFile)
+            {
+                foreach (var assetFileChild in item.Children.Where(x => x.ObjectType == WorkspaceItemType.AssetsFile))
+                {
+                    yield return assetFileChild;
+                }
+            }
+        }
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
