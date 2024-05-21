@@ -125,6 +125,7 @@ public partial class MainViewModel : ViewModelBase
 
     public async Task FileSave()
     {
+        Workspace.ModifyMutex.WaitOne();
         try
         {
             var explorer = _factory?.GetDockable<WorkspaceExplorerToolViewModel>("WorkspaceExplorer");
@@ -182,7 +183,7 @@ public partial class MainViewModel : ViewModelBase
         }
         finally
         {
-            Workspace.ModifyMutex.WaitOne();
+            Workspace.ModifyMutex.ReleaseMutex();
         }
     }
 
