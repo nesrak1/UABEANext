@@ -1,19 +1,15 @@
-﻿using AssetsTools.NET;
-using AssetsTools.NET.Extra;
+﻿using AssetsTools.NET.Extra;
 using AssetsTools.NET.Texture;
-using Avalonia;
 using Avalonia.Media.Imaging;
-using Avalonia.Platform;
 using AvaloniaEdit.Document;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
 using Dock.Model.Mvvm.Controls;
 using System;
-using System.Linq;
-using System.Runtime.InteropServices;
 using System.Text;
 using UABEANext4.AssetWorkspace;
 using UABEANext4.Logic;
+using UABEANext4.Logic.Sprite;
 
 namespace UABEANext4.ViewModels.Tools;
 public partial class PreviewerToolViewModel : Tool
@@ -26,9 +22,10 @@ public partial class PreviewerToolViewModel : Tool
     public Bitmap? _activeImage;
     [ObservableProperty]
     public TextDocument? _activeDocument;
-
     [ObservableProperty]
     public PreviewerToolPreviewType _activePreviewType = PreviewerToolPreviewType.Text;
+
+    private TexturePreview _textureLoader;
 
     const int TEXT_ASSET_MAX_LENGTH = 100000;
 
@@ -42,6 +39,7 @@ public partial class PreviewerToolViewModel : Tool
 
         _activeImage = null;
         _activeDocument = new TextDocument();
+        _textureLoader = new TexturePreview();
     }
 
     public PreviewerToolViewModel(Workspace workspace)
@@ -53,6 +51,7 @@ public partial class PreviewerToolViewModel : Tool
 
         _activeImage = null;
         _activeDocument = new TextDocument("No preview available.");
+        _textureLoader = new TexturePreview();
 
         WeakReferenceMessenger.Default.Register<AssetsSelectedMessage>(this, OnAssetsSelected);
         WeakReferenceMessenger.Default.Register<WorkspaceClosingMessage>(this, OnWorkspaceClosing);
@@ -82,13 +81,9 @@ public partial class PreviewerToolViewModel : Tool
             if (asset.Type == AssetClassID.Texture2D)
             {
                 ActivePreviewType = PreviewerToolPreviewType.Image;
-                if (ActiveImage != null)
-                {
-                    ActiveImage.Dispose();
-                    ActiveImage = null;
-                }
+                DisposeCurrentImage();
 
-                var image = GetTexture2DBitmap(asset, out TextureFormat format);
+                var image = _textureLoader.GetTexture2DBitmap(Workspace, asset, out TextureFormat format);
                 if (image != null)
                 {
                     ActiveImage = image;
@@ -98,6 +93,24 @@ public partial class PreviewerToolViewModel : Tool
                     ActivePreviewType = PreviewerToolPreviewType.Text;
                     ActiveDocument = new TextDocument(
                         $"Texture failed to decode. Image format may not be supported. ({format})");
+                }
+                return;
+            }
+            else if (asset.Type == AssetClassID.Sprite)
+            {
+                ActivePreviewType = PreviewerToolPreviewType.Image;
+                DisposeCurrentImage();
+
+                var image = _textureLoader.GetSpriteBitmap(Workspace, asset, out TextureFormat format);
+                if (image != null)
+                {
+                    ActiveImage = image;
+                }
+                else
+                {
+                    ActivePreviewType = PreviewerToolPreviewType.Text;
+                    ActiveDocument = new TextDocument(
+                        $"Sprite failed to decode. Image format may not be supported. ({format})");
                 }
                 return;
             }
@@ -112,45 +125,13 @@ public partial class PreviewerToolViewModel : Tool
         ActiveDocument = new TextDocument("No preview available.");
     }
 
-    private Bitmap? GetTexture2DBitmap(AssetInst asset, out TextureFormat format)
+    private void DisposeCurrentImage()
     {
-        var textureEditBf = GetByteArrayTexture(Workspace, asset);
-        var texture = TextureFile.ReadTextureFile(textureEditBf);
-        format = (TextureFormat)texture.m_TextureFormat;
-
-        var textureData = texture.GetTextureData(asset.FileInstance);
-        if (textureData == null)
+        if (ActiveImage != null)
         {
-            return null;
+            ActiveImage.Dispose();
+            ActiveImage = null;
         }
-
-        var bitmap = new WriteableBitmap(new PixelSize(texture.m_Width, texture.m_Height), new Vector(96, 96), PixelFormat.Bgra8888, AlphaFormat.Unpremul);
-        using (var frameBuffer = bitmap.Lock())
-        {
-            Marshal.Copy(textureData, 0, frameBuffer.Address, textureData.Length);
-        }
-
-        return bitmap;
-    }
-
-    public static AssetTypeValueField? GetByteArrayTexture(Workspace workspace, AssetInst tex)
-    {
-        var textureTemp = workspace.GetTemplateField(tex.FileInstance, tex);
-        var imageData = textureTemp.Children.FirstOrDefault(f => f.Name == "image data");
-        if (imageData == null)
-            return null;
-
-        imageData.ValueType = AssetValueType.ByteArray;
-
-        var platformBlob = textureTemp.Children.FirstOrDefault(f => f.Name == "m_PlatformBlob");
-        if (platformBlob != null)
-        {
-            var m_PlatformBlob_Array = platformBlob.Children[0];
-            m_PlatformBlob_Array.ValueType = AssetValueType.ByteArray;
-        }
-
-        var baseField = textureTemp.MakeValue(tex.FileReader, tex.AbsoluteByteStart);
-        return baseField;
     }
 
     private string GetTextAssetText(AssetInst asset)
