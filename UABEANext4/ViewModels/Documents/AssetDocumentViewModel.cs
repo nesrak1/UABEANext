@@ -109,9 +109,19 @@ public partial class AssetDocumentViewModel : Document
         if (string.IsNullOrEmpty(searchText))
             return a => true;
 
-        return o => o is AssetInst a
-                 && (a.DisplayName.Contains(searchText, StringComparison.OrdinalIgnoreCase)
-                 || ClassIdToString[a.Type] == searchText);
+        return o =>
+        {
+            if (o is not AssetInst a)
+                return false;
+
+            if (a.DisplayName.Contains(searchText, StringComparison.OrdinalIgnoreCase))
+                return true;
+
+            if (ClassIdToString.TryGetValue(a.Type, out string? classIdName) && classIdName == searchText)
+                return true;
+
+            return false;
+        };
     }
 
     public async Task Load(List<AssetsFileInstance> fileInsts)
