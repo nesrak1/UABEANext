@@ -19,7 +19,7 @@
         </Image>
       </DataTemplate>
       <DataTemplate x:Key="Text" DataType="tools:PreviewerToolPreviewType">
-        <avedit:TextEditor FontFamily="Cascadia Code,Consolas,Monospace,Courier,DejaVu Sans Mono,Roboto Mono,Menlo" Document="{Binding $parent[UserControl].((tools:PreviewerToolViewModel)DataContext).ActiveDocument}" IsReadOnly="True" />
+        <avedit:TextEditor FontFamily="Cascadia Code,Consolas,Monospace,Courier,DejaVu Sans Mono,Roboto Mono,Menlo" Document="{Binding $parent[UserControl].((tools:PreviewerToolViewModel)DataContext).ActiveDocument}" WordWrap="True" IsReadOnly="True" />
       </DataTemplate>
       <!--<DataTemplate x:Key="Mesh" DataType="m:PreviewerToolPreviewType">
         <mprev:MeshPreviewerControl ActiveMesh="{Binding $parent[UserControl].DataContext.ActiveMesh}" />

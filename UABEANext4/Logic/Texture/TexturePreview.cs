@@ -1,4 +1,5 @@
 ﻿using AssetsTools.NET;
+using AssetsTools.NET.Extra;
 using AssetsTools.NET.Texture;
 using Avalonia;
 using Avalonia.Media.Imaging;
@@ -10,12 +11,14 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using UABEANext4.AssetWorkspace;
 using UABEANext4.Logic.Mesh;
+using UABEANext4.Logic.Texture;
 
 namespace UABEANext4.Logic.Sprite;
 public class TexturePreview
 {
     private readonly Dictionary<AssetInst, SKBitmap> _spriteBitmapCache = new();
     private readonly Queue<AssetInst> _spriteBitmapQueue = new();
+    private readonly SpriteAtlasLookup _spriteAtlasLookup = new();
 
     public const int DEFAULT_MAX_SPRITE_BITMAP_CACHE_SIZE = 10;
 
@@ -29,14 +32,24 @@ public class TexturePreview
         }
 
         var renderData = spriteBf["m_RD"];
-        var texturePtr = renderData["texture"];
-        if (AssetPPtr.FromField(texturePtr).IsNull())
+        var spriteAtlas = GetSpriteAtlas(workspace, asset, spriteBf);
+
+        AssetPPtr texturePtr;
+        if (spriteAtlas != null)
         {
-            format = 0;
-            return null;
+            texturePtr = spriteAtlas.texture;
+        }
+        else
+        {
+            texturePtr = AssetPPtr.FromField(renderData["texture"]);
+            if (texturePtr.IsNull())
+            {
+                format = 0;
+                return null;
+            }
         }
 
-        var textureAsset = workspace.GetAssetInst(asset.FileInstance, texturePtr);
+        var textureAsset = workspace.GetAssetInst(asset.FileInstance, texturePtr.FileId, texturePtr.PathId);
         if (textureAsset == null)
         {
             format = 0;
@@ -59,7 +72,6 @@ public class TexturePreview
             var textureData = texture.GetTextureData(textureAsset.FileInstance);
             if (textureData == null)
             {
-                format = 0;
                 return null;
             }
 
@@ -85,33 +97,54 @@ public class TexturePreview
 
         var pixelsToUnits = spriteBf["m_PixelsToUnits"].AsFloat;
 
-        var rect = spriteBf["m_Rect"];
-        var rectWidth = rect["width"].AsFloat;
-        var rectHeight = rect["height"].AsFloat;
-
         var pivot = spriteBf["m_Pivot"];
         var pivotX = pivot["x"].AsFloat;
         var pivotY = pivot["y"].AsFloat;
 
-        var textureRectOffset = renderData["textureRectOffset"];
-        var textureRectOffsetX = textureRectOffset["x"].AsFloat;
-        var textureRectOffsetY = textureRectOffset["y"].AsFloat;
+        var rect = spriteBf["m_Rect"];
+        var rectWidth = rect["width"].AsFloat;
+        var rectHeight = rect["height"].AsFloat;
 
-        var textureRect = renderData["textureRect"];
-        var textureRectX = (float)Math.Floor(textureRect["x"].AsFloat);
-        var textureRectY = (float)Math.Floor(textureRect["y"].AsFloat);
-        var textureRectWidth = (float)Math.Ceiling(textureRect["width"].AsFloat);
-        var textureRectHeight = (float)Math.Ceiling(textureRect["height"].AsFloat);
+        float textureRectOffsetX, textureRectOffsetY;
+        float textureRectX, textureRectY, textureRectWidth, textureRectHeight;
+        uint settingsRaw;
+
+        if (spriteAtlas != null)
+        {
+            textureRectX = spriteAtlas.textureRectX;
+            textureRectY = spriteAtlas.textureRectY;
+            textureRectWidth = spriteAtlas.textureRectWidth;
+            textureRectHeight = spriteAtlas.textureRectHeight;
+
+            textureRectOffsetX = spriteAtlas.textureRectOffsetX;
+            textureRectOffsetY = spriteAtlas.textureRectOffsetY;
+
+            settingsRaw = spriteAtlas.settingsRaw;
+        }
+        else
+        {
+            var textureRect = renderData["textureRect"];
+            textureRectX = (float)Math.Floor(textureRect["x"].AsFloat);
+            textureRectY = (float)Math.Floor(textureRect["y"].AsFloat);
+            textureRectWidth = (float)Math.Ceiling(textureRect["width"].AsFloat);
+            textureRectHeight = (float)Math.Ceiling(textureRect["height"].AsFloat);
+
+            var textureRectOffset = renderData["textureRectOffset"];
+            textureRectOffsetX = textureRectOffset["x"].AsFloat;
+            textureRectOffsetY = textureRectOffset["y"].AsFloat;
+
+            settingsRaw = renderData["settingsRaw"].AsUInt;
+        }
 
         // todo
-        var settingsRaw = renderData["settingsRaw"].AsInt;
         var flipX = (settingsRaw & 4) != 0;
         var flipY = (settingsRaw & 8) != 0;
         var rot90 = (settingsRaw & 16) != 0;
 
         using var croppedBitmap = new SKBitmap((int)Math.Round(textureRectWidth), (int)Math.Round(textureRectHeight));
 
-        var mesh = new MeshReader(asset.FileInstance, renderData);
+        var version = asset.FileInstance.file.Metadata.UnityVersion;
+        var mesh = new MeshReader(asset.FileInstance, renderData, new UnityVersion(version));
         if (mesh.Vertices.Length % 3 != 0)
         {
             format = 0;
@@ -166,6 +199,33 @@ public class TexturePreview
         return bitmap;
     }
 
+    private SpriteAtlasData? GetSpriteAtlas(Workspace workspace, AssetInst asset, AssetTypeValueField spriteBf)
+    {
+        var spriteAtlas = spriteBf["m_SpriteAtlas"];
+        var spriteAtlasPtr = AssetPPtr.FromField(spriteAtlas);
+        if (spriteAtlasPtr.IsNull())
+        {
+            return null;
+        }
+
+        spriteAtlasPtr.SetFilePathFromFile(workspace.Manager, asset.FileInstance);
+        var key = SpriteAtlasLookup.MakeRenderKeyGuid(spriteBf["m_RenderDataKey"]["first"]);
+        var atlasData = _spriteAtlasLookup.GetAtlasData(spriteAtlasPtr, key);
+        if (atlasData != null)
+        {
+            return atlasData;
+        }
+
+        var spriteAtlasBf = workspace.GetBaseField(asset.FileInstance, spriteAtlasPtr.FileId, spriteAtlasPtr.PathId);
+        if (spriteAtlasBf == null)
+        {
+            return null;
+        }
+
+        _spriteAtlasLookup.AddSpriteAtlas(spriteAtlasPtr, spriteAtlasBf);
+        return _spriteAtlasLookup.GetAtlasData(spriteAtlasPtr, key);
+    }
+
     public Bitmap? GetTexture2DBitmap(Workspace workspace, AssetInst asset, out TextureFormat format)
     {
         var textureEditBf = GetByteArrayTexture(workspace, asset);
@@ -214,5 +274,7 @@ public class TexturePreview
             bitmap.Dispose();
         }
         _spriteBitmapCache.Clear();
+        _spriteBitmapQueue.Clear();
+        _spriteAtlasLookup.Clear();
     }
 }

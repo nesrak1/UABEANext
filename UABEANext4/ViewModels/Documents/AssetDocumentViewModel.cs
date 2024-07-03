@@ -459,6 +459,26 @@ public partial class AssetDocumentViewModel : Document
         }
     }
 
+    public async void AddAsset()
+    {
+        var dialogService = Ioc.Default.GetRequiredService<IDialogService>();
+        var result = await dialogService.ShowDialog(new AddAssetViewModel(Workspace, FileInsts));
+        if (result == null)
+        {
+            return;
+        }
+
+        var baseInfo = AssetFileInfo.Create(
+            result.File.file, result.PathId, result.TypeId, result.ScriptIndex,
+            Workspace.Manager.ClassDatabase, false
+        );
+        var info = new AssetInst(result.File, baseInfo);
+        var baseField = ValueBuilder.DefaultValueFieldFromTemplate(result.TempField);
+
+        result.File.file.Metadata.AddAssetInfo(info);
+        info.UpdateAssetDataAndRow(Workspace, baseField);
+    }
+
     public void OnAssetOpened(List<AssetInst> assets)
     {
         if (assets.Count > 0)

@@ -247,7 +247,15 @@ public partial class MainViewModel : ViewModelBase
 
     public void ViewDuplicateTab()
     {
-
+        var files = _factory?.GetDockable<IDocumentDock>("Files");
+        if (Layout is not null && files is not null)
+        {
+            if (files.ActiveDockable != null)
+            {
+                var oldDockable = files.ActiveDockable;
+                _factory?.AddDockable(files, oldDockable);
+            }
+        }
     }
 
     // todo should we just replace every assetinst? is that too expensive?

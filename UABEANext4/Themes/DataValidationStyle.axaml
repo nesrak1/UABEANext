@@ -1,0 +1,50 @@
+﻿<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Design.PreviewWith>
+        <Border Padding="20">
+            <!-- Add Controls for Previewer Here -->
+        </Border>
+    </Design.PreviewWith>
+
+    <Style Selector="DataValidationErrors">
+      <Setter Property="Template">
+        <ControlTemplate>
+          <DockPanel LastChildFill="True">
+            <ContentControl DockPanel.Dock="Right"
+                            ContentTemplate="{TemplateBinding ErrorTemplate}"
+                            DataContext="{TemplateBinding Owner}"
+                            Content="{Binding (DataValidationErrors.Errors)}"
+                            IsVisible="{Binding (DataValidationErrors.HasErrors)}"/>
+            <ContentPresenter Name="PART_ContentPresenter"
+                              Background="{TemplateBinding Background}"
+                              BorderBrush="{TemplateBinding BorderBrush}"
+                              BorderThickness="{TemplateBinding BorderThickness}"
+                              CornerRadius="{TemplateBinding CornerRadius}"
+                              ContentTemplate="{TemplateBinding ContentTemplate}"
+                              Content="{TemplateBinding Content}"
+                              Padding="{TemplateBinding Padding}"/>
+          </DockPanel>
+        </ControlTemplate>
+      </Setter>
+      <Setter Property="ErrorTemplate">
+        <DataTemplate x:DataType="{x:Type x:Object}">
+          <Canvas Width="14" Height="14" Margin="4 0 1 0"
+                  Background="Transparent">
+            <Canvas.Styles>
+              <Style Selector="ToolTip">
+                <Setter Property="Background" Value="#fccccc"/>
+                <Setter Property="Foreground" Value="#000000"/>
+                <Setter Property="BorderBrush" Value="#e22222"/>
+              </Style>
+            </Canvas.Styles>
+            <ToolTip.Tip>
+              <ItemsControl ItemsSource="{Binding}"/>
+            </ToolTip.Tip>
+            <Path Data="M 3 3 l 8 8 M 11 3 l -8 8"
+                  Stroke="Red"
+                  StrokeThickness="2"/>
+          </Canvas>
+        </DataTemplate>
+      </Setter>
+    </Style>
+</Styles>

@@ -66,7 +66,6 @@ public class ExportTextureOption : IUavPluginOption
 
         StringBuilder errorBuilder = new StringBuilder();
         int emptyTextureCount = 0;
-
         foreach (AssetInst asset in selection)
         {
             var errorAssetName = $"{Path.GetFileName(asset.FileInstance.path)}/{asset.PathId}";

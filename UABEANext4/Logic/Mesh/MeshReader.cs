@@ -22,12 +22,11 @@ namespace UABEANext4.Logic.Mesh
         public float[] Colors;
         public float[][] UVs;
 
-        public MeshReader(AssetsFileInstance fileInst, AssetTypeValueField baseField)
+        public MeshReader(AssetsFileInstance fileInst, AssetTypeValueField baseField, UnityVersion version)
         {
             _fileInst = fileInst;
             _baseField = baseField;
-
-            _version = new UnityVersion(fileInst.file.Metadata.UnityVersion);
+            _version = version;
 
             Indices = Array.Empty<ushort>();
             Channels = new List<Channel>();
@@ -332,7 +331,7 @@ namespace UABEANext4.Logic.Mesh
                         {
                             UVs = new float[4][];
                         }
-                        UVs[(int)channelType - (int)ChannelTypeV2.TexCoord3] = floatItems;
+                        UVs[(int)channelType - (int)ChannelTypeV2.TexCoord0] = floatItems;
                         break;
                     }
                     case ChannelTypeV2.Tangent: Tangents = floatItems; break;

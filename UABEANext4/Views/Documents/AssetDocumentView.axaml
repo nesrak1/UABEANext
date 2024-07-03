@@ -69,7 +69,7 @@
           </MenuFlyout>-->
         </Button.Flyout>
       </Button>
-      <Button MaxWidth="100">
+      <Button MaxWidth="100" Command="{Binding AddAsset}">
         <StackPanel Orientation="Horizontal">
           <Image Source="avares://UABEANext4/Assets/Icons/action-add-asset.png" Margin="0,0,3,0" />
           <TextBlock>Add</TextBlock>
