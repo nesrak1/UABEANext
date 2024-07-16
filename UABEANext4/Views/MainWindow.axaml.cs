@@ -1,6 +1,7 @@
 ﻿using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Platform.Storage;
+using Avalonia.Styling;
 using System.Linq;
 using System.Threading.Tasks;
 using UABEANext4.ViewModels;
@@ -13,6 +14,7 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
 
+        RequestedThemeVariant = ThemeVariant.Dark;
         AddHandler(DragDrop.DropEvent, Drop);
     }
 
