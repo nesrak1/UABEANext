@@ -502,7 +502,17 @@ public class AssetDataTreeView : TreeView
                         int externalIdx = fileId - 1;
                         if (0 <= externalIdx && externalIdx < externals.Count)
                         {
-                            string externalName = Path.GetFileName(externals[externalIdx].PathName);
+                            AssetsFileExternal external = externals[externalIdx];
+                            string pathName = external.PathName;
+                            string externalName;
+                            if (pathName == string.Empty && external.Type != AssetsFileExternalType.Normal)
+                            {
+                                externalName = $"guid: {external.Guid}";
+                            }
+                            else
+                            {
+                                externalName = Path.GetFileName(externals[externalIdx].PathName);
+                            }
                             comment = $" ({externalName})";
                         }
                     }

@@ -17,6 +17,7 @@ internal class MainDockFactory : Factory
     private WorkspaceExplorerToolViewModel? _workspaceExplorerTool;
     private InspectorToolViewModel? _inspectorToolViewModel;
     private PreviewerToolViewModel? _previewerToolViewModel;
+    private HierarchyToolViewModel? _hierarchyToolViewModel;
 
     private Workspace _workspace;
 
@@ -35,6 +36,7 @@ internal class MainDockFactory : Factory
         _workspaceExplorerTool = new WorkspaceExplorerToolViewModel(_workspace);
         _inspectorToolViewModel = new InspectorToolViewModel(_workspace);
         _previewerToolViewModel = new PreviewerToolViewModel(_workspace);
+        _hierarchyToolViewModel = new HierarchyToolViewModel(_workspace);
 
         var assetDocumentDock = new AssetDocumentViewModel(_workspace);
         var documentDock = _fileDocumentDock = new DocumentDock
@@ -54,7 +56,8 @@ internal class MainDockFactory : Factory
             ActiveDockable = _workspaceExplorerTool,
             VisibleDockables = CreateList<IDockable>
             (
-                _workspaceExplorerTool
+                _workspaceExplorerTool,
+                _hierarchyToolViewModel
             ),
             Alignment = Alignment.Left,
             GripMode = GripMode.Visible,
@@ -113,6 +116,7 @@ internal class MainDockFactory : Factory
         {
             ["Root"] = () => _rootDock,
             ["WorkspaceExplorer"] = () => _workspaceExplorerTool,
+            ["Hierarchy"] = () => _hierarchyToolViewModel,
             ["Files"] = () => _fileDocumentDock,
             ["Inspector"] = () => _inspectorToolViewModel,
             ["Previewer"] = () => _previewerToolViewModel,

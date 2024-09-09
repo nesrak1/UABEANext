@@ -296,7 +296,7 @@ public partial class Workspace : ObservableObject
             string managedDir = Path.Combine(fileDir, "Managed");
             if (Directory.Exists(managedDir))
             {
-                bool hasDll = Directory.GetFiles(managedDir, "*.dll").Any();
+                bool hasDll = Directory.GetFiles(managedDir, "*.dll").Length > 0;
                 if (hasDll)
                 {
                     Manager.MonoTempGenerator = new MonoCecilTempGenerator(managedDir);
@@ -398,9 +398,16 @@ public partial class Workspace : ObservableObject
 
         CheckAndSetMonoTempGenerators(fileInst, info);
 
+        // negative target platform seems to indicate an editor version
+        AssetReadFlags readFlags = AssetReadFlags.None;
+        if ((int)fileInst.file.Metadata.TargetPlatform < 0)
+        {
+            readFlags |= AssetReadFlags.PreferEditor;
+        }
+
         try
         {
-            return Manager.GetBaseField(fileInst, info);
+            return Manager.GetBaseField(fileInst, info, readFlags);
         }
         catch
         {

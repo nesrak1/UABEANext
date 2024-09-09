@@ -1,0 +1,26 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:um="using:UABEANext4.Controls"
+             xmlns:tools="using:UABEANext4.ViewModels.Tools"
+             xmlns:hier="using:UABEANext4.Logic.Hierarchy"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="UABEANext4.Views.Tools.HierarchyToolView"
+             x:DataType="tools:HierarchyToolViewModel">
+  <Grid RowDefinitions="*,20">
+    <TreeView Grid.Row="0" Margin="0,0,0,0" Background="#252526" Name="GameObjectTreeView" SelectionChanged="HierarchyTreeView_OnSelectionChanged" SelectedItem="{Binding SelectedItem}" ItemsSource="{Binding RootItems}">
+      <TreeView.ItemTemplate>
+        <TreeDataTemplate DataType="{x:Type hier:HierarchyItem}" ItemsSource="{Binding Children}">
+          <TextBlock Text="{Binding Name}" />
+        </TreeDataTemplate>
+      </TreeView.ItemTemplate>
+      <TreeView.Styles>
+        <Style Selector="TreeViewItem" x:DataType="hier:HierarchyItem">
+          <Setter Property="IsExpanded" Value="{Binding Expanded}" />
+        </Style>
+      </TreeView.Styles>
+    </TreeView>
+    <CheckBox Grid.Row="1" IsChecked="{Binding SortAlphabetically}" IsEnabled="{Binding !IsLoadingNewItems}">Sort root GameObjects alphabetically</CheckBox>
+  </Grid>
+</UserControl>

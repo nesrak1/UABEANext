@@ -19,7 +19,7 @@
     </Grid.RowDefinitions>
 
     <UniformGrid Grid.Row="0" Rows="1" HorizontalAlignment="Left">
-      <Button MaxWidth="100">
+      <Button MaxWidth="100" Command="{Binding ViewScene}">
         <StackPanel Orientation="Horizontal">
           <Image Source="avares://UABEANext4/Assets/Icons/action-view-scene.png" Margin="0,0,3,0" />
           <TextBlock>View Scene</TextBlock>

@@ -42,14 +42,10 @@ public partial class InspectorToolViewModel : Tool
     private void OnAssetsSelected(object recipient, AssetsSelectedMessage message)
     {
         ActiveAssets.Clear();
-        if (message.Value.Count > 0)
+        foreach (var asset in message.Value)
         {
-            ActiveAssets.Add(message.Value[0]);
+            ActiveAssets.Add(asset);
         }
-        //foreach (var asset in message.Value)
-        //{
-        //    ActiveAssets.Add(asset);
-        //}
     }
 
     private void OnAssetsUpdated(object recipient, AssetsUpdatedMessage message)

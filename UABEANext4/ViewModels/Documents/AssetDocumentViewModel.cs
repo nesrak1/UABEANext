@@ -156,6 +156,14 @@ public partial class AssetDocumentViewModel : Document
         CollectionView.Filter = SetDataGridFilter(SearchText);
     }
 
+    public void ViewScene()
+    {
+        if (SelectedItems.Count >= 1)
+        {
+            WeakReferenceMessenger.Default.Send(new RequestSceneViewMessage(SelectedItems.First()));
+        }
+    }
+
     public void Import()
     {
         if (SelectedItems.Count > 1)
@@ -493,7 +501,7 @@ public partial class AssetDocumentViewModel : Document
     {
         if (assets.Count > 0)
         {
-            WeakReferenceMessenger.Default.Send(new AssetsSelectedMessage(assets));
+            WeakReferenceMessenger.Default.Send(new AssetsSelectedMessage([assets[0]]));
         }
 
         SelectedItems = assets;
@@ -503,7 +511,7 @@ public partial class AssetDocumentViewModel : Document
     {
         if (SelectedItems.Count > 0)
         {
-            WeakReferenceMessenger.Default.Send(new AssetsSelectedMessage(SelectedItems));
+            WeakReferenceMessenger.Default.Send(new AssetsSelectedMessage([SelectedItems[0]]));
         }
     }
 

@@ -18,6 +18,11 @@ public class RequestVisitAssetMessage(AssetInst value)
 {
 }
 
+public class RequestSceneViewMessage(AssetInst value)
+    : ValueChangedMessage<AssetInst>(value)
+{
+}
+
 public class AssetsUpdatedMessage(AssetInst value)
     : ValueChangedMessage<AssetInst>(value)
 {
