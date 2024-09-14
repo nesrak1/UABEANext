@@ -177,7 +177,7 @@ public class AssetExport
         }
         else
         {
-            throw new NotSupportedException($"Registry version {registry.version} not supported!");
+            throw new NotSupportedException($"Registry version {registry.version} not supported.");
         }
     }
 
@@ -315,7 +315,7 @@ public class AssetExport
         }
         else
         {
-            throw new NotSupportedException($"Registry version {registry.version} not supported!");
+            throw new NotSupportedException($"Registry version {registry.version} not supported.");
         }
     }
 

@@ -11,11 +11,13 @@ public class AssetImport
 {
     private readonly Stream _stream;
     private readonly StreamReader _streamReader;
+    private readonly RefTypeManager _refMan;
 
-    public AssetImport(Stream readStream)
+    public AssetImport(Stream readStream, RefTypeManager refMan)
     {
         _stream = readStream;
         _streamReader = new StreamReader(_stream);
+        _refMan = refMan;
     }
 
     public byte[] ImportRawAsset()
@@ -247,7 +249,7 @@ public class AssetImport
         }
         else if (tempField.HasValue && tempField.ValueType == AssetValueType.ManagedReferencesRegistry)
         {
-            throw new NotImplementedException("SerializeReference not supported in JSON import yet!");
+            JsonImportManagedReferencesRegistry(writer, tempField, token);
         }
         else
         {
@@ -351,6 +353,83 @@ public class AssetImport
                 writer.Align();
             }
         }
+    }
+
+    private void JsonImportManagedReferencesRegistry(AssetsFileWriter writer, AssetTypeTemplateField tempField, JToken token)
+    {
+        int version = (int)ExpectAndReadField(token, "version", tempField);
+        if (version < 1 || version > 2)
+        {
+            throw new Exception($"ManagedReferencesRegistry version {version} is invalid.");
+        }
+
+        JArray refIdsArray = (JArray)ExpectAndReadField(token, "RefIds", tempField);
+
+        writer.Write(version);
+        int childCount = refIdsArray.Count;
+
+        // todo: can we not trust the typetree?
+        if (version != 1)
+        {
+            writer.Write(childCount);
+        }
+
+        for (int i = 0; i < childCount; i++)
+        {
+            JToken refdObjectToken = refIdsArray[i];
+            long rid = (long)ExpectAndReadField(refdObjectToken, "rid", tempField);
+            if (version == 1)
+            {
+                if (rid != i)
+                {
+                    throw new Exception($"Field rid must be consecutive. Expected {i}, found {rid}.");
+                }
+            }
+            else
+            {
+                writer.Write(rid);
+            }
+
+            JToken typeToken = ExpectAndReadField(refdObjectToken, "type", tempField);
+            AssetTypeReference typeRef = new AssetTypeReference()
+            {
+                ClassName = (string?)ExpectAndReadField(typeToken, "class", tempField) ?? string.Empty,
+                Namespace = (string?)ExpectAndReadField(typeToken, "ns", tempField) ?? string.Empty,
+                AsmName = (string?)ExpectAndReadField(typeToken, "asm", tempField) ?? string.Empty
+            };
+
+            JToken dataToken = ExpectAndReadField(refdObjectToken, "data", tempField);
+
+            typeRef.WriteAsset(writer);
+            AssetTypeTemplateField objectTempField = _refMan.GetTemplateField(typeRef);
+            RecurseJsonImport(writer, objectTempField, dataToken);
+        }
+
+        if (version == 1)
+        {
+            AssetTypeReference.TERMINUS.WriteAsset(writer);
+        }
+        else
+        {
+            writer.Align();
+        }
+    }
+
+    private JToken ExpectAndReadField(JToken token, string name, AssetTypeTemplateField? tempField)
+    {
+        JToken? versionToken = token[name];
+        if (versionToken == null)
+        {
+            if (tempField == null)
+            {
+                throw new Exception($"Missing field {name} in JSON.");
+            }
+            else
+            {
+                throw new Exception($"Missing field {name} in JSON. Parent field is {tempField.Type} {tempField.Name}.");
+            }
+        }
+        return versionToken;
     }
 
     private static bool StartsWithSpace(string str, string value)

@@ -361,7 +361,8 @@ public partial class MainViewModel : ViewModelBase
             return;
         }
 
-        var newData = await dialogService.ShowDialog(new EditDataViewModel(baseField));
+        var refMan = Workspace.Manager.GetRefTypeManager(asset.FileInstance);
+        var newData = await dialogService.ShowDialog(new EditDataViewModel(baseField, refMan));
         if (newData != null)
         {
             asset.UpdateAssetDataAndRow(Workspace, newData);

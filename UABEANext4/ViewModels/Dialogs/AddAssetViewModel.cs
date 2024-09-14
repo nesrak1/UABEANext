@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Threading.Tasks;
 using UABEANext4.AssetWorkspace;
 using UABEANext4.Interfaces;
@@ -59,6 +60,11 @@ public partial class AddAssetViewModel : ViewModelBaseValidator, IDialogAware<Ad
                 scriptList.Add($"{scriptInfo.Key} - {GetTypeRefFullName(scriptInfo.Value!)}");
             }
             _scriptLookup[fileInst] = scriptList;
+        }
+
+        if (fileInsts.Count > 0)
+        {
+            SelectedFile = fileInsts.First();
         }
     }
 

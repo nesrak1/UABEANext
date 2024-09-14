@@ -15,8 +15,9 @@ public partial class EditDataViewModel : ViewModelBase, IDialogAware<byte[]?>
     [ObservableProperty]
     private TextDocument? _document;
     private AssetTypeValueField _baseField;
+    private RefTypeManager _refMan;
 
-    public string Title => "Rename File";
+    public string Title => "Edit Data";
     public int Width => 350;
     public int Height => 550;
     public event Action<byte[]?>? RequestClose;
@@ -26,11 +27,13 @@ public partial class EditDataViewModel : ViewModelBase, IDialogAware<byte[]?>
     {
         _document = new TextDocument();
         _baseField = new AssetTypeValueField();
+        _refMan = new RefTypeManager();
     }
 
-    public EditDataViewModel(AssetTypeValueField baseField)
+    public EditDataViewModel(AssetTypeValueField baseField, RefTypeManager refMan)
     {
         _baseField = baseField;
+        _refMan = refMan;
 
         using var ms = new MemoryStream();
         var exporter = new AssetExport(ms);
@@ -46,7 +49,7 @@ public partial class EditDataViewModel : ViewModelBase, IDialogAware<byte[]?>
     {
         var text = Document!.Text;
         using var ms = new MemoryStream(Encoding.UTF8.GetBytes(text));
-        var importer = new AssetImport(ms);
+        var importer = new AssetImport(ms, _refMan);
         var data = importer.ImportJsonAsset(_baseField.TemplateField, out string? exceptionMessage);
         if (data == null)
         {

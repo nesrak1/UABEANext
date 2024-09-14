@@ -10,8 +10,8 @@ namespace UABEANext4.ViewModels.Dialogs;
 public partial class AssetInfoViewModel : ViewModelBase, IDialogAware
 {
     public IEnumerable<WorkspaceItem> Items { get; }
-    private WorkspaceItem? _selectedItem;
 
+    private WorkspaceItem? _selectedItem;
     public WorkspaceItem? SelectedItem
     {
         get => _selectedItem;

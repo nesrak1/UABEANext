@@ -218,7 +218,7 @@ public partial class AssetDocumentViewModel : Document
             var selectedInst = selectedAsset.FileInstance;
 
             using FileStream fs = File.OpenRead(selectedFilePath);
-            var importer = new AssetImport(fs);
+            var importer = new AssetImport(fs, Workspace.Manager.GetRefTypeManager(selectedInst));
 
             byte[]? data;
             string? exceptionMessage;
@@ -284,7 +284,7 @@ public partial class AssetDocumentViewModel : Document
         var file = files[0];
 
         using var fs = File.OpenRead(file);
-        var importer = new AssetImport(fs);
+        var importer = new AssetImport(fs, Workspace.Manager.GetRefTypeManager(asset.FileInstance));
 
         byte[]? data = null;
         string? exception;
