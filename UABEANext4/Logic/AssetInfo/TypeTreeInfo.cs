@@ -150,6 +150,10 @@ public partial class TypeTreeInfo : ObservableObject
 
         var typeTreeType = typeInfo.TtType;
         var flatList = typeTreeType.Nodes;
+        if (flatList == null)
+        {
+            return;
+        }
 
         var lookup = new Dictionary<int, TypeTreeUINode>();
         var rootNodes = new List<TypeTreeUINode>();
