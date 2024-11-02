@@ -2,6 +2,7 @@
 using AssetsTools.NET.Extra;
 using AssetsTools.NET.Texture;
 using UABEANext4.AssetWorkspace;
+using UABEANext4.Logic.AssetInfo;
 
 namespace TexturePlugin;
 
@@ -79,5 +80,15 @@ public static class TextureHelper
         // if the texture is 512x1024 for example, select the height (1024)
         // I guess the width would stay 1 while the height resizes down
         return Math.Max(widthMipCount, heightMipCount);
+    }
+
+    public static void SwizzleOptIn(TextureFile texture, AssetsFile file)
+    {
+        // note: this means "swizzle if it seems enabled" not "always enable swizzle"
+        // for switch, if platformblob isn't present, this value is pretty much ignored
+        if (file.Metadata.TargetPlatform == (uint)BuildTarget.Switch)
+        {
+            texture.swizzleType = SwizzleType.Switch;
+        }
     }
 }

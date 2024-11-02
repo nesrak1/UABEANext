@@ -85,7 +85,7 @@ public class ImportBatchTextureOption : IUavPluginOption
 
             try
             {
-                tex.SetTextureData(info.ImportFile);
+                tex.EncodeTextureImage(info.ImportFile);
                 tex.WriteTo(baseField);
                 asset.UpdateAssetDataAndRow(workspace, baseField);
             }

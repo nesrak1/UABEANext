@@ -78,6 +78,8 @@ public class ExportTextureOption : IUavPluginOption
 
             var texFile = TextureFile.ReadTextureFile(texBaseField);
 
+            TextureHelper.SwizzleOptIn(texFile, asset.FileInstance.file);
+
             // 0x0 texture, usually called like Font Texture or something
             if (texFile.m_Width == 0 && texFile.m_Height == 0)
             {
@@ -89,7 +91,8 @@ public class ExportTextureOption : IUavPluginOption
             string filePath = AssetNameUtils.GetAssetFileName(asset, assetName, fileExtension);
 
             using FileStream outputStream = File.OpenWrite(filePath);
-            bool success = texFile.SaveTextureDataToImage(asset.FileInstance, outputStream, exportType);
+            byte[] encTextureData = texFile.FillPictureData(asset.FileInstance);
+            bool success = texFile.DecodeTextureImage(encTextureData, outputStream, exportType);
             if (!success)
             {
                 errorBuilder.AppendLine($"[{errorAssetName}]: failed to decode (missing resS, invalid texture format, etc.)");
@@ -118,6 +121,8 @@ public class ExportTextureOption : IUavPluginOption
 
         AssetTypeValueField? texBaseField = TextureHelper.GetByteArrayTexture(workspace, asset);
         TextureFile texFile = TextureFile.ReadTextureFile(texBaseField);
+
+        TextureHelper.SwizzleOptIn(texFile, asset.FileInstance.file);
 
         // 0x0 texture, usually called like Font Texture or something
         if (texFile.m_Width == 0 && texFile.m_Height == 0)
@@ -156,7 +161,8 @@ public class ExportTextureOption : IUavPluginOption
         };
 
         using FileStream outputStream = File.OpenWrite(filePath);
-        bool success = texFile.SaveTextureDataToImage(asset.FileInstance, outputStream, exportType);
+        byte[] encTextureData = texFile.FillPictureData(asset.FileInstance);
+        bool success = texFile.DecodeTextureImage(encTextureData, outputStream, exportType);
         if (!success)
         {
             string errorAssetName = $"{Path.GetFileName(asset.FileInstance.path)}/{asset.PathId}";
