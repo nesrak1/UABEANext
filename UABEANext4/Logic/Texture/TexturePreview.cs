@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using UABEANext4.AssetWorkspace;
+using UABEANext4.Logic.AssetInfo;
 using UABEANext4.Logic.Mesh;
 using UABEANext4.Logic.Texture;
 
@@ -69,7 +70,10 @@ public class TexturePreview
             var texture = TextureFile.ReadTextureFile(textureEditBf);
             format = (TextureFormat)texture.m_TextureFormat;
 
-            var textureData = texture.GetTextureData(textureAsset.FileInstance);
+            SwizzleOptIn(texture, textureAsset.FileInstance.file);
+
+            var encTextureData = texture.FillPictureData(textureAsset.FileInstance);
+            var textureData = texture.DecodeTextureRaw(encTextureData);
             if (textureData == null)
             {
                 return null;
@@ -81,7 +85,7 @@ public class TexturePreview
             MemoryExtensions.CopyTo(textureData, basePixelsSpan);
 
             // just like the lz4 block decoder, this only pulls whichever item
-            // was added last since we can't reset the position of elements
+            // was added earliest since we can't reset the position of elements
             // with a stock .net queue
             if (_spriteBitmapQueue.Count >= DEFAULT_MAX_SPRITE_BITMAP_CACHE_SIZE)
             {
@@ -199,6 +203,16 @@ public class TexturePreview
         return bitmap;
     }
 
+    private void SwizzleOptIn(TextureFile texture, AssetsFile file)
+    {
+        // note: this means "swizzle if it seems enabled" not "always enable swizzle"
+        // for switch, if platformblob isn't present, this value is pretty much ignored
+        if (file.Metadata.TargetPlatform == (uint)BuildTarget.Switch)
+        {
+            texture.swizzleType = SwizzleType.Switch;
+        }
+    }
+
     private SpriteAtlasData? GetSpriteAtlas(Workspace workspace, AssetInst asset, AssetTypeValueField spriteBf)
     {
         var spriteAtlas = spriteBf["m_SpriteAtlas"];
@@ -232,7 +246,10 @@ public class TexturePreview
         var texture = TextureFile.ReadTextureFile(textureEditBf);
         format = (TextureFormat)texture.m_TextureFormat;
 
-        var textureData = texture.GetTextureData(asset.FileInstance);
+        SwizzleOptIn(texture, asset.FileInstance.file);
+
+        var encTextureData = texture.FillPictureData(asset.FileInstance);
+        var textureData = texture.DecodeTextureRaw(encTextureData);
         if (textureData == null)
         {
             return null;

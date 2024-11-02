@@ -196,6 +196,26 @@
             <param name="loadDeps">Load all dependencies immediately?</param>
             <returns>The loaded <see cref="T:AssetsTools.NET.Extra.AssetsFileInstance"/>.</returns>
         </member>
+        <member name="P:AssetsTools.NET.Extra.AssetsManager.UseTemplateFieldCache">
+            <summary>
+            Cache template fields, including MonoBehaviours generated from class databases
+            </summary>
+        </member>
+        <member name="P:AssetsTools.NET.Extra.AssetsManager.UseMonoTemplateFieldCache">
+            <summary>
+            Cache MonoBehaviour template fields from type trees and generated mono temp generators
+            </summary>
+        </member>
+        <member name="P:AssetsTools.NET.Extra.AssetsManager.UseRefTypeManagerCache">
+            <summary>
+            Cache managed reference type template fields
+            </summary>
+        </member>
+        <member name="P:AssetsTools.NET.Extra.AssetsManager.UseQuickLookup">
+            <summary>
+            Use a dictionary to look up asset infos rather than a simple sequential search
+            </summary>
+        </member>
         <member name="F:AssetsTools.NET.Extra.BundleFileInstance.loadedAssetsFiles">
             <summary>
             List of loaded assets files for this bundle.
