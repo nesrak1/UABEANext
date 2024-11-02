@@ -7,7 +7,7 @@
              x:Class="UABEANext4.Views.Dialogs.RenameFileView"
              x:DataType="dlg:RenameFileViewModel">
   <Grid Margin="10,10,10,10">
-    <TextBox VerticalAlignment="Top" Height="26" Text="{Binding NewName}"  Name="defaultBox" />
+    <TextBox VerticalAlignment="Top" Height="26" Text="{Binding NewName}" Name="defaultBox" />
     <Grid VerticalAlignment="Bottom">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="*"></ColumnDefinition>

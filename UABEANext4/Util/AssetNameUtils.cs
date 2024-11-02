@@ -169,20 +169,13 @@ public static class AssetNameUtils
             // our only option is to extract the entire type tree and trim off
             // everything after the m_Script field so it doesn't load a lot.
 
-            // don't cache since the cached version might make us read more
-            // than we really want to
-            bool wasUsingCache = workspace.Manager.UseTemplateFieldCache;
-            workspace.Manager.UseTemplateFieldCache = false;
-
-            AssetTypeTemplateField monoTemp = workspace.GetTemplateField(asset, true);
+            AssetTypeTemplateField monoTemp = workspace.GetTemplateField(asset, true).Clone();
             // trim off extra (needs a speedup. findindex isn't going to be the fastest.)
             int nameIndex = monoTemp.Children.FindIndex(monoTemp => monoTemp.Name == "m_Script");
             if (nameIndex != -1)
             {
                 monoTemp.Children.RemoveRange(nameIndex + 1, monoTemp.Children.Count - (nameIndex + 1));
             }
-
-            workspace.Manager.UseTemplateFieldCache = wasUsingCache;
 
             AssetTypeValueField monoBf = monoTemp.MakeValue(asset.FileReader, asset.AbsoluteByteStart);
             AssetTypeValueField? scriptBaseField = workspace.GetBaseField(asset.FileInstance, monoBf["m_Script"]);

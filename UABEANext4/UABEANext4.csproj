@@ -17,28 +17,28 @@
 
   <ItemGroup>
     <PackageReference Include="AssetRipper.TextureDecoder" Version="2.1.1" />
-    <PackageReference Include="Avalonia" Version="11.1.0" />
-    <PackageReference Include="Avalonia.AvaloniaEdit" Version="11.0.6" />
-    <PackageReference Include="Avalonia.Controls.DataGrid" Version="11.1.0" />
-    <PackageReference Include="Avalonia.Skia" Version="11.1.0" />
-    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.1.0" />
-    <PackageReference Include="Avalonia.Fonts.Inter" Version="11.1.0" />
-    <PackageReference Include="Avalonia.Themes.Simple" Version="11.1.0" />
-    <PackageReference Include="AvaloniaEdit.TextMate" Version="11.0.6" />
-    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
+    <PackageReference Include="Avalonia" Version="11.1.3" />
+    <PackageReference Include="Avalonia.AvaloniaEdit" Version="11.1.0" />
+    <PackageReference Include="Avalonia.Controls.DataGrid" Version="11.1.3" />
+    <PackageReference Include="Avalonia.Skia" Version="11.1.3" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.1.3" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="11.1.3" />
+    <PackageReference Include="Avalonia.Themes.Simple" Version="11.1.3" />
+    <PackageReference Include="AvaloniaEdit.TextMate" Version="11.1.0" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.3.2" />
 
     <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
     <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.0.10" />
-    <PackageReference Include="Dock.Avalonia" Version="11.1.0.1" />
-    <PackageReference Include="Dock.Model" Version="11.1.0.1" />
-    <PackageReference Include="Dock.Model.Mvvm" Version="11.1.0.1" />
-    <PackageReference Include="DynamicData" Version="9.0.1" />
+    <PackageReference Include="Dock.Avalonia" Version="11.1.0.3" />
+    <PackageReference Include="Dock.Model" Version="11.1.0.3" />
+    <PackageReference Include="Dock.Model.Mvvm" Version="11.1.0.3" />
+    <PackageReference Include="DynamicData" Version="9.0.4" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
     <PackageReference Include="Mono.Cecil" Version="0.11.3" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Samboy063.LibCpp2IL" Version="2022.1.0-pre-release.18" />
     <PackageReference Include="Silk.NET.OpenGL" Version="2.21.0" />
-    <PackageReference Include="StbImageSharp" Version="2.27.13" />
+    <PackageReference Include="StbImageSharp" Version="2.30.15" />
     <PackageReference Include="StbImageWriteSharp" Version="1.16.7" />
   </ItemGroup>
 
@@ -60,6 +60,9 @@
   <ItemGroup>
     <Compile Update="Views\Dialogs\MessageBoxView.axaml.cs">
       <DependentUpon>MessageBoxView.axaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\Dialogs\VersionSelectView.axaml.cs">
+      <DependentUpon>VersionSelectView.axaml</DependentUpon>
     </Compile>
     <Compile Update="Views\Dialogs\SelectDumpView.axaml.cs">
       <DependentUpon>SelectDumpView.axaml</DependentUpon>

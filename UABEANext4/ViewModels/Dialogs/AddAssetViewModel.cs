@@ -286,7 +286,7 @@ public partial class AddAssetViewModel : ViewModelBaseValidator, IDialogAware<Ad
 
     private async Task ShowInvalidOptionsBox()
     {
-        await MessageBoxUtil.ShowDialog("Error", "Invalid options");
+        await MessageBoxUtil.ShowDialog("Error", "Invalid options provided.");
     }
 
     public void BtnCancel_Click()

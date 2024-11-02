@@ -5,6 +5,8 @@
              xmlns:avedit="using:AvaloniaEdit"
              xmlns:dlg="using:UABEANext4.ViewModels.Dialogs"
              xmlns:assetWorkspace="clr-namespace:UABEANext4.AssetWorkspace"
+             xmlns:uac="using:UABEANext4.Converters"
+             xmlns:info="using:UABEANext4.Logic.AssetInfo"
              mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="450"
              x:Class="UABEANext4.Views.Dialogs.AssetInfoView"
              x:DataType="dlg:AssetInfoViewModel">
@@ -13,99 +15,160 @@
     <dlg:AssetInfoViewModel />
   </Design.DataContext>
 
-  <TabControl Margin="5">
-    <TabItem Header="General Info">
-      <ScrollViewer>
-        <StackPanel Orientation="Vertical" Spacing="10">
-          <HeaderedContentControl Header="Header Info">
-            <Grid Margin="5 0 10 0" VerticalAlignment="Stretch" RowDefinitions="*,*,*,*,*"
-                  ColumnDefinitions="*,3*">
-              <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center">Metadata Size</TextBlock>
-              <TextBox
-                Text="{Binding GeneralInfo.MetadataSize, FallbackValue=0}"
-                Grid.Row="0"
-                Grid.Column="1"
-                VerticalAlignment="Center"
-                IsEnabled="false" />
+  <Grid Margin="5" RowDefinitions="*,Auto">
+    <Grid.Resources>
+      <uac:AssetTypeIconConverter x:Key="TypeTreeNodeConverter" />
+    </Grid.Resources>
+    <TabControl Grid.Row="0">
+      <TabItem Header="General Info">
+        <ScrollViewer>
+          <StackPanel Orientation="Vertical" Spacing="10">
+            <HeaderedContentControl Header="Header Info">
+              <Grid Margin="5 0 10 0" VerticalAlignment="Stretch" RowDefinitions="*,*,*,*,*"
+                    ColumnDefinitions="*,3*">
+                <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center">Metadata Size</TextBlock>
+                <TextBox
+                  Text="{Binding GeneralInfo.MetadataSize, FallbackValue=0}"
+                  Grid.Row="0"
+                  Grid.Column="1"
+                  VerticalAlignment="Center"
+                  IsEnabled="false" />
 
-              <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Center">File Size</TextBlock>
-              <TextBox
-                Text="{Binding GeneralInfo.FileSize, FallbackValue=0}"
-                Grid.Row="1"
-                Grid.Column="1"
-                VerticalAlignment="Center"
-                IsEnabled="false" />
+                <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Center">File Size</TextBlock>
+                <TextBox
+                  Text="{Binding GeneralInfo.FileSize, FallbackValue=0}"
+                  Grid.Row="1"
+                  Grid.Column="1"
+                  VerticalAlignment="Center"
+                  IsEnabled="false" />
 
-              <TextBlock Grid.Row="2" Grid.Column="0" VerticalAlignment="Center">Format</TextBlock>
-              <TextBox
-                Text="{Binding GeneralInfo.Format, FallbackValue=''}"
-                Grid.Row="2"
-                Grid.Column="1"
-                VerticalAlignment="Center"
-                IsEnabled="false" />
+                <TextBlock Grid.Row="2" Grid.Column="0" VerticalAlignment="Center">Format</TextBlock>
+                <TextBox
+                  Text="{Binding GeneralInfo.Format, FallbackValue=''}"
+                  Grid.Row="2"
+                  Grid.Column="1"
+                  VerticalAlignment="Center"
+                  IsEnabled="false" />
 
-              <TextBlock Grid.Row="3" Grid.Column="0" VerticalAlignment="Center">First File Offset</TextBlock>
-              <TextBox Text="{Binding GeneralInfo.FirstFileOffset, FallbackValue=0}"
-                       Grid.Row="3"
-                       Grid.Column="1"
-                       VerticalAlignment="Center"
-                       IsEnabled="false" />
+                <TextBlock Grid.Row="3" Grid.Column="0" VerticalAlignment="Center">First File Offset</TextBlock>
+                <TextBox Text="{Binding GeneralInfo.FirstFileOffset, FallbackValue=0}"
+                         Grid.Row="3"
+                         Grid.Column="1"
+                         VerticalAlignment="Center"
+                         IsEnabled="false" />
 
-              <TextBlock Grid.Row="4" Grid.Column="0" VerticalAlignment="Center">Endianness</TextBlock>
-              <TextBox Text="{Binding GeneralInfo.Endianness, FallbackValue=false}"
-                       Grid.Row="4"
-                       Grid.Column="1"
-                       VerticalAlignment="Center"
-                       IsEnabled="false" />
+                <TextBlock Grid.Row="4" Grid.Column="0" VerticalAlignment="Center">Endianness</TextBlock>
+                <TextBox Text="{Binding GeneralInfo.Endianness, FallbackValue=false}"
+                         Grid.Row="4"
+                         Grid.Column="1"
+                         VerticalAlignment="Center"
+                         IsEnabled="false" />
+              </Grid>
+            </HeaderedContentControl>
+            <HeaderedContentControl Header="Metadata Info">
+              <Grid Margin="5 0 10 0" RowDefinitions="*,*,*,*,*" ColumnDefinitions="*,3*">
+                <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center">Engine Version</TextBlock>
+                <TextBox Text="{Binding GeneralInfo.EngineVersion, FallbackValue=''}"
+                         Grid.Row="0"
+                         Grid.Column="1"
+                         VerticalAlignment="Center"
+                         IsEnabled="false" />
+
+                <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Center">Platform</TextBlock>
+                <TextBox Text="{Binding GeneralInfo.Platform, FallbackValue=0}"
+                         Grid.Row="1"
+                         Grid.Column="1"
+                         VerticalAlignment="Center"
+                         IsEnabled="false" />
+
+                <TextBlock Grid.Row="2" Grid.Column="0" VerticalAlignment="Center">Type Tree Enabled</TextBlock>
+                <TextBox Text="{Binding GeneralInfo.TypeTreeEnabled, FallbackValue=false}"
+                         Grid.Row="2"
+                         Grid.Column="1"
+                         VerticalAlignment="Center"
+                         IsEnabled="false" />
+              </Grid>
+            </HeaderedContentControl>
+          </StackPanel>
+        </ScrollViewer>
+      </TabItem>
+
+      <TabItem Header="Type Tree">
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+            <ColumnDefinition Width="220" />
+          </Grid.ColumnDefinitions>
+          
+          <Grid Grid.Column="0">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition />
+              <ColumnDefinition Width="5" />
+              <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <TreeView Grid.Column="0" ItemsSource="{Binding TypeTreeInfo.TypeTreeNodes}">
+              <TreeView.ItemTemplate>
+                <TreeDataTemplate DataType="{x:Type info:TypeTreeUINode}" ItemsSource="{Binding Children}">
+                  <TextBlock Inlines="{Binding Display}" />
+                </TreeDataTemplate>
+              </TreeView.ItemTemplate>
+            </TreeView>
+            <GridSplitter Grid.Column="1" HorizontalAlignment="Stretch" />
+            <ListBox Grid.Column="2" ItemsSource="{Binding TypeTreeInfo.TypeTreeTypeInfos}" SelectedItem="{Binding TypeTreeInfo.SelectedType}" />
+          </Grid>
+          
+          <StackPanel Grid.Column="1">
+            <Grid>
+              <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition Height="5" />
+                <RowDefinition />
+              </Grid.RowDefinitions>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="80" />
+                <ColumnDefinition Width="*" />
+              </Grid.ColumnDefinitions>
+              <Label Grid.Column="0" Grid.Row="0">Type Name</Label>
+              <Label Grid.Column="0" Grid.Row="1">Type ID</Label>
+              <Label Grid.Column="0" Grid.Row="2">Script ID</Label>
+              <Label Grid.Column="0" Grid.Row="3">Type Hash</Label>
+              <Label Grid.Column="0" Grid.Row="4">Script Hash</Label>
+              <Label Grid.Column="0" Grid.Row="6">Aligned</Label>
+              <TextBox Grid.Column="1" Grid.Row="0" IsReadOnly="True" Text="{Binding TypeTreeInfo.SelectedTypeName}" />
+              <TextBox Grid.Column="1" Grid.Row="1" IsReadOnly="True" Text="{Binding TypeTreeInfo.SelectedTypeId}" />
+              <TextBox Grid.Column="1" Grid.Row="2" IsReadOnly="True" Text="{Binding TypeTreeInfo.SelectedScriptId}" />
+              <TextBox Grid.Column="1" Grid.Row="3" IsReadOnly="True" Text="{Binding TypeTreeInfo.SelectedTypeHash}" />
+              <TextBox Grid.Column="1" Grid.Row="4" IsReadOnly="True" Text="{Binding TypeTreeInfo.SelectedMonoHash}" />
+              <TextBox Grid.Column="1" Grid.Row="6" IsReadOnly="True" Text="{Binding TypeTreeInfo.SelectedAligned}" />
             </Grid>
-          </HeaderedContentControl>
-          <HeaderedContentControl Header="Metadata Info">
-            <Grid Margin="5 0 10 0" RowDefinitions="*,*,*,*,*" ColumnDefinitions="*,3*">
-              <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center">Engine Version</TextBlock>
-              <TextBox Text="{Binding GeneralInfo.EngineVersion, FallbackValue=''}"
-                       Grid.Row="0"
-                       Grid.Column="1"
-                       VerticalAlignment="Center"
-                       IsEnabled="false" />
+          </StackPanel>
+        </Grid>
+      </TabItem>
 
-              <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Center">Platform</TextBlock>
-              <TextBox Text="{Binding GeneralInfo.Platform, FallbackValue=0}"
-                       Grid.Row="1"
-                       Grid.Column="1"
-                       VerticalAlignment="Center"
-                       IsEnabled="false" />
+      <TabItem Header="Externals">
+        <ListBox ItemsSource="{Binding ExternalsInfo.ExternalsDisplay}" SelectedItem="{Binding TypeTreeInfo.SelectedType}" />
+      </TabItem>
 
-              <TextBlock Grid.Row="2" Grid.Column="0" VerticalAlignment="Center">Type Tree Enabled</TextBlock>
-              <TextBox Text="{Binding GeneralInfo.TypeTreeEnabled, FallbackValue=false}"
-                       Grid.Row="2"
-                       Grid.Column="1"
-                       VerticalAlignment="Center"
-                       IsEnabled="false" />
-            </Grid>
-          </HeaderedContentControl>
-          <ContentControl Margin="5">
-            <StackPanel>
-              <TextBlock>Selected asset</TextBlock>
-              <ComboBox x:Name="SelectedAssetComboBox" SelectedIndex="0" SelectedItem="{Binding SelectedItem}">
-                <ComboBox.ItemTemplate>
-                  <DataTemplate x:DataType="assetWorkspace:WorkspaceItem">
-                    <TextBlock Text="{Binding Name}"></TextBlock>
-                  </DataTemplate>
-                </ComboBox.ItemTemplate>
-              </ComboBox>
-            </StackPanel>
-          </ContentControl>
-        </StackPanel>
-      </ScrollViewer>
-    </TabItem>
-    <TabItem Header="Type Tree">
-      
-    </TabItem>
-    <TabItem Header="Externals">
-
-    </TabItem>
-    <TabItem Header="Script Infos">
-
-    </TabItem>
-  </TabControl>
+      <TabItem Header="Script Infos">
+        <ListBox ItemsSource="{Binding ScriptsInfo.ScriptsDisplay}" SelectedItem="{Binding TypeTreeInfo.SelectedType}" />
+      </TabItem>
+    </TabControl>
+    
+    <ContentControl Grid.Row="1">
+      <StackPanel>
+        <TextBlock>Selected asset</TextBlock>
+        <ComboBox x:Name="SelectedAssetComboBox" SelectedIndex="0" SelectedItem="{Binding SelectedItem}">
+          <ComboBox.ItemTemplate>
+            <DataTemplate x:DataType="assetWorkspace:WorkspaceItem">
+              <TextBlock Text="{Binding Name}"></TextBlock>
+            </DataTemplate>
+          </ComboBox.ItemTemplate>
+        </ComboBox>
+      </StackPanel>
+    </ContentControl>
+  </Grid>
 </UserControl>

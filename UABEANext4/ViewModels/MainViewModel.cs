@@ -97,7 +97,41 @@ public partial class MainViewModel : ViewModelBase
 
         if (Workspace.Manager.ClassDatabase == null)
         {
-            await MessageBoxUtil.ShowDialog("Warning", "This file has no version information. Some functionality will be disabled until one is provided.");
+            var anySerializedItems = false;
+            foreach (var rootItem in Workspace.RootItems)
+            {
+                if (rootItem.ObjectType == WorkspaceItemType.AssetsFile)
+                {
+                    anySerializedItems = true;
+                    break;
+                }
+                else if (rootItem.ObjectType == WorkspaceItemType.BundleFile)
+                {
+                    foreach (var childItem in rootItem.Children)
+                    {
+                        if (rootItem.ObjectType == WorkspaceItemType.AssetsFile)
+                        {
+                            anySerializedItems = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (anySerializedItems)
+                {
+                    break;
+                }
+            }
+
+            if (anySerializedItems)
+            {
+                var dialogService = Ioc.Default.GetRequiredService<IDialogService>();
+                var version = await dialogService.ShowDialog(new VersionSelectViewModel());
+                if (version != null)
+                {
+                    Workspace.Manager.LoadClassDatabaseFromPackage(version);
+                }
+            }
         }
     }
 
@@ -238,7 +272,7 @@ public partial class MainViewModel : ViewModelBase
         WeakReferenceMessenger.Default.Send(new WorkspaceClosingMessage());
 
         var files = _factory?.GetDockable<IDocumentDock>("Files");
-        if (files is { } && files.VisibleDockables != null && files.VisibleDockables.Count > 0)
+        if (files is not null && files.VisibleDockables != null && files.VisibleDockables.Count > 0)
         {
             // lol you have to pass in a child
             _factory?.CloseAllDockables(files.VisibleDockables[0]);
@@ -396,6 +430,6 @@ public partial class MainViewModel : ViewModelBase
             }
         }
 
-        await dialogService.ShowDialog(new AssetInfoViewModel(items));
+        await dialogService.ShowDialog(new AssetInfoViewModel(Workspace, items));
     }
 }

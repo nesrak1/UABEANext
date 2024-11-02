@@ -4,7 +4,6 @@ using Avalonia;
 using Avalonia.Collections;
 using Avalonia.Controls;
 using Avalonia.Controls.Documents;
-using Avalonia.Media;
 using CommunityToolkit.Mvvm.Messaging;
 using System;
 using System.Collections.Generic;
@@ -15,6 +14,7 @@ using System.Text;
 using UABEANext4.AssetWorkspace;
 using UABEANext4.Logic;
 using UABEANext4.Util;
+using static UABEANext4.Themes.TypeHighlightingBrushes;
 
 namespace UABEANext4.Controls;
 public class AssetDataTreeView : TreeView
@@ -25,56 +25,10 @@ public class AssetDataTreeView : TreeView
 
     private AvaloniaList<object> ListItems = new AvaloniaList<object>();
 
-    private static SolidColorBrush PrimNameBrushDark = SolidColorBrush.Parse("#569cd6");
-    private static SolidColorBrush PrimNameBrushLight = SolidColorBrush.Parse("#0000ff");
-    private static SolidColorBrush TypeNameBrushDark = SolidColorBrush.Parse("#4ec9b0");
-    private static SolidColorBrush TypeNameBrushLight = SolidColorBrush.Parse("#2b91af");
-    private static SolidColorBrush StringBrushDark = SolidColorBrush.Parse("#d69d85");
-    private static SolidColorBrush StringBrushLight = SolidColorBrush.Parse("#a31515");
-    private static SolidColorBrush ValueBrushDark = SolidColorBrush.Parse("#b5cea8");
-    private static SolidColorBrush ValueBrushLight = SolidColorBrush.Parse("#5b2da8");
-
     private MenuItem menuEditAsset;
     private MenuItem menuVisitAsset;
     private MenuItem menuExpandSel;
     private MenuItem menuCollapseSel;
-
-    private SolidColorBrush PrimNameBrush
-    {
-        get
-        {
-            return true
-                ? PrimNameBrushDark
-                : PrimNameBrushLight;
-        }
-    }
-    private SolidColorBrush TypeNameBrush
-    {
-        get
-        {
-            return true
-                ? TypeNameBrushDark
-                : TypeNameBrushLight;
-        }
-    }
-    private SolidColorBrush StringBrush
-    {
-        get
-        {
-            return true
-                ? StringBrushDark
-                : StringBrushLight;
-        }
-    }
-    private SolidColorBrush ValueBrush
-    {
-        get
-        {
-            return true
-                ? ValueBrushDark
-                : ValueBrushLight;
-        }
-    }
 
     public AssetDataTreeView() : base()
     {
@@ -109,7 +63,7 @@ public class AssetDataTreeView : TreeView
         });
     }
 
-    private async void MenuEditAsset_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    private void MenuEditAsset_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
         if (SelectedItem != null && _workspace != null)
         {
@@ -125,8 +79,6 @@ public class AssetDataTreeView : TreeView
                 }
 
                 RequestEditAsset(cont);
-                //await _win.ShowEditAssetWindow(cont);
-                //await MessageBoxUtil.ShowDialog(null, "Note", "Asset updated. Changes will be shown next time you open this asset.");
             }
         }
     }

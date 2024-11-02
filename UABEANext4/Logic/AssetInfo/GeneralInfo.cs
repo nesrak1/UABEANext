@@ -6,19 +6,12 @@ namespace UABEANext4.Logic.AssetInfo;
 public class GeneralInfo
 {
     public required string MetadataSize { get; set; }
-
     public required string FileSize { get; set; }
-
     public required string Format { get; set; }
-
     public required string FirstFileOffset { get; set; }
-
     public required string Endianness { get; set; }
-
     public required string EngineVersion { get; set; }
-
     public required string Platform { get; set; }
-
     public required string TypeTreeEnabled { get; set; }
 
     [SetsRequiredMembers]

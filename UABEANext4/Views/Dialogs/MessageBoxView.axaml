@@ -3,7 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:dlg="using:UABEANext4.ViewModels.Dialogs"
-             mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="200"
+             mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="160"
              x:Class="UABEANext4.Views.Dialogs.MessageBoxView"
              x:DataType="dlg:MessageBoxViewModel">
   <Design.DataContext>
@@ -13,13 +13,13 @@
     <dlg:MessageBoxTemplateSelector>
       <DataTemplate x:Key="OK" DataType="dlg:MessageBoxType">
         <StackPanel Orientation="Horizontal" Spacing="10" FlowDirection="RightToLeft">
-          <Button MinWidth="70" Command="{Binding $parent[UserControl].((dlg:MessageBoxViewModel)DataContext).BtnA_Click}">OK</Button>
+          <Button MinWidth="70" Command="{Binding $parent[UserControl].((dlg:MessageBoxViewModel)DataContext).BtnA_Click}">Ok</Button>
         </StackPanel>
       </DataTemplate>
       <DataTemplate x:Key="OKCancel" DataType="dlg:MessageBoxType">
         <StackPanel Orientation="Horizontal" Spacing="10" FlowDirection="RightToLeft">
           <Button MinWidth="70" Command="{Binding $parent[UserControl].((dlg:MessageBoxViewModel)DataContext).BtnB_Click}">Cancel</Button>
-          <Button MinWidth="70" Command="{Binding $parent[UserControl].((dlg:MessageBoxViewModel)DataContext).BtnA_Click}">OK</Button>
+          <Button MinWidth="70" Command="{Binding $parent[UserControl].((dlg:MessageBoxViewModel)DataContext).BtnA_Click}">Ok</Button>
         </StackPanel>
       </DataTemplate>
       <DataTemplate x:Key="YesNo" DataType="dlg:MessageBoxType">
@@ -48,7 +48,7 @@
     <Grid.RowDefinitions>
       <RowDefinition Height="*" />
       <RowDefinition Height="8" />
-      <RowDefinition Height="30" />
+      <RowDefinition Height="25" />
     </Grid.RowDefinitions>
     <TextBox IsReadOnly="True" TextWrapping="Wrap" Grid.Row="0" Name="msgTextBox" BorderBrush="Transparent" Text="{Binding MsgText}" />
     <ContentControl Content="{Binding MsgType}" Grid.Row="2" />

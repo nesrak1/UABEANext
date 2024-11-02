@@ -3,7 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:dlg="using:UABEANext4.ViewModels.Dialogs"
-             mc:Ignorable="d" d:DesignWidth="700" d:DesignHeight="350"
+             mc:Ignorable="d" d:DesignWidth="300" d:DesignHeight="80"
              x:Class="UABEANext4.Views.Dialogs.SelectDumpView"
              x:DataType="dlg:SelectDumpViewModel">
   <Grid Margin="10,10,10,10">

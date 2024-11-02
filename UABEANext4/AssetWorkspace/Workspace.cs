@@ -19,6 +19,8 @@ public partial class Workspace : ObservableObject
     public PluginLoader Plugins { get; } = new PluginLoader();
 
     public Mutex ModifyMutex { get; } = new Mutex();
+
+    // this should be its own class
     [ObservableProperty]
     public float _progressValue = 0f;
     [ObservableProperty]
@@ -178,14 +180,9 @@ public partial class Workspace : ObservableObject
         {
             var metadata = file.Metadata;
             var fileVersion = metadata.UnityVersion;
-            var strippedTypeTree = !metadata.TypeTreeEnabled;
             if (fileVersion != "0.0.0")
             {
                 Manager.LoadClassDatabaseFromPackage(fileVersion);
-            }
-            else if (strippedTypeTree)
-            {
-                throw new NotSupportedException("Bundle has both stripped version and type tree which is currently unsupported.");
             }
         }
     }
