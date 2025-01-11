@@ -21,6 +21,8 @@ public partial class AssetInfoView : UserControl
             SelectedAssetComboBox.ItemsSource = aivm.Items;
             SelectedAssetComboBox.SelectedIndex = 0;
             aivm.SelectedItem = aivm.Items.FirstOrDefault();
+
+
         }
     }
 }

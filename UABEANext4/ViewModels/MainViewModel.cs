@@ -5,7 +5,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using CommunityToolkit.Mvvm.Messaging;
 using Dock.Model.Controls;
-using Dock.Model.Core;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -35,7 +34,7 @@ public partial class MainViewModel : ViewModelBase
         ? ExtendClientAreaChromeHints.PreferSystemChrome
         : ExtendClientAreaChromeHints.Default;
 
-    private readonly IFactory _factory;
+    private readonly MainDockFactory _factory;
     private List<AssetsFileInstance> _lastLoadedFiles = new();
 
     public MainViewModel()

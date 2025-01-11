@@ -58,6 +58,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="Views\Dialogs\AddExternalView.axaml.cs">
+      <DependentUpon>AddExternalView.axaml</DependentUpon>
+    </Compile>
     <Compile Update="Views\Dialogs\MessageBoxView.axaml.cs">
       <DependentUpon>MessageBoxView.axaml</DependentUpon>
     </Compile>

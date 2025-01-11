@@ -150,7 +150,27 @@
       </TabItem>
 
       <TabItem Header="Externals">
-        <ListBox ItemsSource="{Binding ExternalsInfo.ExternalsDisplay}" SelectedItem="{Binding TypeTreeInfo.SelectedType}" />
+        <Grid>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+          </Grid.RowDefinitions>
+          <ListBox Grid.Row="0" ItemsSource="{Binding ExternalsInfo.ExternalsDisplay}" SelectedIndex="{Binding ExternalsInfo.SelectedExternIndex}" />
+          <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Button Grid.Column="0" Content="Add" Command="{Binding ExternalsInfo.Add_Click}" />
+            <Button Grid.Column="1" Content="Edit" IsEnabled="{Binding ExternalsInfo.IsAssetSelected}"  Command="{Binding ExternalsInfo.Edit_Click}" />
+            <Button Grid.Column="2" Content="Remove" IsEnabled="{Binding ExternalsInfo.IsAssetSelected}" Command="{Binding ExternalsInfo.Remove_Click}" />
+            <Button Grid.Column="3" Content="Move Up" IsEnabled="{Binding ExternalsInfo.CanSelectedAssetMoveUp}" Command="{Binding ExternalsInfo.MoveUp_Click}" />
+            <Button Grid.Column="4" Content="Move Down" IsEnabled="{Binding ExternalsInfo.CanSelectedAssetMoveDown}" Command="{Binding ExternalsInfo.MoveDown_Click}" />
+          </Grid>
+        </Grid>
       </TabItem>
 
       <TabItem Header="Script Infos">
