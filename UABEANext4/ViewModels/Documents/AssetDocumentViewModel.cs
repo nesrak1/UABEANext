@@ -342,6 +342,9 @@ public partial class AssetDocumentViewModel : Document
                 return;
             }
 
+            // bug fix for double dialog box freezing in windows
+            await Task.Yield();
+
             var exportExt = exportType switch
             {
                 SelectedDumpType.JsonDump => ".json",

@@ -46,6 +46,9 @@ public class ExportTextureOption : IUavPluginOption
         ExportBatchOptionsViewModel dialog = new ExportBatchOptionsViewModel();
         ExportBatchOptionsResult? optionsRes = await funcs.ShowDialog(dialog);
 
+        // bug fix for double dialog box freezing in windows
+        await Task.Yield();
+
         if (optionsRes == null)
         {
             return false;
