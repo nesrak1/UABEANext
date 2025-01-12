@@ -90,7 +90,7 @@ public class ExportTextureOption : IUavPluginOption
             string assetName = PathUtils.ReplaceInvalidPathChars(texFile.m_Name);
             string filePath = AssetNameUtils.GetAssetFileName(asset, assetName, fileExtension);
 
-            using FileStream outputStream = File.OpenWrite(filePath);
+            using FileStream outputStream = File.OpenWrite(Path.Combine(dir, filePath));
             byte[] encTextureData = texFile.FillPictureData(asset.FileInstance);
             bool success = texFile.DecodeTextureImage(encTextureData, outputStream, exportType);
             if (!success)

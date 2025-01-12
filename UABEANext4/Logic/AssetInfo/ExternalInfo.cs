@@ -90,11 +90,6 @@ public partial class ExternalInfo : ViewModelBase
         Externals.RemoveAt(SelectedExternIndex);
     }
 
-    private void RefilterExternals()
-    {
-
-    }
-
     // we can't use .Move() because it doesn't update indices.
     // swapping only two items is fine because moving only
     // once up or down means no other indices update.
