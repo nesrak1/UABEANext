@@ -95,7 +95,7 @@ public class AssetExport
                 }
                 else if (1 <= (int)evt && (int)evt <= 12)
                 {
-                    value = $" = {field.AsString}";
+                    value = Invariant($" = {field.AsObject}");
                 }
             }
             _streamWriter.WriteLine(Invariant($"{new string(' ', depth)}{align} {typeName} {fieldName}{value}"));
