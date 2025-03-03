@@ -91,7 +91,7 @@ public class ImportBatchTextureOption : IUavPluginOption
             }
             catch (Exception e)
             {
-                errorBuilder.AppendLine($"[{errorAssetName}]: failed to import: {e.Message}");
+                errorBuilder.AppendLine($"[{errorAssetName}]: failed to import: {e}");
             }
         }
 
