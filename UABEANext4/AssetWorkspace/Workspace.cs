@@ -148,7 +148,6 @@ public partial class Workspace : ObservableObject
             foreach (var info in fileInst.file.AssetInfos)
             {
                 var asset = new AssetInst(fileInst, info);
-                // todo: partial loading will obsolete this (and remove the lock)
                 lock (asset.FileInstance.LockReader)
                 {
                     AssetNameUtils.GetDisplayNameFast(this, asset, true, out string? assetName, out string _);

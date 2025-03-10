@@ -124,7 +124,7 @@ public partial class Workspace
         var dirInfo = (AssetBundleDirectoryInfo)item.Object!;
         if (dirInfo.Replacer != null)
         {
-            dirInfo.Replacer.Write(new AssetsFileWriter(stream));
+            dirInfo.Replacer.Write(new AssetsFileWriter(stream), true);
         }
         else if (item.Parent != null)
         {

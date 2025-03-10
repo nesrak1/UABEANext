@@ -89,7 +89,7 @@ public class AssetImport
                 }
                 else if (StartsWithSpace(check, "float"))
                 {
-                    writer.Write(float.Parse(valueStr, NumberStyles.None, CultureInfo.InvariantCulture));
+                    writer.Write(float.Parse(valueStr, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture));
                 }
                 else if (StartsWithSpace(check, "bool"))
                 {
@@ -133,7 +133,7 @@ public class AssetImport
                 }
                 else if (StartsWithSpace(check, "double"))
                 {
-                    writer.Write(double.Parse(valueStr, NumberStyles.None, CultureInfo.InvariantCulture));
+                    writer.Write(double.Parse(valueStr, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture));
                 }
                 else if (StartsWithSpace(check, "char"))
                 {

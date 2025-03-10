@@ -250,8 +250,11 @@ public class ExportAudioOption : IUavPluginOption
                 AssetBundleDirectoryInfo info = dirInf[i];
                 if (info.Name == searchPath)
                 {
-                    reader.Position = info.Offset + (long)offset;
-                    audioData = reader.ReadBytes((int)size);
+                    lock (bundle.DataReader)
+                    {
+                        reader.Position = info.Offset + (long)offset;
+                        audioData = reader.ReadBytes((int)size);
+                    }
                     return true;
                 }
             }

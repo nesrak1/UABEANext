@@ -200,8 +200,13 @@ namespace UABEANext4.Logic.Mesh
                         AssetBundleDirectoryInfo info = dirInf[i];
                         if (info.Name == archiveTrimmedPath)
                         {
-                            reader.Position = info.Offset + offset;
-                            return reader.ReadBytes((int)size);
+                            byte[] meshData;
+                            lock (bundle.DataReader)
+                            {
+                                reader.Position = info.Offset + offset;
+                                meshData = reader.ReadBytes((int)size);
+                            }
+                            return meshData;
                         }
                     }
                 }

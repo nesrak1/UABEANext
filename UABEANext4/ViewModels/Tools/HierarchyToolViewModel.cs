@@ -81,6 +81,9 @@ public partial class HierarchyToolViewModel : Tool
 
     private void OnWorkspaceClosing(object recipient, WorkspaceClosingMessage message)
     {
+        _loadingNewItemsCts?.Cancel();
+        _itemsToLoad = null;
+        IsLoadingNewItems = false;
         ActiveAssets.Clear();
         RootItems.Clear();
         _pendingRootItems.Clear();

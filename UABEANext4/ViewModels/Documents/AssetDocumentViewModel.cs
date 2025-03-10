@@ -427,13 +427,19 @@ public partial class AssetDocumentViewModel : Document
             {
                 if (asset.IsReplacerPreviewable)
                 {
-                    var preview = asset.Replacer.GetPreviewStream();
-                    var previewReader = new AssetsFileReader(preview);
-                    exporter.DumpRawAsset(previewReader, 0, (uint)preview.Length);
+                    var previewStream = asset.Replacer.GetPreviewStream();
+                    var previewReader = new AssetsFileReader(previewStream);
+                    lock (previewStream)
+                    {
+                        exporter.DumpRawAsset(previewReader, 0, (uint)previewStream.Length);
+                    }
                 }
                 else
                 {
-                    exporter.DumpRawAsset(asset.FileReader, asset.AbsoluteByteStart, asset.ByteSize);
+                    lock (asset.FileInstance.LockReader)
+                    {
+                        exporter.DumpRawAsset(asset.FileReader, asset.AbsoluteByteStart, asset.ByteSize);
+                    }
                 }
             }
         }

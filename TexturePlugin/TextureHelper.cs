@@ -24,7 +24,11 @@ public static class TextureHelper
             m_PlatformBlob_Array.ValueType = AssetValueType.ByteArray;
         }
 
-        var baseField = textureTemp.MakeValue(tex.FileReader, tex.AbsoluteByteStart);
+        AssetTypeValueField baseField;
+        lock (tex.FileInstance.LockReader)
+        {
+            baseField = textureTemp.MakeValue(tex.FileReader, tex.AbsoluteByteStart);
+        }
         return baseField;
     }
 

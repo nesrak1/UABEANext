@@ -18,7 +18,11 @@ public static class FontHelper
         // m_FontData.Array
         fontData.Children[0].ValueType = AssetValueType.ByteArray;
 
-        AssetTypeValueField baseField = fontTemp.MakeValue(asset.FileReader, asset.AbsoluteByteStart);
+        AssetTypeValueField baseField;
+        lock (asset.FileInstance.LockReader)
+        {
+            baseField = fontTemp.MakeValue(asset.FileReader, asset.AbsoluteByteStart);
+        }
         return baseField;
     }
 

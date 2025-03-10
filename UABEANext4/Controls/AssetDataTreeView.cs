@@ -170,7 +170,11 @@ public class AssetDataTreeView : TreeView
         string baseItemString = $"{baseField.TypeName} {baseField.FieldName}";
         if (asset.Type == AssetClassID.MonoBehaviour || asset.TypeId < 0)
         {
-            string monoName = AssetNameUtils.GetMonoBehaviourNameFast(_workspace, asset);
+            string monoName;
+            lock (asset.FileInstance.LockReader)
+            {
+                monoName = AssetNameUtils.GetMonoBehaviourNameFast(_workspace, asset);
+            }
             if (monoName != null)
             {
                 baseItemString += $" ({monoName})";

@@ -745,6 +745,12 @@
             <param name="preferEditor">Read from the editor version of this type if available?</param>
             <returns>The new asset info, or null if the type can't be found in the type tree or class database.</returns>
         </member>
+        <member name="M:AssetsTools.NET.AssetFileInfo.GetSize(System.UInt32)">
+            <summary>
+            Get the maximum size of this asset file info for a version.
+            </summary>
+            <param name="version">The version of the file.</param>
+        </member>
         <member name="P:AssetsTools.NET.AssetPPtr.FilePath">
             <summary>
             File path of the pointer. If empty or null, FileId will be used.
@@ -911,6 +917,11 @@
             </summary>
             <param name="writer">The writer to use.</param>
         </member>
+        <member name="M:AssetsTools.NET.AssetsFileExternal.GetSize">
+            <summary>
+            Get the maximum size of this external.
+            </summary>
+        </member>
         <member name="P:AssetsTools.NET.AssetsFileHeader.MetadataSize">
             <summary>
             Size of the metadata block (not including this header).
@@ -947,6 +958,11 @@
             Write the <see cref="T:AssetsTools.NET.AssetsFileHeader"/> with the provided writer.
             </summary>
             <param name="writer">The writer to use.</param>
+        </member>
+        <member name="M:AssetsTools.NET.AssetsFileHeader.GetSize">
+            <summary>
+            Get the size of this header.
+            </summary>
         </member>
         <member name="P:AssetsTools.NET.AssetsFileMetadata.UnityVersion">
             <summary>
@@ -1130,6 +1146,12 @@
             <param name="scriptIndex">The script index to search for.</param>
             <returns>The type tree ref type with this script index.</returns>
         </member>
+        <member name="M:AssetsTools.NET.AssetsFileMetadata.GetSize(System.UInt32)">
+            <summary>
+            Get the maximum size of this metadata.
+            </summary>
+            <param name="version">The version of the file.</param>
+        </member>
         <member name="M:AssetsTools.NET.AssetTypeReference.ReadMetadata(AssetsTools.NET.AssetsFileReader)">
             <summary>
             Read the <see cref="T:AssetsTools.NET.AssetTypeReference"/> with the provided reader, used in
@@ -1241,6 +1263,12 @@
             </param>
             <returns>The node name.</returns>
         </member>
+        <member name="M:AssetsTools.NET.TypeTreeNode.GetSize(System.UInt32)">
+            <summary>
+            Get the maximum size of this type tree node for a version.
+            </summary>
+            <param name="version">The version of the file.</param>
+        </member>
         <member name="F:AssetsTools.NET.TypeTreeNodeFlags.Array">
             <summary>
             Type tree node is an array.
@@ -1330,6 +1358,13 @@
             Write the <see cref="T:AssetsTools.NET.TypeTreeType"/> with the provided writer and format version.
             </summary>
             <param name="writer">The writer to use.</param>
+            <param name="version">The version of the file.</param>
+            <param name="hasTypeTree">Is type tree enabled for this file?</param>
+        </member>
+        <member name="M:AssetsTools.NET.TypeTreeType.GetSize(System.UInt32,System.Boolean)">
+            <summary>
+            Get the maximum size of this type tree type.
+            </summary>
             <param name="version">The version of the file.</param>
             <param name="hasTypeTree">Is type tree enabled for this file?</param>
         </member>
@@ -1752,10 +1787,12 @@
             </summary>
             <param name="writer">The writer to use.</param>
         </member>
-        <member name="M:AssetsTools.NET.IContentReplacer.Write(AssetsTools.NET.AssetsFileWriter)">
+        <member name="M:AssetsTools.NET.IContentReplacer.Write(AssetsTools.NET.AssetsFileWriter,System.Boolean)">
             <summary>
             Write the content with provided writer.
             </summary>
+            <param name="writer">The writer to use.</param>
+            <param name="finalWrite">Is this the final write? Good for checking when to close a stream.</param>
         </member>
         <member name="M:AssetsTools.NET.IContentReplacer.HasPreview">
             <summary>
@@ -1773,6 +1810,13 @@
         <member name="M:AssetsTools.NET.IContentReplacer.GetReplacerType">
             <summary>
             The replacer type such as modified or removed.
+            </summary>
+        </member>
+        <member name="M:AssetsTools.NET.IContentReplacer.GetSize">
+            <summary>
+            The maximum size this replacer can write to.
+            If the size is already known, return that size. Otherwise,
+            return a worst-case size for the replacer.
             </summary>
         </member>
         <member name="T:LZ4ps.LZ4Codec">
