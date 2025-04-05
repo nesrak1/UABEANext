@@ -42,7 +42,7 @@ public class AssetImport
         }
         catch (Exception ex)
         {
-            exceptionMessage = ex.Message;
+            exceptionMessage = ex.ToString();
             return null;
         }
         return ms.ToArray();
@@ -204,7 +204,7 @@ public class AssetImport
         }
         catch (Exception ex)
         {
-            exceptionMessage = ex.Message;
+            exceptionMessage = ex.ToString();
             return null;
         }
         return ms.ToArray();
