@@ -400,13 +400,13 @@ public class AssetImport
 
             JToken dataToken = ExpectAndReadField(refdObjectToken, "data", tempField);
 
+            typeRef.WriteAsset(writer);
             if (typeRef.ClassName == string.Empty && typeRef.Namespace == string.Empty && typeRef.AsmName == string.Empty)
             {
                 // this is a null entry which has no data after it
                 continue;
             }
 
-            typeRef.WriteAsset(writer);
             AssetTypeTemplateField? objectTempField = _refMan.GetTemplateField(typeRef);
             if (objectTempField == null)
             {
