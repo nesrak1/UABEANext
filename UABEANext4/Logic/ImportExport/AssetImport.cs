@@ -401,7 +401,13 @@ public class AssetImport
             JToken dataToken = ExpectAndReadField(refdObjectToken, "data", tempField);
 
             typeRef.WriteAsset(writer);
-            AssetTypeTemplateField objectTempField = _refMan.GetTemplateField(typeRef);
+            AssetTypeTemplateField? objectTempField = _refMan.GetTemplateField(typeRef);
+            if (objectTempField == null)
+            {
+                throw new Exception($"Failed to get managed reference type. Wanted {typeRef.ClassName}.{typeRef.Namespace}"
+                    + $"in {typeRef.AsmName} but got a null result.");
+            }
+
             RecurseJsonImport(writer, objectTempField, dataToken);
         }
 
