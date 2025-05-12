@@ -270,9 +270,10 @@ public partial class Workspace : ObservableObject
         return Manager.GetTemplateBaseField(fileInst, info, readFlags);
     }
 
-    private void CheckAndSetMonoTempGenerators(AssetsFileInstance fileInst, AssetFileInfo info)
+    public void CheckAndSetMonoTempGenerators(AssetsFileInstance fileInst, AssetFileInfo? info)
     {
-        if ((info.TypeId == (int)AssetClassID.MonoBehaviour || info.TypeId < 0) && !_setMonoTempGeneratorsYet && !fileInst.file.Metadata.TypeTreeEnabled)
+        bool isValidMono = info == null || info.TypeId == (int)AssetClassID.MonoBehaviour || info.TypeId < 0;
+        if (isValidMono && !_setMonoTempGeneratorsYet && !fileInst.file.Metadata.TypeTreeEnabled)
         {
             string dataDir = PathUtils.GetAssetsFileDirectory(fileInst);
             bool success = SetMonoTempGenerators(dataDir);

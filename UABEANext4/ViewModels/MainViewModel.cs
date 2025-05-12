@@ -395,6 +395,7 @@ public partial class MainViewModel : ViewModelBase
         }
 
         var refMan = Workspace.Manager.GetRefTypeManager(asset.FileInstance);
+        Workspace.CheckAndSetMonoTempGenerators(asset.FileInstance, asset);
         var newData = await dialogService.ShowDialog(new EditDataViewModel(baseField, refMan));
         if (newData != null)
         {

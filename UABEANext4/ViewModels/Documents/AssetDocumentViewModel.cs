@@ -218,6 +218,8 @@ public partial class AssetDocumentViewModel : Document
             var selectedInst = selectedAsset.FileInstance;
 
             using FileStream fs = File.OpenRead(selectedFilePath);
+
+            Workspace.CheckAndSetMonoTempGenerators(selectedInst, selectedAsset);
             var importer = new AssetImport(fs, Workspace.Manager.GetRefTypeManager(selectedInst));
 
             byte[]? data;
@@ -282,8 +284,9 @@ public partial class AssetDocumentViewModel : Document
             return;
 
         var file = files[0];
-
         using var fs = File.OpenRead(file);
+
+        Workspace.CheckAndSetMonoTempGenerators(asset.FileInstance, asset);
         var importer = new AssetImport(fs, Workspace.Manager.GetRefTypeManager(asset.FileInstance));
 
         byte[]? data = null;
