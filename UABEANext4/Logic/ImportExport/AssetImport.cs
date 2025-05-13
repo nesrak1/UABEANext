@@ -85,11 +85,11 @@ public class AssetImport
                 // sorted by frequency
                 if (StartsWithSpace(check, "int"))
                 {
-                    writer.Write(int.Parse(valueStr, NumberStyles.None, CultureInfo.InvariantCulture));
+                    writer.Write(int.Parse(valueStr, NumberStyles.Integer, CultureInfo.InvariantCulture));
                 }
                 else if (StartsWithSpace(check, "float"))
                 {
-                    writer.Write(float.Parse(valueStr, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture));
+                    writer.Write(float.Parse(valueStr, NumberStyles.Float, CultureInfo.InvariantCulture));
                 }
                 else if (StartsWithSpace(check, "bool"))
                 {
@@ -97,7 +97,7 @@ public class AssetImport
                 }
                 else if (StartsWithSpace(check, "SInt64"))
                 {
-                    writer.Write(long.Parse(valueStr, NumberStyles.None, CultureInfo.InvariantCulture));
+                    writer.Write(long.Parse(valueStr, NumberStyles.Integer, CultureInfo.InvariantCulture));
                 }
                 else if (StartsWithSpace(check, "string"))
                 {
@@ -109,69 +109,69 @@ public class AssetImport
                 }
                 else if (StartsWithSpace(check, "UInt8"))
                 {
-                    writer.Write(byte.Parse(valueStr, NumberStyles.None, CultureInfo.InvariantCulture));
+                    writer.Write(byte.Parse(valueStr, NumberStyles.Integer, CultureInfo.InvariantCulture));
                 }
                 else if (StartsWithSpace(check, "unsigned int"))
                 {
-                    writer.Write(uint.Parse(valueStr, NumberStyles.None, CultureInfo.InvariantCulture));
+                    writer.Write(uint.Parse(valueStr, NumberStyles.Integer, CultureInfo.InvariantCulture));
                 }
                 else if (StartsWithSpace(check, "UInt16"))
                 {
-                    writer.Write(ushort.Parse(valueStr, NumberStyles.None, CultureInfo.InvariantCulture));
+                    writer.Write(ushort.Parse(valueStr, NumberStyles.Integer, CultureInfo.InvariantCulture));
                 }
                 else if (StartsWithSpace(check, "SInt8"))
                 {
-                    writer.Write(sbyte.Parse(valueStr, NumberStyles.None, CultureInfo.InvariantCulture));
+                    writer.Write(sbyte.Parse(valueStr, NumberStyles.Integer, CultureInfo.InvariantCulture));
                 }
                 else if (StartsWithSpace(check, "SInt16"))
                 {
-                    writer.Write(short.Parse(valueStr, NumberStyles.None, CultureInfo.InvariantCulture));
+                    writer.Write(short.Parse(valueStr, NumberStyles.Integer, CultureInfo.InvariantCulture));
                 }
                 else if (StartsWithSpace(check, "UInt64"))
                 {
-                    writer.Write(ulong.Parse(valueStr, NumberStyles.None, CultureInfo.InvariantCulture));
+                    writer.Write(ulong.Parse(valueStr, NumberStyles.Integer, CultureInfo.InvariantCulture));
                 }
                 else if (StartsWithSpace(check, "double"))
                 {
-                    writer.Write(double.Parse(valueStr, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture));
+                    writer.Write(double.Parse(valueStr, NumberStyles.Float, CultureInfo.InvariantCulture));
                 }
                 else if (StartsWithSpace(check, "char"))
                 {
-                    writer.Write(sbyte.Parse(valueStr, NumberStyles.None, CultureInfo.InvariantCulture));
+                    writer.Write(sbyte.Parse(valueStr, NumberStyles.Integer, CultureInfo.InvariantCulture));
                 }
                 else if (StartsWithSpace(check, "FileSize"))
                 {
-                    writer.Write(ulong.Parse(valueStr, NumberStyles.None, CultureInfo.InvariantCulture));
+                    writer.Write(ulong.Parse(valueStr, NumberStyles.Integer, CultureInfo.InvariantCulture));
                 }
                 // not seen in the wild? but still part of at
                 // I'm not sure where this list is from
                 else if (StartsWithSpace(check, "short"))
                 {
-                    writer.Write(short.Parse(valueStr, NumberStyles.None, CultureInfo.InvariantCulture));
+                    writer.Write(short.Parse(valueStr, NumberStyles.Integer, CultureInfo.InvariantCulture));
                 }
                 else if (StartsWithSpace(check, "long"))
                 {
-                    writer.Write(long.Parse(valueStr, NumberStyles.None, CultureInfo.InvariantCulture));
+                    writer.Write(long.Parse(valueStr, NumberStyles.Integer, CultureInfo.InvariantCulture));
                 }
                 else if (StartsWithSpace(check, "SInt32"))
                 {
-                    writer.Write(int.Parse(valueStr, NumberStyles.None, CultureInfo.InvariantCulture));
+                    writer.Write(int.Parse(valueStr, NumberStyles.Integer, CultureInfo.InvariantCulture));
                 }
                 else if (StartsWithSpace(check, "UInt32"))
                 {
-                    writer.Write(uint.Parse(valueStr, NumberStyles.None, CultureInfo.InvariantCulture));
+                    writer.Write(uint.Parse(valueStr, NumberStyles.Integer, CultureInfo.InvariantCulture));
                 }
                 else if (StartsWithSpace(check, "unsigned char"))
                 {
-                    writer.Write(byte.Parse(valueStr, NumberStyles.None, CultureInfo.InvariantCulture));
+                    writer.Write(byte.Parse(valueStr, NumberStyles.Integer, CultureInfo.InvariantCulture));
                 }
                 else if (StartsWithSpace(check, "unsigned short"))
                 {
-                    writer.Write(ushort.Parse(valueStr, NumberStyles.None, CultureInfo.InvariantCulture));
+                    writer.Write(ushort.Parse(valueStr, NumberStyles.Integer, CultureInfo.InvariantCulture));
                 }
                 else if (StartsWithSpace(check, "unsigned long long"))
                 {
-                    writer.Write(ulong.Parse(valueStr, NumberStyles.None, CultureInfo.InvariantCulture));
+                    writer.Write(ulong.Parse(valueStr, NumberStyles.Integer, CultureInfo.InvariantCulture));
                 }
 
                 if (align)
