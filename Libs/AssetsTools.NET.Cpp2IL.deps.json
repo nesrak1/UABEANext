@@ -1,40 +1,45 @@
 {
   "runtimeTarget": {
-    "name": ".NETStandard,Version=v2.0/",
+    "name": ".NETStandard,Version=v2.1/",
     "signature": ""
   },
   "compilationOptions": {},
   "targets": {
-    ".NETStandard,Version=v2.0": {},
-    ".NETStandard,Version=v2.0/": {
+    ".NETStandard,Version=v2.1": {},
+    ".NETStandard,Version=v2.1/": {
       "AssetsTools.NET.Cpp2IL/1.0.0": {
         "dependencies": {
           "AssetsTools.NET": "1.0.0",
-          "NETStandard.Library": "2.0.3",
-          "Samboy063.LibCpp2IL": "2022.1.0-pre-release.13"
+          "Samboy063.LibCpp2IL": "2022.1.0-pre-release.19"
         },
         "runtime": {
           "AssetsTools.NET.Cpp2IL.dll": {}
         }
       },
-      "AssetRipper.Primitives/2.1.0": {
+      "AssetRipper.Primitives/3.1.3": {
+        "dependencies": {
+          "Microsoft.Bcl.HashCode": "1.1.1",
+          "System.Memory": "4.5.5"
+        },
         "runtime": {
           "lib/netstandard2.0/AssetRipper.Primitives.dll": {
-            "assemblyVersion": "2.1.0.0",
-            "fileVersion": "2.1.0.0"
+            "assemblyVersion": "3.1.3.0",
+            "fileVersion": "3.1.3.0"
           }
         }
       },
-      "Microsoft.NETCore.Platforms/1.1.0": {},
-      "NETStandard.Library/2.0.3": {
-        "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.1.0"
+      "Microsoft.Bcl.HashCode/1.1.1": {
+        "runtime": {
+          "lib/netstandard2.1/Microsoft.Bcl.HashCode.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "4.700.20.56604"
+          }
         }
       },
-      "Samboy063.LibCpp2IL/2022.1.0-pre-release.13": {
+      "Samboy063.LibCpp2IL/2022.1.0-pre-release.19": {
         "dependencies": {
-          "AssetRipper.Primitives": "2.1.0",
-          "Samboy063.WasmDisassembler": "2022.1.0-pre-release.13",
+          "AssetRipper.Primitives": "3.1.3",
+          "Samboy063.WasmDisassembler": "2022.1.0-pre-release.19",
           "System.Memory": "4.5.5"
         },
         "runtime": {
@@ -44,7 +49,7 @@
           }
         }
       },
-      "Samboy063.WasmDisassembler/2022.1.0-pre-release.13": {
+      "Samboy063.WasmDisassembler/2022.1.0-pre-release.19": {
         "runtime": {
           "lib/netstandard2.0/WasmDisassembler.dll": {
             "assemblyVersion": "2022.1.0.0",
@@ -91,7 +96,10 @@
       },
       "AssetsTools.NET/1.0.0": {
         "runtime": {
-          "AssetsTools.NET.dll": {}
+          "AssetsTools.NET.dll": {
+            "assemblyVersion": "3.0.0.0",
+            "fileVersion": "3.0.0.0"
+          }
         }
       }
     }
@@ -102,40 +110,33 @@
       "serviceable": false,
       "sha512": ""
     },
-    "AssetRipper.Primitives/2.1.0": {
+    "AssetRipper.Primitives/3.1.3": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-nrgwUMa69ztOfMKbmytNI3mU/fuN3eWptq2Mu8aLg2ly394w51KJbUx5z477HbRvabD8TD8rM4wRe6EBqB2xdA==",
-      "path": "assetripper.primitives/2.1.0",
-      "hashPath": "assetripper.primitives.2.1.0.nupkg.sha512"
+      "sha512": "sha512-djZbN/+EXmI+Oia9Pm0LyjZVCPLf60TPSL5rGb7mBEYM5F4CN3nPFXvl2yA5LanPZoHS1Yq7PghGUmkP7Pv9RQ==",
+      "path": "assetripper.primitives/3.1.3",
+      "hashPath": "assetripper.primitives.3.1.3.nupkg.sha512"
     },
-    "Microsoft.NETCore.Platforms/1.1.0": {
+    "Microsoft.Bcl.HashCode/1.1.1": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-kz0PEW2lhqygehI/d6XsPCQzD7ff7gUJaVGPVETX611eadGsA3A877GdSlU0LRVMCTH/+P3o2iDTak+S08V2+A==",
-      "path": "microsoft.netcore.platforms/1.1.0",
-      "hashPath": "microsoft.netcore.platforms.1.1.0.nupkg.sha512"
+      "sha512": "sha512-MalY0Y/uM/LjXtHfX/26l2VtN4LDNZ2OE3aumNOHDLsT4fNYy2hiHXI4CXCqKpNUNm7iJ2brrc4J89UdaL56FA==",
+      "path": "microsoft.bcl.hashcode/1.1.1",
+      "hashPath": "microsoft.bcl.hashcode.1.1.1.nupkg.sha512"
     },
-    "NETStandard.Library/2.0.3": {
+    "Samboy063.LibCpp2IL/2022.1.0-pre-release.19": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-st47PosZSHrjECdjeIzZQbzivYBJFv6P2nv4cj2ypdI204DO+vZ7l5raGMiX4eXMJ53RfOIg+/s4DHVZ54Nu2A==",
-      "path": "netstandard.library/2.0.3",
-      "hashPath": "netstandard.library.2.0.3.nupkg.sha512"
+      "sha512": "sha512-/n8p81ltd38BeNNS2xUNPGMSzxk/UGXr9cRNqG1MaLogzANNNrvCAXqWmNMM3tZctjp7vqTxEA+e4J4ngul8Fg==",
+      "path": "samboy063.libcpp2il/2022.1.0-pre-release.19",
+      "hashPath": "samboy063.libcpp2il.2022.1.0-pre-release.19.nupkg.sha512"
     },
-    "Samboy063.LibCpp2IL/2022.1.0-pre-release.13": {
+    "Samboy063.WasmDisassembler/2022.1.0-pre-release.19": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-fwkVLAXqD+7XfIXJEDh2OkJqe6YMkNmOP05oudEnuq3ITEuVUSb0K8ffa22vx+n/NDIyNP+s1lLRFcmHVP57oQ==",
-      "path": "samboy063.libcpp2il/2022.1.0-pre-release.13",
-      "hashPath": "samboy063.libcpp2il.2022.1.0-pre-release.13.nupkg.sha512"
-    },
-    "Samboy063.WasmDisassembler/2022.1.0-pre-release.13": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-dI4PDG+AFctYzaD0pqojK7SGiiPi6xgIRXp07hHnXumW+DYbS2nVQ8nTFSHiP6xE7UhW6I+PpbC5jh/2nksW+Q==",
-      "path": "samboy063.wasmdisassembler/2022.1.0-pre-release.13",
-      "hashPath": "samboy063.wasmdisassembler.2022.1.0-pre-release.13.nupkg.sha512"
+      "sha512": "sha512-uVQdYm/J6+jJ1xt6GJ3hNhXhciwlX+LmHTPITu9jjZ75T33YJuuTD7pLVYuMymr+4gSVisg7f1wterFSyqJBWA==",
+      "path": "samboy063.wasmdisassembler/2022.1.0-pre-release.19",
+      "hashPath": "samboy063.wasmdisassembler.2022.1.0-pre-release.19.nupkg.sha512"
     },
     "System.Buffers/4.5.1": {
       "type": "package",
