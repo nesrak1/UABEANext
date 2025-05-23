@@ -38,7 +38,7 @@
     <Exec Condition="$([MSBuild]::IsOsPlatform(Linux))" Command="uname -m" ConsoleToMSBuild="true">
       <Output TaskParameter="ConsoleOutput" PropertyName="LinuxUnameM" />
     </Exec>
-
+    
     <!-- anycpu will build x64, I have to choose one or another -->
     <!-- and I figure most people have 64bit computers          -->
     <PropertyGroup Condition="$([MSBuild]::IsOsPlatform(Windows)) AND ('$(Platform)' == 'x64' OR '$(Platform)' == 'AnyCPU')">
@@ -77,6 +77,7 @@
     </PropertyGroup>
 
     <!-- copy texture encoder and deps -->
+    <Copy SourceFiles="$(SolutionDir)Libs\AssetsTools.NET.Texture.dll" DestinationFolder="$(UABEABinDir)plugins" ContinueOnError="true" />
     <Copy SourceFiles="$(TextureEncoderBinPath)" DestinationFolder="$(UABEABinDir)runtimes\$(UABEANativeConfig)\native" ContinueOnError="true" />
     <Copy SourceFiles="$(CuttlefishBinPath)" DestinationFolder="$(UABEABinDir)runtimes\$(UABEANativeConfig)\native" ContinueOnError="true" />
     <Copy SourceFiles="$(PVRTexToolBinDir)" DestinationFolder="$(UABEABinDir)runtimes\$(UABEANativeConfig)\native" ContinueOnError="true" />
@@ -92,6 +93,7 @@
     </PropertyGroup>
 
     <!-- copy textoolwrap and deps -->
+    <Copy SourceFiles="$(SolutionDir)Libs\AssetsTools.NET.Texture.dll" DestinationFolder="$(UABEABinDir)plugins" ContinueOnError="true" />
     <Copy SourceFiles="$(TextureEncoderBinPath)" DestinationFolder="$(UABEABinDir)runtimes\$(UABEANativeConfig)\native" ContinueOnError="true" />
     <Copy SourceFiles="$(CuttlefishBinPath)" DestinationFolder="$(UABEABinDir)runtimes\$(UABEANativeConfig)\native" ContinueOnError="true" />
     <Copy SourceFiles="$(PVRTexToolBinDir)" DestinationFolder="$(UABEABinDir)runtimes\$(UABEANativeConfig)\native" ContinueOnError="true" />
