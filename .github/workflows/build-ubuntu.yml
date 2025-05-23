@@ -27,9 +27,6 @@ jobs:
     - name: Build
       run: dotnet build --configuration Release --no-restore
 
-    - name: Fix libonigwrap directory
-      run: cp UABEANext4.Desktop/bin/Release/net8.0/runtimes/linux/native/libonigwrap.so UABEANext4.Desktop/bin/Release/net8.0/runtimes/linux-x64/native/libonigwrap.so
-
     - name: Remove unused platforms
       run: find UABEANext4.Desktop/bin/Release/net8.0/runtimes/* -maxdepth 0 ! -name linux-x64 -type d -exec rm -r {} +
       
