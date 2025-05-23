@@ -1,14 +1,8 @@
 ﻿namespace UABEANext4.Plugins;
-public class PluginOptionModePair
+public class PluginOptionModePair(IUavPluginOption option, UavPluginMode mode)
 {
-    public IUavPluginOption Option { get; }
-    public UavPluginMode Mode { get; }
-
-    public PluginOptionModePair(IUavPluginOption option, UavPluginMode mode)
-    {
-        Option = option;
-        Mode = mode;
-    }
+    public IUavPluginOption Option { get; } = option;
+    public UavPluginMode Mode { get; } = mode;
 
     public override string ToString()
     {

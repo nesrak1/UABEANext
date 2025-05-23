@@ -3,6 +3,7 @@ using AssetsTools.NET.Extra;
 using AssetsTools.NET.Texture;
 using Avalonia.Platform.Storage;
 using System.Text;
+using TexturePlugin.Helpers;
 using TexturePlugin.ViewModels;
 using UABEANext4.AssetWorkspace;
 using UABEANext4.Plugins;
@@ -13,20 +14,18 @@ namespace TexturePlugin;
 public class ExportTextureOption : IUavPluginOption
 {
     public string Name => "Export Texture2D";
-
     public string Description => "Exports Texture2Ds to png/tga/bmp/jpg";
-
     public UavPluginMode Options => UavPluginMode.Export;
 
-    public Task<bool> SupportsSelection(Workspace workspace, UavPluginMode mode, IList<AssetInst> selection)
+    public bool SupportsSelection(Workspace workspace, UavPluginMode mode, IList<AssetInst> selection)
     {
         if (mode != UavPluginMode.Export)
         {
-            return Task.FromResult(false);
+            return false;
         }
 
         var typeId = (int)AssetClassID.Texture2D;
-        return Task.FromResult(selection.All(a => a.TypeId == typeId));
+        return selection.All(a => a.TypeId == typeId);
     }
 
     public async Task<bool> Execute(Workspace workspace, IUavPluginFunctions funcs, UavPluginMode mode, IList<AssetInst> selection)

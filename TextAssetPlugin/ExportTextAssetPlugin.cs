@@ -5,11 +5,11 @@ using UABEANext4.AssetWorkspace;
 using UABEANext4.Plugins;
 using UABEANext4.Util;
 
-namespace FontPlugin;
-public class ExportFontOption : IUavPluginOption
+namespace TextAssetPlugin;
+public class ExportTextAssetPlugin : IUavPluginOption
 {
-    public string Name => "Export Font";
-    public string Description => "Exports Fonts to ttf/otf";
+    public string Name => "Export TextAsset";
+    public string Description => "Exports TextAssets to txt";
     public UavPluginMode Options => UavPluginMode.Export;
 
     public bool SupportsSelection(Workspace workspace, UavPluginMode mode, IList<AssetInst> selection)
@@ -19,7 +19,7 @@ public class ExportFontOption : IUavPluginOption
             return false;
         }
 
-        var typeId = (int)AssetClassID.Font;
+        var typeId = (int)AssetClassID.TextAsset;
         return selection.All(a => a.TypeId == typeId);
     }
 
@@ -61,11 +61,8 @@ public class ExportFontOption : IUavPluginOption
             var name = textBaseField["m_Name"].AsString;
             var byteData = textBaseField["m_Script"].AsByteArray;
 
-            var isOtf = FontHelper.IsDataOtf(byteData);
-            var extension = isOtf ? ".otf" : ".ttf";
-
             var assetName = PathUtils.ReplaceInvalidPathChars(name);
-            var filePath = AssetNameUtils.GetAssetFileName(asset, assetName, extension);
+            var filePath = AssetNameUtils.GetAssetFileName(asset, assetName, ".txt");
 
             File.WriteAllBytes(filePath, byteData);
         }
@@ -86,26 +83,25 @@ public class ExportFontOption : IUavPluginOption
         var textBaseField = workspace.GetBaseField(asset);
         if (textBaseField == null)
         {
-            await funcs.ShowMessageDialog("Error", "Failed to read Font");
+            await funcs.ShowMessageDialog("Error", "Failed to read");
             return false;
         }
 
         var name = textBaseField["m_Name"].AsString;
         var byteData = textBaseField["m_Script"].AsByteArray;
 
-        var isOtf = FontHelper.IsDataOtf(byteData);
-        var extension = isOtf ? "otf" : "ttf";
-
         string assetName = PathUtils.ReplaceInvalidPathChars(name);
         var filePath = await funcs.ShowSaveFileDialog(new FilePickerSaveOptions()
         {
-            Title = "Save font",
+            Title = "Save text asset",
             FileTypeChoices = new List<FilePickerFileType>()
             {
-                new FilePickerFileType($"{extension.ToUpper()} file (*.{extension})") { Patterns = new List<string>() { "*." + extension } },
+                new("TXT file (*.txt)") { Patterns = ["*.txt"] },
+                new("BYTES file (*.bytes)") { Patterns = ["*.bytes"] },
+                new("All types (*.*)") { Patterns = ["*"] },
             },
             SuggestedFileName = AssetNameUtils.GetAssetFileName(asset, assetName, string.Empty),
-            DefaultExtension = extension
+            DefaultExtension = "txt"
         });
 
         if (filePath == null)

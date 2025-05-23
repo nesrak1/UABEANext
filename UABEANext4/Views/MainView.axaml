@@ -27,6 +27,7 @@
       </MenuItem>
       <MenuItem Header="Tools">
         <MenuItem Header="Asset Info" Command="{Binding ShowAssetInfoDialog}" IsEnabled="{Binding Workspace.RootItems.Count}"/>
+        <MenuItem Header="Generate XRefs" Command="{Binding ToolsXrefs}" />
       </MenuItem>
     </Menu>
     <DockControl Layout="{Binding Layout}" Margin="4" Grid.Row="1" />

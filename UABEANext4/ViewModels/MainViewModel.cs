@@ -156,16 +156,11 @@ public partial class MainViewModel : ViewModelBase
         await OpenFiles(fileNames);
     }
 
-    public async Task FileSave()
+    private async Task DoSaveOverwrite(IEnumerable<WorkspaceItem> items)
     {
         Workspace.ModifyMutex.WaitOne();
         try
         {
-            var explorer = _factory?.GetDockable<WorkspaceExplorerToolViewModel>("WorkspaceExplorer");
-            if (explorer == null)
-                return;
-
-            var items = explorer.SelectedItems.Cast<WorkspaceItem>();
             var rootItems = new HashSet<WorkspaceItem>();
             foreach (var item in items)
             {
@@ -178,7 +173,7 @@ public partial class MainViewModel : ViewModelBase
             }
 
             var fileInstsToReload = new HashSet<AssetsFileInstance>();
-            var someFailed = false; // todo all failed?
+            var someFailed = false;
             foreach (var item in rootItems)
             {
                 var success = await Workspace.Save(item);
@@ -204,14 +199,20 @@ public partial class MainViewModel : ViewModelBase
                 }
             }
 
-            await ReloadAssetDocuments(fileInstsToReload);
-            if (someFailed)
+            if (fileInstsToReload.Count == 0)
             {
-                Workspace.SetProgressThreadSafe(1f, "Saved (some failed), with open saved files reloaded");
+                if (someFailed)
+                    Workspace.SetProgressThreadSafe(1f, "All files failed to save (check if you have write access?)");
+                else
+                    Workspace.SetProgressThreadSafe(1f, "No files open to save");
             }
             else
             {
-                Workspace.SetProgressThreadSafe(1f, "Saved, with open saved files reloaded");
+                await ReloadAssetDocuments(fileInstsToReload);
+                if (someFailed)
+                    Workspace.SetProgressThreadSafe(1f, "Saved (some failed), with open saved files reloaded");
+                else
+                    Workspace.SetProgressThreadSafe(1f, "Saved, with open saved files reloaded");
             }
         }
         finally
@@ -220,17 +221,11 @@ public partial class MainViewModel : ViewModelBase
         }
     }
 
-    // more like "save copy as"
-    public async Task FileSaveAs()
+    private async Task DoSaveCopy(IEnumerable<WorkspaceItem> items)
     {
+        Workspace.ModifyMutex.WaitOne();
         try
         {
-            Workspace.ModifyMutex.WaitOne();
-            var explorer = _factory?.GetDockable<WorkspaceExplorerToolViewModel>("WorkspaceExplorer");
-            if (explorer == null)
-                return;
-
-            var items = explorer.SelectedItems.Cast<WorkspaceItem>();
             var rootItems = new HashSet<WorkspaceItem>();
             foreach (var item in items)
             {
@@ -255,14 +250,30 @@ public partial class MainViewModel : ViewModelBase
         }
     }
 
-    public void FileSaveAllAs()
+    public async Task FileSave()
     {
+        var explorer = _factory.GetDockable<WorkspaceExplorerToolViewModel>("WorkspaceExplorer");
+        if (explorer == null)
+            return;
 
+        var items = explorer.SelectedItems.Cast<WorkspaceItem>();
+        await DoSaveOverwrite(items);
     }
 
-    public void FileXrefs()
+    // more like "save copy as"
+    public async Task FileSaveAs()
     {
+        var explorer = _factory.GetDockable<WorkspaceExplorerToolViewModel>("WorkspaceExplorer");
+        if (explorer == null)
+            return;
 
+        var items = explorer.SelectedItems.Cast<WorkspaceItem>();
+        await DoSaveCopy(items);
+    }
+
+    public async Task FileSaveAllAs()
+    {
+        await DoSaveCopy(Workspace.RootItems);
     }
 
     public void FileCloseAll()
@@ -270,32 +281,36 @@ public partial class MainViewModel : ViewModelBase
         Workspace.CloseAll();
         WeakReferenceMessenger.Default.Send(new WorkspaceClosingMessage());
 
-        var files = _factory?.GetDockable<IDocumentDock>("Files");
+        var files = _factory.GetDockable<IDocumentDock>("Files");
         if (files is not null && files.VisibleDockables != null && files.VisibleDockables.Count > 0)
         {
             // lol you have to pass in a child
-            _factory?.CloseAllDockables(files.VisibleDockables[0]);
+            _factory.CloseAllDockables(files.VisibleDockables[0]);
         }
     }
 
     public void ViewDuplicateTab()
     {
-        var files = _factory?.GetDockable<IDocumentDock>("Files");
+        var files = _factory.GetDockable<IDocumentDock>("Files");
         if (Layout is not null && files is not null)
         {
             if (files.ActiveDockable != null)
             {
                 var oldDockable = files.ActiveDockable;
-                _factory?.AddDockable(files, oldDockable);
+                _factory.AddDockable(files, oldDockable);
             }
         }
+    }
+
+    public void ToolsXrefs()
+    {
     }
 
     // todo should we just replace every assetinst? is that too expensive?
     // would it be better than unselecting everything?
     private async Task ReloadAssetDocuments(HashSet<AssetsFileInstance> fileInst)
     {
-        var files = _factory?.GetDockable<IDocumentDock>("Files");
+        var files = _factory.GetDockable<IDocumentDock>("Files");
         if (Layout is not null && files is not null && files.VisibleDockables is not null)
         {
             foreach (var dockable in files.VisibleDockables)
@@ -359,23 +374,23 @@ public partial class MainViewModel : ViewModelBase
             await document.Load(_lastLoadedFiles);
         }
 
-        var files = _factory?.GetDockable<IDocumentDock>("Files");
+        var files = _factory.GetDockable<IDocumentDock>("Files");
         if (Layout is not null && files is not null)
         {
             if (files.ActiveDockable != null)
             {
                 var oldDockable = files.ActiveDockable;
-                _factory?.AddDockable(files, document);
-                _factory?.SwapDockable(files, oldDockable, document);
-                _factory?.CloseDockable(oldDockable);
-                _factory?.SetActiveDockable(document);
-                _factory?.SetFocusedDockable(files, document);
+                _factory.AddDockable(files, document);
+                _factory.SwapDockable(files, oldDockable, document);
+                _factory.CloseDockable(oldDockable);
+                _factory.SetActiveDockable(document);
+                _factory.SetFocusedDockable(files, document);
             }
             else
             {
-                _factory?.AddDockable(files, document);
-                _factory?.SetActiveDockable(document);
-                _factory?.SetFocusedDockable(files, document);
+                _factory.AddDockable(files, document);
+                _factory.SetActiveDockable(document);
+                _factory.SetFocusedDockable(files, document);
             }
         }
     }

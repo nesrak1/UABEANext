@@ -325,3 +325,6 @@ ASALocalRun/
 
 # Zip releases
 *.zip
+
+# Free "ignore folder" for whatever you want
+ignore/

@@ -1,19 +1,15 @@
 ﻿using AssetsTools.NET.Extra;
-using AssetsTools.NET.Texture;
 using Avalonia.Platform.Storage;
 using System.Text;
 using UABEANext4.AssetWorkspace;
 using UABEANext4.Plugins;
 using UABEANext4.ViewModels.Dialogs;
 
-namespace TexturePlugin;
-
-public class ImportBatchTextureOption : IUavPluginOption
+namespace TextAssetPlugin;
+public class ImportTextAssetPlugin : IUavPluginOption
 {
-    public string Name => "Import Texture2D";
-
-    public string Description => "Imports a folder of png/tga/bmp/jpgs into Texture2Ds";
-
+    public string Name => "Import TextAsset";
+    public string Description => "Imports TextAssets to txt";
     public UavPluginMode Options => UavPluginMode.Import;
 
     public bool SupportsSelection(Workspace workspace, UavPluginMode mode, IList<AssetInst> selection)
@@ -23,13 +19,20 @@ public class ImportBatchTextureOption : IUavPluginOption
             return false;
         }
 
-        var typeId = (int)AssetClassID.Texture2D;
+        var typeId = (int)AssetClassID.TextAsset;
         return selection.All(a => a.TypeId == typeId);
     }
 
     public async Task<bool> Execute(Workspace workspace, IUavPluginFunctions funcs, UavPluginMode mode, IList<AssetInst> selection)
     {
-        return await BatchImport(workspace, funcs, selection);
+        if (selection.Count > 1)
+        {
+            return await BatchImport(workspace, funcs, selection);
+        }
+        else
+        {
+            return await SingleImport(workspace, funcs, selection);
+        }
     }
 
     public async Task<bool> BatchImport(Workspace workspace, IUavPluginFunctions funcs, IList<AssetInst> selection)
@@ -44,7 +47,7 @@ public class ImportBatchTextureOption : IUavPluginOption
             return false;
         }
 
-        var extensions = new List<string>() { "bmp", "png", "jpg", "jpeg", "tga" };
+        var extensions = new List<string>() { "*" };
         var batchInfosViewModel = new BatchImportViewModel(workspace, selection.ToList(), dir, extensions);
         if (batchInfosViewModel.DataGridItems.Count == 0)
         {
@@ -58,14 +61,8 @@ public class ImportBatchTextureOption : IUavPluginOption
             return false;
         }
 
-        var success = await ImportTextures(workspace, funcs, batchInfosResult);
-        return success;
-    }
-
-    private async Task<bool> ImportTextures(Workspace workspace, IUavPluginFunctions funcs, List<ImportBatchInfo> infos)
-    {
         var errorBuilder = new StringBuilder();
-        foreach (var info in infos)
+        foreach (ImportBatchInfo info in batchInfosResult)
         {
             var asset = info.Asset;
             var errorAssetName = $"{Path.GetFileName(asset.FileInstance.path)}/{asset.PathId}";
@@ -77,23 +74,16 @@ public class ImportBatchTextureOption : IUavPluginOption
                 continue;
             }
 
-            var tex = TextureFile.ReadTextureFile(baseField);
-            if (info.ImportFile == null || !File.Exists(info.ImportFile))
+            var filePath = info.ImportFile;
+            if (filePath == null || !File.Exists(filePath))
             {
                 errorBuilder.AppendLine($"[{errorAssetName}]: failed to import because {info.ImportFile ?? "[null]"} does not exist.");
                 continue;
             }
 
-            try
-            {
-                tex.EncodeTextureImage(info.ImportFile);
-                tex.WriteTo(baseField);
-                asset.UpdateAssetDataAndRow(workspace, baseField);
-            }
-            catch (Exception e)
-            {
-                errorBuilder.AppendLine($"[{errorAssetName}]: failed to import: {e}");
-            }
+            byte[] byteData = File.ReadAllBytes(filePath);
+            baseField["m_Script"].AsByteArray = byteData;
+            asset.UpdateAssetDataAndRow(workspace, baseField);
         }
 
         if (errorBuilder.Length > 0)
@@ -102,6 +92,47 @@ public class ImportBatchTextureOption : IUavPluginOption
             string firstLinesStr = string.Join('\n', firstLines);
             await funcs.ShowMessageDialog("Error", firstLinesStr);
         }
+
+        return true;
+    }
+
+    public async Task<bool> SingleImport(Workspace workspace, IUavPluginFunctions funcs, IList<AssetInst> selection)
+    {
+        var filePaths = await funcs.ShowOpenFileDialog(new FilePickerOpenOptions()
+        {
+            Title = "Load text asset",
+            FileTypeFilter = new List<FilePickerFileType>()
+            {
+                new("TXT file (*.txt)") { Patterns = ["*.txt"] },
+                new("BYTES file (*.bytes)") { Patterns = ["*.bytes"] },
+                new("All types (*.*)") { Patterns = ["*"] },
+            },
+            AllowMultiple = false
+        });
+
+        if (filePaths == null || filePaths.Length == 0)
+        {
+            return false;
+        }
+
+        var filePath = filePaths[0];
+        if (!File.Exists(filePath))
+        {
+            await funcs.ShowMessageDialog("Error", $"Failed to import because {filePath ?? "[null]"} does not exist.");
+            return false;
+        }
+
+        var asset = selection[0];
+        var baseField = workspace.GetBaseField(asset);
+        if (baseField == null)
+        {
+            await funcs.ShowMessageDialog("Error", "Failed to read");
+            return false;
+        }
+
+        byte[] byteData = File.ReadAllBytes(filePath);
+        baseField["m_Script"].AsByteArray = byteData;
+        asset.UpdateAssetDataAndRow(workspace, baseField);
 
         return true;
     }

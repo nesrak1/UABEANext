@@ -12,7 +12,6 @@ namespace UABEANext4.ViewModels.Dialogs;
 public partial class BatchImportViewModel : ViewModelBase, IDialogAware<List<ImportBatchInfo>?>
 {
     private string _directory;
-    private Workspace _workspace;
 
     private bool _ignoreListEvents;
 
@@ -33,7 +32,6 @@ public partial class BatchImportViewModel : ViewModelBase, IDialogAware<List<Imp
     [Obsolete("This constructor is for the designer only and should not be used directly.", true)]
     public BatchImportViewModel()
     {
-        _workspace = new Workspace();
         _directory = string.Empty;
 
         DataGridItems = new List<ImportBatchDataGridItem>();
@@ -43,7 +41,6 @@ public partial class BatchImportViewModel : ViewModelBase, IDialogAware<List<Imp
     public BatchImportViewModel(Workspace workspace, List<AssetInst> selection, string directory,
         List<string> extensions)
     {
-        _workspace = workspace;
         _directory = directory;
 
         var anyExtension = extensions.Contains("*");

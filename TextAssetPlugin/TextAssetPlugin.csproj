@@ -1,0 +1,46 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <EnableDynamicLoading>true</EnableDynamicLoading>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\UABEANext4\UABEANext4.csproj">
+      <Private>false</Private>
+      <ExcludeAssets>runtime</ExcludeAssets>
+    </ProjectReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="AssetsTools.NET">
+      <HintPath>..\Libs\AssetsTools.NET.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <!-- there seems to be no flag for checking if building  -->
+  <!-- or publishing, so we just have two separate targets -->
+
+  <!-- build event -->
+  <Target Name="CopyLibrariesBuild" AfterTargets="AfterBuild" Condition="'$(SolutionDir)' != '*Undefined*'">
+    <PropertyGroup>
+      <UABEABinDir>$(SolutionDir)UABEANext4.Desktop\$(OutputPath)</UABEABinDir>
+    </PropertyGroup>
+
+    <!-- copy textassetplugin and deps -->
+    <Copy SourceFiles="$(OutputPath)TextAssetPlugin.dll" DestinationFolder="$(UABEABinDir)plugins" ContinueOnError="true" />
+  </Target>
+
+  <!-- publish event -->
+  <Target Name="CopyLibrariesPublish" AfterTargets="Publish" Condition="'$(SolutionDir)' != '*Undefined*'">
+    <PropertyGroup>
+      <UABEABinDir>$(SolutionDir)UABEANext4.Desktop\$(PublishDir)</UABEABinDir>
+    </PropertyGroup>
+
+    <!-- copy textassetplugin and deps -->
+    <Copy SourceFiles="$(OutputPath)TextAssetPlugin.dll" DestinationFolder="$(UABEABinDir)plugins" ContinueOnError="true" />
+  </Target>
+
+</Project>

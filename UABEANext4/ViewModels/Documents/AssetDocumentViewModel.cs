@@ -448,7 +448,7 @@ public partial class AssetDocumentViewModel : Document
         }
     }
 
-    public async void ShowPlugins()
+    public void ShowPlugins()
     {
         if (SelectedItems.Count == 0)
         {
@@ -458,7 +458,7 @@ public partial class AssetDocumentViewModel : Document
         }
 
         var pluginTypes = UavPluginMode.Export | UavPluginMode.Import;
-        var pluginsList = await Workspace.Plugins.GetPluginsThatSupport(Workspace, SelectedItems, pluginTypes);
+        var pluginsList = Workspace.Plugins.GetOptionsThatSupport(Workspace, SelectedItems, pluginTypes);
         if (pluginsList == null)
         {
             return;

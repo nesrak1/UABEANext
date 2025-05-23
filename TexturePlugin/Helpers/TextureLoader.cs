@@ -5,17 +5,12 @@ using Avalonia;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using SkiaSharp;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.InteropServices;
 using UABEANext4.AssetWorkspace;
-using UABEANext4.Logic.AssetInfo;
 using UABEANext4.Logic.Mesh;
-using UABEANext4.Logic.Texture;
 
-namespace UABEANext4.Logic.Sprite;
-public class TexturePreview
+namespace TexturePlugin.Helpers;
+public class TextureLoader
 {
     private readonly Dictionary<AssetInst, SKBitmap> _spriteBitmapCache = new();
     private readonly Queue<AssetInst> _spriteBitmapQueue = new();
@@ -70,7 +65,7 @@ public class TexturePreview
             var texture = TextureFile.ReadTextureFile(textureEditBf);
             format = (TextureFormat)texture.m_TextureFormat;
 
-            SwizzleOptIn(texture, textureAsset.FileInstance.file);
+            TextureHelper.SwizzleOptIn(texture, textureAsset.FileInstance.file);
 
             var encTextureData = texture.FillPictureData(textureAsset.FileInstance);
             var textureData = texture.DecodeTextureRaw(encTextureData);
@@ -148,7 +143,7 @@ public class TexturePreview
         using var croppedBitmap = new SKBitmap((int)Math.Round(textureRectWidth), (int)Math.Round(textureRectHeight));
 
         var version = asset.FileInstance.file.Metadata.UnityVersion;
-        var mesh = new MeshReader(asset.FileInstance, renderData, new UnityVersion(version));
+        var mesh = new MeshObj(asset.FileInstance, renderData, new UnityVersion(version));
         if (mesh.Vertices.Length % 3 != 0)
         {
             format = 0;
@@ -203,16 +198,6 @@ public class TexturePreview
         return bitmap;
     }
 
-    private void SwizzleOptIn(TextureFile texture, AssetsFile file)
-    {
-        // note: this means "swizzle if it seems enabled" not "always enable swizzle"
-        // for switch, if platformblob isn't present, this value is pretty much ignored
-        if (file.Metadata.TargetPlatform == (uint)BuildTarget.Switch)
-        {
-            texture.swizzleType = SwizzleType.Switch;
-        }
-    }
-
     private SpriteAtlasData? GetSpriteAtlas(Workspace workspace, AssetInst asset, AssetTypeValueField spriteBf)
     {
         var spriteAtlas = spriteBf["m_SpriteAtlas"];
@@ -240,15 +225,21 @@ public class TexturePreview
         return _spriteAtlasLookup.GetAtlasData(spriteAtlasPtr, key);
     }
 
-    public Bitmap? GetTexture2DBitmap(Workspace workspace, AssetInst asset, out TextureFormat format)
+    public static Bitmap? GetTexture2DBitmap(Workspace workspace, AssetInst asset, out TextureFormat format)
     {
         var textureEditBf = GetByteArrayTexture(workspace, asset);
         var texture = TextureFile.ReadTextureFile(textureEditBf);
         format = (TextureFormat)texture.m_TextureFormat;
 
-        SwizzleOptIn(texture, asset.FileInstance.file);
+        TextureHelper.SwizzleOptIn(texture, asset.FileInstance.file);
 
         var encTextureData = texture.FillPictureData(asset.FileInstance);
+        // rare, but sometimes we see large textures with 0 texture data size
+        if (encTextureData.Length == 0 || (texture.m_Width == 0 && texture.m_Height == 0))
+        {
+            return null;
+        }
+
         var textureData = texture.DecodeTextureRaw(encTextureData);
         if (textureData == null)
         {

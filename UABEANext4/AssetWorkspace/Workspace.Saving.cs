@@ -29,7 +29,6 @@ public partial class Workspace
         });
     }
 
-
     private static bool TryGetFileStream(WorkspaceItem item, [NotNullWhen(true)] out FileStream? fs)
     {
         if (item.Object is AssetsFileInstance fileInst)

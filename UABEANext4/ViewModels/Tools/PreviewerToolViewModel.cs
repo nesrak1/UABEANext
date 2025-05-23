@@ -1,15 +1,13 @@
-﻿using AssetsTools.NET.Extra;
-using AssetsTools.NET.Texture;
-using Avalonia.Media.Imaging;
+﻿using Avalonia.Media.Imaging;
 using AvaloniaEdit.Document;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
 using Dock.Model.Mvvm.Controls;
 using System;
-using System.Text;
 using UABEANext4.AssetWorkspace;
 using UABEANext4.Logic;
-using UABEANext4.Logic.Sprite;
+using UABEANext4.Logic.Mesh;
+using UABEANext4.Plugins;
 
 namespace UABEANext4.ViewModels.Tools;
 public partial class PreviewerToolViewModel : Tool
@@ -23,11 +21,11 @@ public partial class PreviewerToolViewModel : Tool
     [ObservableProperty]
     public TextDocument? _activeDocument;
     [ObservableProperty]
+    public MeshObj? _activeMesh;
+    [ObservableProperty]
     public PreviewerToolPreviewType _activePreviewType = PreviewerToolPreviewType.Text;
 
-    private TexturePreview _textureLoader;
-
-    const int TEXT_ASSET_MAX_LENGTH = 100000;
+    private UavPluginFunctions? _uavPluginFuncs;
 
     [Obsolete("This constructor is for the designer only and should not be used directly.", true)]
     public PreviewerToolViewModel()
@@ -39,7 +37,7 @@ public partial class PreviewerToolViewModel : Tool
 
         _activeImage = null;
         _activeDocument = new TextDocument();
-        _textureLoader = new TexturePreview();
+        _activeMesh = new MeshObj();
     }
 
     public PreviewerToolViewModel(Workspace workspace)
@@ -51,7 +49,6 @@ public partial class PreviewerToolViewModel : Tool
 
         _activeImage = null;
         _activeDocument = new TextDocument("No preview available.");
-        _textureLoader = new TexturePreview();
 
         WeakReferenceMessenger.Default.Register<AssetsSelectedMessage>(this, OnAssetsSelected);
         WeakReferenceMessenger.Default.Register<WorkspaceClosingMessage>(this, OnWorkspaceClosing);
@@ -76,53 +73,83 @@ public partial class PreviewerToolViewModel : Tool
 
     private void HandleAssetPreview(AssetInst? asset)
     {
+        // defer this to first preview since dialogs won't exist until after initial load
+        _uavPluginFuncs ??= new UavPluginFunctions();
+
         if (asset != null)
         {
-            if (asset.Type == AssetClassID.Texture2D)
+            var pluginsList = Workspace.Plugins.GetPreviewersThatSupport(Workspace, asset);
+            if (pluginsList == null || pluginsList.Count == 0)
             {
-                ActivePreviewType = PreviewerToolPreviewType.Image;
-                DisposeCurrentImage();
-
-                var image = _textureLoader.GetTexture2DBitmap(Workspace, asset, out TextureFormat format);
-                if (image != null)
-                {
-                    ActiveImage = image;
-                }
-                else
-                {
-                    ActivePreviewType = PreviewerToolPreviewType.Text;
-                    ActiveDocument = new TextDocument(
-                        $"Texture failed to decode. Image format may not be supported. ({format})");
-                }
+                SetDisplayText("No preview available.");
                 return;
             }
-            else if (asset.Type == AssetClassID.Sprite)
-            {
-                ActivePreviewType = PreviewerToolPreviewType.Image;
-                DisposeCurrentImage();
 
-                var image = _textureLoader.GetSpriteBitmap(Workspace, asset, out TextureFormat format);
-                if (image != null)
+            var firstPrevPair = pluginsList[0];
+            var prevType = firstPrevPair.PreviewType;
+            var prev = firstPrevPair.Previewer;
+
+            switch (prevType)
+            {
+                case UavPluginPreviewerType.Image:
                 {
-                    ActiveImage = image;
+                    ActivePreviewType = PreviewerToolPreviewType.Image;
+                    DisposeCurrentImage();
+
+                    var image = prev.ExecuteImage(Workspace, _uavPluginFuncs, asset, out string? error);
+                    if (image != null)
+                    {
+                        ActiveImage = image;
+                    }
+                    else
+                    {
+                        SetDisplayText(error ?? "[null error]");
+                    }
+                    break;
                 }
-                else
+                case UavPluginPreviewerType.Text:
                 {
                     ActivePreviewType = PreviewerToolPreviewType.Text;
-                    ActiveDocument = new TextDocument(
-                        $"Sprite failed to decode. Image format may not be supported. ({format})");
+
+                    var textString = prev.ExecuteText(Workspace, _uavPluginFuncs, asset, out string? error);
+                    if (textString != null)
+                    {
+                        ActiveDocument = new TextDocument(textString);
+                    }
+                    else
+                    {
+                        SetDisplayText(error ?? "[null error]");
+                    }
+                    break;
                 }
-                return;
-            }
-            else if (asset.Type == AssetClassID.TextAsset)
-            {
-                ActivePreviewType = PreviewerToolPreviewType.Text;
-                ActiveDocument = new TextDocument(GetTextAssetText(asset));
-                return;
+                case UavPluginPreviewerType.Mesh:
+                {
+                    ActivePreviewType = PreviewerToolPreviewType.Mesh;
+
+                    var meshObj = prev.ExecuteMesh(Workspace, _uavPluginFuncs, asset, out string? error);
+                    if (meshObj != null)
+                    {
+                        ActiveMesh = meshObj;
+                    }
+                    else
+                    {
+                        SetDisplayText(error ?? "[null error]");
+                    }
+                    break;
+                }
+                default:
+                {
+                    SetDisplayText($"Preview type {prevType} not supported.");
+                    break;
+                }
             }
         }
+    }
+
+    private void SetDisplayText(string text)
+    {
         ActivePreviewType = PreviewerToolPreviewType.Text;
-        ActiveDocument = new TextDocument("No preview available.");
+        ActiveDocument = new TextDocument(text);
     }
 
     private void DisposeCurrentImage()
@@ -132,28 +159,6 @@ public partial class PreviewerToolViewModel : Tool
             ActiveImage.Dispose();
             ActiveImage = null;
         }
-    }
-
-    private string GetTextAssetText(AssetInst asset)
-    {
-        var baseField = Workspace.GetBaseField(asset);
-        if (baseField == null)
-        {
-            return "No preview available.";
-        }
-
-        var text = baseField["m_Script"].AsByteArray;
-        string trimmedText;
-        if (text.Length <= TEXT_ASSET_MAX_LENGTH)
-        {
-            trimmedText = Encoding.UTF8.GetString(text);
-        }
-        else
-        {
-            trimmedText = Encoding.UTF8.GetString(text[..TEXT_ASSET_MAX_LENGTH]) + $"... (and {text.Length - TEXT_ASSET_MAX_LENGTH} bytes more)";
-        }
-
-        return trimmedText;
     }
 }
 

@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Threading.Tasks;
 using UABEANext4.AssetWorkspace;
 using UABEANext4.Util;
 
 namespace UABEANext4.Plugins;
 public class PluginLoader
 {
-    private readonly List<IUavPluginOption> _loadedPlugins = new();
+    private readonly List<IUavPluginOption> _pluginOptions = [];
+    private readonly List<IUavPluginPreviewer> _pluginPreviewers = [];
 
     public bool LoadPlugin(string path)
     {
@@ -28,7 +28,18 @@ public class PluginLoader
                     if (typeInst is not IUavPluginOption plugInst)
                         return false;
 
-                    _loadedPlugins.Add(plugInst);
+                    _pluginOptions.Add(plugInst);
+                }
+                else if (typeof(IUavPluginPreviewer).IsAssignableFrom(type))
+                {
+                    object? typeInst = Activator.CreateInstance(type);
+                    if (typeInst == null)
+                        return false;
+
+                    if (typeInst is not IUavPluginPreviewer plugInst)
+                        return false;
+
+                    _pluginPreviewers.Add(plugInst);
                 }
             }
         }
@@ -48,27 +59,36 @@ public class PluginLoader
         }
     }
 
-    public async Task<List<PluginOptionModePair>> GetPluginsThatSupport(Workspace workspace, List<AssetInst> assets, UavPluginMode mode)
+    public List<PluginOptionModePair> GetOptionsThatSupport(Workspace workspace, List<AssetInst> assets, UavPluginMode mode)
     {
         var options = new List<PluginOptionModePair>();
-        foreach (var option in _loadedPlugins)
+        foreach (var option in _pluginOptions)
         {
             var bothOpt = mode & option.Options;
             foreach (var flag in bothOpt.GetUniqueFlags())
             {
                 if (flag == UavPluginMode.All)
-                {
                     continue;
-                }
 
-                var supported = await option.SupportsSelection(workspace, flag, assets);
+                var supported = option.SupportsSelection(workspace, flag, assets);
                 if (supported)
-                {
                     options.Add(new PluginOptionModePair(option, flag));
-                }
             }
         }
 
         return options;
+    }
+
+    public List<PluginPreviewerTypePair> GetPreviewersThatSupport(Workspace workspace, AssetInst asset)
+    {
+        var previewers = new List<PluginPreviewerTypePair>();
+        foreach (var previewer in _pluginPreviewers)
+        {
+            var previewType = previewer.SupportsPreview(workspace, asset);
+            if (previewType != UavPluginPreviewerType.None)
+                previewers.Add(new PluginPreviewerTypePair(previewer, previewType));
+        }
+
+        return previewers;
     }
 }

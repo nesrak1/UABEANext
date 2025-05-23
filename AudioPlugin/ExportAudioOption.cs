@@ -9,24 +9,21 @@ using UABEANext4.Plugins;
 using UABEANext4.Util;
 
 namespace AudioPlugin;
-
 public class ExportAudioOption : IUavPluginOption
 {
     public string Name => "Export AudioClip";
-
     public string Description => "Exports AudioClips to their respective format";
-
     public UavPluginMode Options => UavPluginMode.Export;
 
-    public Task<bool> SupportsSelection(Workspace workspace, UavPluginMode mode, IList<AssetInst> selection)
+    public bool SupportsSelection(Workspace workspace, UavPluginMode mode, IList<AssetInst> selection)
     {
         if (mode != UavPluginMode.Export)
         {
-            return Task.FromResult(false);
+            return false;
         }
 
         var typeId = (int)AssetClassID.AudioClip;
-        return Task.FromResult(selection.All(a => a.TypeId == typeId));
+        return selection.All(a => a.TypeId == typeId);
     }
 
     public async Task<bool> Execute(Workspace workspace, IUavPluginFunctions funcs, UavPluginMode mode, IList<AssetInst> selection)

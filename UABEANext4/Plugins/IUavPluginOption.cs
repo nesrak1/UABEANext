@@ -9,6 +9,6 @@ public interface IUavPluginOption
     string Description { get; }
     UavPluginMode Options { get; }
 
-    Task<bool> SupportsSelection(Workspace workspace, UavPluginMode mode, IList<AssetInst> selection);
+    bool SupportsSelection(Workspace workspace, UavPluginMode mode, IList<AssetInst> selection);
     Task<bool> Execute(Workspace workspace, IUavPluginFunctions funcs, UavPluginMode mode, IList<AssetInst> selection);
 }

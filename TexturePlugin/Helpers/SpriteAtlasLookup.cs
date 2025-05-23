@@ -1,10 +1,9 @@
 ﻿using AssetsTools.NET;
-using System.Collections.Generic;
 
-namespace UABEANext4.Logic.Texture;
+namespace TexturePlugin.Helpers;
 public class SpriteAtlasLookup
 {
-    public readonly Dictionary<AssetPPtr, Dictionary<GUID128, SpriteAtlasData>> _lookup = new();
+    public readonly Dictionary<AssetPPtr, Dictionary<GUID128, SpriteAtlasData>> _lookup = [];
 
     public SpriteAtlasData? GetAtlasData(AssetPPtr atlasPtr, GUID128 key)
     {
