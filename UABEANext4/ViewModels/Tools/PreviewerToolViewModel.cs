@@ -25,7 +25,8 @@ public partial class PreviewerToolViewModel : Tool
     [ObservableProperty]
     public PreviewerToolPreviewType _activePreviewType = PreviewerToolPreviewType.Text;
 
-    private UavPluginFunctions? _uavPluginFuncs;
+    // defer this to first preview since dialogs won't exist until after initial load
+    private readonly Lazy<UavPluginFunctions> _uavPluginFuncs = new(() => new UavPluginFunctions());
 
     [Obsolete("This constructor is for the designer only and should not be used directly.", true)]
     public PreviewerToolViewModel()
@@ -73,75 +74,75 @@ public partial class PreviewerToolViewModel : Tool
 
     private void HandleAssetPreview(AssetInst? asset)
     {
-        // defer this to first preview since dialogs won't exist until after initial load
-        _uavPluginFuncs ??= new UavPluginFunctions();
-
-        if (asset != null)
+        if (asset is null)
         {
-            var pluginsList = Workspace.Plugins.GetPreviewersThatSupport(Workspace, asset);
-            if (pluginsList == null || pluginsList.Count == 0)
+            SetDisplayText(string.Empty);
+            return;
+        }
+
+        var pluginsList = Workspace.Plugins.GetPreviewersThatSupport(Workspace, asset);
+        if (pluginsList == null || pluginsList.Count == 0)
+        {
+            SetDisplayText("No preview available.");
+            return;
+        }
+
+        var firstPrevPair = pluginsList[0];
+        var prevType = firstPrevPair.PreviewType;
+        var prev = firstPrevPair.Previewer;
+
+        switch (prevType)
+        {
+            case UavPluginPreviewerType.Image:
             {
-                SetDisplayText("No preview available.");
-                return;
+                ActivePreviewType = PreviewerToolPreviewType.Image;
+                DisposeCurrentImage();
+
+                var image = prev.ExecuteImage(Workspace, _uavPluginFuncs.Value, asset, out string? error);
+                if (image != null)
+                {
+                    ActiveImage = image;
+                }
+                else
+                {
+                    SetDisplayText(error ?? "[null error]");
+                }
+                break;
             }
-
-            var firstPrevPair = pluginsList[0];
-            var prevType = firstPrevPair.PreviewType;
-            var prev = firstPrevPair.Previewer;
-
-            switch (prevType)
+            case UavPluginPreviewerType.Text:
             {
-                case UavPluginPreviewerType.Image:
-                {
-                    ActivePreviewType = PreviewerToolPreviewType.Image;
-                    DisposeCurrentImage();
+                ActivePreviewType = PreviewerToolPreviewType.Text;
 
-                    var image = prev.ExecuteImage(Workspace, _uavPluginFuncs, asset, out string? error);
-                    if (image != null)
-                    {
-                        ActiveImage = image;
-                    }
-                    else
-                    {
-                        SetDisplayText(error ?? "[null error]");
-                    }
-                    break;
-                }
-                case UavPluginPreviewerType.Text:
+                var textString = prev.ExecuteText(Workspace, _uavPluginFuncs.Value, asset, out string? error);
+                if (textString != null)
                 {
-                    ActivePreviewType = PreviewerToolPreviewType.Text;
+                    ActiveDocument = new TextDocument(textString);
+                }
+                else
+                {
+                    SetDisplayText(error ?? "[null error]");
+                }
+                break;
+            }
+            case UavPluginPreviewerType.Mesh:
+            {
+                ActivePreviewType = PreviewerToolPreviewType.Mesh;
 
-                    var textString = prev.ExecuteText(Workspace, _uavPluginFuncs, asset, out string? error);
-                    if (textString != null)
-                    {
-                        ActiveDocument = new TextDocument(textString);
-                    }
-                    else
-                    {
-                        SetDisplayText(error ?? "[null error]");
-                    }
-                    break;
-                }
-                case UavPluginPreviewerType.Mesh:
+                var meshObj = prev.ExecuteMesh(Workspace, _uavPluginFuncs.Value, asset, out string? error);
+                if (meshObj != null)
                 {
-                    ActivePreviewType = PreviewerToolPreviewType.Mesh;
-
-                    var meshObj = prev.ExecuteMesh(Workspace, _uavPluginFuncs, asset, out string? error);
-                    if (meshObj != null)
-                    {
-                        ActiveMesh = meshObj;
-                    }
-                    else
-                    {
-                        SetDisplayText(error ?? "[null error]");
-                    }
-                    break;
+                    ActiveMesh = meshObj;
                 }
-                default:
+                else
                 {
-                    SetDisplayText($"Preview type {prevType} not supported.");
-                    break;
+                    SetDisplayText(error ?? "[null error]");
                 }
+                break;
+            }
+            default:
+            {
+                SetDisplayText($"Preview type {prevType} not supported.");
+                break;
             }
         }
     }
