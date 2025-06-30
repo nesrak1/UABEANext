@@ -23,15 +23,23 @@ public class TexturePreviewer : IUavPluginPreviewer
 
     public Bitmap? ExecuteImage(Workspace workspace, IUavPluginFunctions funcs, AssetInst selection, out string? error)
     {
-        var image = TextureLoader.GetTexture2DBitmap(workspace, selection, out TextureFormat format);
-        if (image != null)
+        try
         {
-            error = null;
-            return image;
+            var image = TextureLoader.GetTexture2DBitmap(workspace, selection, out TextureFormat format);
+            if (image != null)
+            {
+                error = null;
+                return image;
+            }
+            else
+            {
+                error = $"Texture failed to decode. The image format may not be supported or the texture is not valid. ({format})";
+                return null;
+            }
         }
-        else
+        catch (Exception ex)
         {
-            error = $"Texture failed to decode. The image format may not be supported or the texture is not valid. ({format})";
+            error = $"Texture failed to decode due to an error. Exception:\n{ex}";
             return null;
         }
     }

@@ -75,32 +75,40 @@ public class MeshPreviewer : IUavPluginPreviewer
 
     public MeshObj? ExecuteMesh(Workspace workspace, IUavPluginFunctions funcs, AssetInst selection, out string? error)
     {
-        // if we selected a gameobject, do gameobject -> meshfilter -> mesh
-        if (selection.Type == AssetClassID.GameObject)
+        try
         {
-            // todo: make GetComponent helper function for all plugins
-            var maybeMeshAsset = GetMeshFromGameObject(workspace, selection);
-            if (maybeMeshAsset is null)
+            // if we selected a gameobject, do gameobject -> meshfilter -> mesh
+            if (selection.Type == AssetClassID.GameObject)
             {
-                error = "No preview available (mesh couldn't be loaded).";
+                // todo: make GetComponent helper function for all plugins
+                var maybeMeshAsset = GetMeshFromGameObject(workspace, selection);
+                if (maybeMeshAsset is null)
+                {
+                    error = "No preview available (mesh couldn't be loaded).";
+                    return null;
+                }
+
+                selection = maybeMeshAsset;
+            }
+
+            var meshBf = workspace.GetBaseField(selection);
+            if (meshBf == null)
+            {
+                error = "No preview available (mesh base field couldn't be loaded).";
                 return null;
             }
 
-            selection = maybeMeshAsset;
-        }
+            var version = new UnityVersion(selection.FileInstance.file.Metadata.UnityVersion);
+            var meshObj = new MeshObj(selection.FileInstance, meshBf, version);
 
-        var meshBf = workspace.GetBaseField(selection);
-        if (meshBf == null)
+            error = null;
+            return meshObj;
+        }
+        catch (Exception ex)
         {
-            error = "No preview available (mesh base field couldn't be loaded).";
+            error = $"Mesh failed to decode due to an error. Exception:\n{ex}";
             return null;
         }
-
-        var version = new UnityVersion(selection.FileInstance.file.Metadata.UnityVersion);
-        var meshObj = new MeshObj(selection.FileInstance, meshBf, version);
-
-        error = null;
-        return meshObj;
     }
 
     public Bitmap? ExecuteImage(Workspace workspace, IUavPluginFunctions funcs, AssetInst selection, out string? error)

@@ -24,26 +24,34 @@ public class TextAssetPreviewer : IUavPluginPreviewer
 
     public string? ExecuteText(Workspace workspace, IUavPluginFunctions funcs, AssetInst selection, out string? error)
     {
-        var textAssetBf = workspace.GetBaseField(selection);
-        if (textAssetBf == null)
+        try
         {
-            error = "No preview available.";
+            var textAssetBf = workspace.GetBaseField(selection);
+            if (textAssetBf == null)
+            {
+                error = "No preview available.";
+                return null;
+            }
+
+            var text = textAssetBf["m_Script"].AsByteArray;
+            string trimmedText;
+            if (text.Length <= TEXT_ASSET_MAX_LENGTH)
+            {
+                trimmedText = Encoding.UTF8.GetString(text);
+            }
+            else
+            {
+                trimmedText = Encoding.UTF8.GetString(text[..TEXT_ASSET_MAX_LENGTH]) + $"... (and {text.Length - TEXT_ASSET_MAX_LENGTH} bytes more)";
+            }
+
+            error = null;
+            return trimmedText;
+        }
+        catch (Exception ex)
+        {
+            error = $"TextAsset failed to decode due to an error. Exception:\n{ex}";
             return null;
         }
-
-        var text = textAssetBf["m_Script"].AsByteArray;
-        string trimmedText;
-        if (text.Length <= TEXT_ASSET_MAX_LENGTH)
-        {
-            trimmedText = Encoding.UTF8.GetString(text);
-        }
-        else
-        {
-            trimmedText = Encoding.UTF8.GetString(text[..TEXT_ASSET_MAX_LENGTH]) + $"... (and {text.Length - TEXT_ASSET_MAX_LENGTH} bytes more)";
-        }
-
-        error = null;
-        return trimmedText;
     }
 
     public Bitmap? ExecuteImage(Workspace workspace, IUavPluginFunctions funcs, AssetInst selection, out string? error)
