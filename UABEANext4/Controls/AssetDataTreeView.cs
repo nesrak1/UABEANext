@@ -451,13 +451,17 @@ public class AssetDataTreeView : TreeView
                     int fileId = childField.AsInt;
                     if (fileId == 0)
                     {
-                        comment = $" ({fromFile.name})";
+                        if (fromFile.parentBundle != null)
+                            comment = $" ({fromFile.parentBundle.name}/{fromFile.name})";
+                        else
+                            comment = $" ({fromFile.name})";
                     }
                     else
                     {
                         int externalIdx = fileId - 1;
                         if (0 <= externalIdx && externalIdx < externals.Count)
                         {
+                            BundleFileInstance? parentBun = null;
                             AssetsFileExternal external = externals[externalIdx];
                             string pathName = external.PathName;
                             string externalName;
@@ -467,9 +471,23 @@ public class AssetDataTreeView : TreeView
                             }
                             else
                             {
-                                externalName = Path.GetFileName(externals[externalIdx].PathName);
+                                string externalPathName = externals[externalIdx].PathName;
+                                externalName = Path.GetFileName(externalPathName);
+
+                                string externalFileKey = AssetsManager.GetFileLookupKey(externalPathName);
+                                if (_workspace!.Manager.FileLookup.TryGetValue(externalFileKey, out AssetsFileInstance? depInst))
+                                {
+                                    if (depInst.parentBundle != null)
+                                    {
+                                        parentBun = depInst.parentBundle;
+                                    }
+                                }
                             }
-                            comment = $" ({externalName})";
+
+                            if (parentBun != null)
+                                comment = $" ({parentBun.name}/{externalName})";
+                            else
+                                comment = $" ({externalName})";
                         }
                     }
                 }
