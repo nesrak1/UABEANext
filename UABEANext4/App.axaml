@@ -16,6 +16,7 @@
     <StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Simple.xaml"/>
     <StyleInclude Source="avares://UABEANext4/Themes/TabTheme.axaml" />
     <StyleInclude Source="avares://UABEANext4/Themes/DataValidationStyle.axaml" />
+    <StyleInclude Source="avares://UABEANext4/Themes/RadioButtonListBox.axaml" />
     <!--<StyleInclude Source="avares://UABEANext4/Themes/ImprovedTabStyles.axaml"/>-->
     <StyleInclude Source="avares://AvaloniaEdit/Themes/Simple/AvaloniaEdit.xaml" />
 

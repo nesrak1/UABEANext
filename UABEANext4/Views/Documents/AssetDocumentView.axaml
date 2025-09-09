@@ -58,15 +58,6 @@
               </ControlTheme>
             </MenuFlyout.ItemContainerTheme>
           </MenuFlyout>
-          <!--<MenuFlyout>
-            <ItemsControl ItemsSource="{Binding PluginsItems}">
-              <ItemsControl.ItemTemplate>
-                <DataTemplate>
-                  <MenuItem Header="{Binding}" Command="{Binding $parent[UserControl].((docs:AssetDocumentViewModel)DataContext).PluginItemClicked}" CommandParameter="{Binding}" />
-                </DataTemplate>
-              </ItemsControl.ItemTemplate>
-            </ItemsControl>
-          </MenuFlyout>-->
         </Button.Flyout>
       </Button>
       <Button MaxWidth="100" Command="{Binding AddAsset}">
@@ -83,9 +74,34 @@
       </Button>
     </UniformGrid>
 
-    <Grid Grid.Row="1" ColumnDefinitions="80,10,*">
-      <Label VerticalContentAlignment="Center" Grid.Column="0">Search: </Label>
-      <TextBox Grid.Column="2" Text="{Binding SearchText}" />
+    <Grid Grid.Row="1" ColumnDefinitions="*,Auto">
+      <TextBox Grid.Column="0" Text="{Binding SearchText}" Watermark="Asset name search" />
+      <Button Grid.Column="1">
+        <StackPanel Orientation="Horizontal">
+          <Image Source="avares://UABEANext4/Assets/Icons/action-filter.png" Margin="0,0,3,0" />
+          <TextBlock>Search Filters</TextBlock>
+        </StackPanel>
+        <Button.Flyout>
+          <Flyout>
+            <!-- fixed width to "workaround" https://github.com/AvaloniaUI/Avalonia/issues/11018 -->
+            <StackPanel Margin="5" Width="200">
+              <TextBlock Margin="0,0,0,2">Filters</TextBlock>
+              <Button Command="{Binding SetTypeFilter}">Set type filter</Button>
+              <!--<ComboBox ItemsSource="{Binding $parent[UserControl].((docs:AssetDocumentViewModel)DataContext).TypeFilterTypes}" />-->
+
+              <Separator Margin="0,5,0,2" />
+
+              <TextBlock Margin="0,5,0,2">Search settings</TextBlock>
+              <CheckBox IsChecked="{Binding $parent[UserControl].((docs:AssetDocumentViewModel)DataContext).IsSearchCaseSensitive}">Case sensitive</CheckBox>
+              <ListBox Classes="RadioButtonListBox" SelectedIndex="{Binding SearchKind}">
+                <ListBoxItem Tag="Search plainly">Plain search</ListBoxItem>
+                <ListBoxItem Tag="Search with regex (slow!)">Regex search</ListBoxItem>
+                <!--<ListBoxItem Tag="Allow searching non-name fields (e.g., $pathid=123, $filename=level0, $type=Transform)">Meta search</ListBoxItem>-->
+              </ListBox>
+            </StackPanel>
+          </Flyout>
+        </Button.Flyout>
+      </Button>
     </Grid>
 
     <DataGrid

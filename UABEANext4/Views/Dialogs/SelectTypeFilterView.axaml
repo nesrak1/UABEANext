@@ -1,0 +1,29 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:dlg="using:UABEANext4.ViewModels.Dialogs"
+             mc:Ignorable="d" d:DesignWidth="300" d:DesignHeight="500"
+             x:Class="UABEANext4.Views.Dialogs.SelectTypeFilterView"
+             x:DataType="dlg:SelectTypeFilterViewModel">
+  <Grid Margin="10,10,10,10" RowDefinitions="*,50">
+    <ListBox Grid.Row="0" ItemsSource="{Binding FilterTypes}">
+      <ListBox.ItemTemplate>
+        <DataTemplate>
+          <StackPanel Orientation="Horizontal">
+            <CheckBox IsChecked="{Binding IsSelected}">
+              <TextBlock Text="{Binding DisplayText}"/>
+            </CheckBox>
+          </StackPanel>
+        </DataTemplate>
+      </ListBox.ItemTemplate>
+    </ListBox>
+    <Grid Grid.Row="1" VerticalAlignment="Bottom"
+          ColumnDefinitions="*,*" RowDefinitions="*,*">
+      <Button Grid.Column="0" Grid.Row="0" Command="{Binding SelectAll}">Select all</Button>
+      <Button Grid.Column="1" Grid.Row="0" Command="{Binding DeselectAll}">Deselect all</Button>
+      <Button Grid.Column="0" Grid.Row="1" Command="{Binding Accept}">Ok</Button>
+      <Button Grid.Column="1" Grid.Row="1" Command="{Binding Cancel}">Cancel</Button>
+    </Grid>
+  </Grid>
+</UserControl>

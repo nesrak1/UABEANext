@@ -191,4 +191,37 @@ public static class AssetNameUtils
             return string.Empty;
         }
     }
+
+    // get script info from global assetpptr rather than script index
+    public static AssetTypeReference? GetAssetsFileScriptInfo(AssetsManager am, AssetPPtr assetPtr)
+    {
+        if (string.IsNullOrEmpty(assetPtr.FilePath))
+            return null;
+
+        AssetTypeValueField msBaseField;
+        try
+        {
+            var fileInst = am.FileLookup[AssetsManager.GetFileLookupKey(assetPtr.FilePath)];
+            msBaseField = am.GetExtAsset(fileInst, 0, assetPtr.PathId).baseField;
+            if (msBaseField == null)
+                return null;
+        }
+        catch
+        {
+            return null;
+        }
+
+        AssetTypeValueField assemblyNameField = msBaseField["m_AssemblyName"];
+        AssetTypeValueField nameSpaceField = msBaseField["m_Namespace"];
+        AssetTypeValueField classNameField = msBaseField["m_ClassName"];
+        if (assemblyNameField.IsDummy || nameSpaceField.IsDummy || classNameField.IsDummy)
+            return null;
+
+        string assemblyName = assemblyNameField.AsString;
+        string nameSpace = nameSpaceField.AsString;
+        string className = classNameField.AsString;
+
+        AssetTypeReference info = new AssetTypeReference(className, nameSpace, assemblyName);
+        return info;
+    }
 }

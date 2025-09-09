@@ -15,6 +15,7 @@ using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using UABEANext4.AssetWorkspace;
@@ -32,22 +33,30 @@ public partial class AssetDocumentViewModel : Document
 
     public Workspace Workspace { get; }
 
-    public List<AssetInst> SelectedItems { get; set; }
-    public List<AssetsFileInstance> FileInsts { get; set; }
+    public List<AssetInst> SelectedItems { get; set; } = [];
+    public List<AssetsFileInstance> FileInsts { get; set; } = [];
 
-    public ReadOnlyObservableCollection<AssetInst> Items { get; set; }
+    public ReadOnlyObservableCollection<AssetInst> Items { get; set; } = new([]);
 
     public Dictionary<AssetClassID, string> ClassIdToString { get; }
 
     [ObservableProperty]
-    public DataGridCollectionView _collectionView;
+    public DataGridCollectionView _collectionView = new(new List<object>());
     [ObservableProperty]
     public string _searchText = "";
     [ObservableProperty]
-    public ObservableCollection<PluginItemInfo> _pluginsItems;
+    public ObservableCollection<PluginItemInfo> _pluginsItems = [];
+
+    [ObservableProperty]
+    public bool _isSearchCaseSensitive = false;
+    [ObservableProperty]
+    public AssetTextSearchKind _searchKind = 0;
 
     public event Action? ShowPluginsContextMenu;
 
+    private List<TypeFilterTypeEntry>? _filterTypes = null;
+    private HashSet<TypeFilterTypeEntry> _filterTypesFiltered = [];
+    private Dictionary<AssetsFileInstance, AssetTypeReference?[]> _typeRefLookup = [];
     private readonly Action<string> _setDataGridFilterDb;
 
     private IDisposable? _disposableLastList;
@@ -57,16 +66,10 @@ public partial class AssetDocumentViewModel : Document
     public AssetDocumentViewModel()
     {
         Workspace = new();
-        SelectedItems = new();
-        FileInsts = new();
-        Items = new(new ObservableCollection<AssetInst>());
-        CollectionView = new DataGridCollectionView(new List<object>());
         ClassIdToString = Enum
             .GetValues(typeof(AssetClassID))
             .Cast<AssetClassID>()
             .ToDictionary(enm => enm, enm => enm.ToString());
-
-        PluginsItems = new();
 
         Id = TOOL_TITLE.Replace(" ", "");
         Title = TOOL_TITLE;
@@ -80,16 +83,10 @@ public partial class AssetDocumentViewModel : Document
     public AssetDocumentViewModel(Workspace workspace)
     {
         Workspace = workspace;
-        SelectedItems = new();
-        FileInsts = new();
-        Items = new(new ObservableCollection<AssetInst>());
-        CollectionView = new DataGridCollectionView(new List<object>());
         ClassIdToString = Enum
             .GetValues(typeof(AssetClassID))
             .Cast<AssetClassID>()
             .ToDictionary(enm => enm, enm => enm.ToString());
-
-        PluginsItems = new();
 
         Id = TOOL_TITLE.Replace(" ", "");
         Title = TOOL_TITLE;
@@ -106,22 +103,131 @@ public partial class AssetDocumentViewModel : Document
 
     private Func<object, bool> SetDataGridFilter(string searchText)
     {
-        if (string.IsNullOrEmpty(searchText))
-            return a => true;
+        var strCmp = IsSearchCaseSensitive
+            ? StringComparison.Ordinal
+            : StringComparison.OrdinalIgnoreCase;
 
-        return o =>
+        Regex? regex;
+        try
         {
-            if (o is not AssetInst a)
-                return false;
+            regex = SearchKind == AssetTextSearchKind.RegexSearch
+                ? new Regex(searchText, IsSearchCaseSensitive
+                    ? RegexOptions.None
+                    : RegexOptions.IgnoreCase)
+                : null;
+        }
+        catch
+        {
+            // skip invalid regex
+            regex = null;
+        }
 
-            if (a.DisplayName.Contains(searchText, StringComparison.OrdinalIgnoreCase))
-                return true;
+        if (_filterTypesFiltered is null || _filterTypesFiltered.Count == 0)
+        {
+            // don't need to filter on types, use simpler branch
 
-            if (ClassIdToString.TryGetValue(a.Type, out string? classIdName) && classIdName == searchText)
-                return true;
+            if (string.IsNullOrEmpty(searchText))
+                return a => true;
 
-            return false;
-        };
+            if (regex is not null)
+            {
+                // simple + regex
+                return o =>
+                {
+                    if (o is not AssetInst a)
+                        return false;
+
+                    if (regex.IsMatch(a.DisplayName))
+                        return true;
+
+                    if (ClassIdToString.TryGetValue(a.Type, out string? classIdName) && regex.IsMatch(classIdName))
+                        return true;
+
+                    return false;
+                };
+            }
+            else
+            {
+                // simple + no regex
+                return o =>
+                {
+                    if (o is not AssetInst a)
+                        return false;
+
+                    if (a.DisplayName.Contains(searchText, strCmp))
+                        return true;
+
+                    if (ClassIdToString.TryGetValue(a.Type, out string? classIdName) && classIdName == searchText)
+                        return true;
+
+                    return false;
+                };
+            }
+        }
+        else
+        {
+            // need to filter on types
+
+            // allocate one object and overwrite its fields
+            var baseTypeEntry = new TypeFilterTypeEntry
+            {
+                DisplayText = string.Empty,
+                TypeId = 0,
+                ScriptRef = null
+            };
+
+            if (regex is not null)
+            {
+                // type + regex
+                return o =>
+                {
+                    if (o is not AssetInst a)
+                        return false;
+
+                    if (!regex.IsMatch(a.DisplayName))
+                        return false;
+
+                    return DoesTypeFilterPass(a, baseTypeEntry);
+                };
+            }
+            else
+            {
+                // type + no regex
+                return o =>
+                {
+                    if (o is not AssetInst a)
+                        return false;
+
+                    if (!a.DisplayName.Contains(searchText, strCmp))
+                        return false;
+
+                    return DoesTypeFilterPass(a, baseTypeEntry);
+                };
+            }
+        }
+    }
+
+    private bool DoesTypeFilterPass(AssetInst assetInst, TypeFilterTypeEntry baseTypeEntry)
+    {
+        var scriptIndex = assetInst.GetScriptIndex(assetInst.FileInstance.file);
+        baseTypeEntry.TypeId = assetInst.TypeId;
+
+        if (scriptIndex != ushort.MaxValue)
+        {
+            var typeList = _typeRefLookup[assetInst.FileInstance];
+
+            // just in case, let's check the bounds here
+            if (scriptIndex < typeList.Length)
+                baseTypeEntry.ScriptRef = typeList[scriptIndex];
+            else
+                baseTypeEntry.ScriptRef = null;
+        }
+        else
+        {
+            baseTypeEntry.ScriptRef = null;
+        }
+
+        return _filterTypesFiltered.Contains(baseTypeEntry);
     }
 
     public async Task Load(List<AssetsFileInstance> fileInsts)
@@ -154,6 +260,10 @@ public partial class AssetDocumentViewModel : Document
 
         CollectionView = new DataGridCollectionView(Items);
         CollectionView.Filter = SetDataGridFilter(SearchText);
+
+        _filterTypes = null;
+        _filterTypesFiltered = [];
+        _typeRefLookup = [];
     }
 
     public void ViewScene()
@@ -509,6 +619,48 @@ public partial class AssetDocumentViewModel : Document
         info.UpdateAssetDataAndRow(Workspace, baseField);
     }
 
+    public async void SetTypeFilter()
+    {
+        var dialogService = Ioc.Default.GetRequiredService<IDialogService>();
+
+        // if not generated already, find all unique types to filter on
+        _filterTypes ??= SelectTypeFilterViewModel.MakeTypeFilterTypes(Workspace, Items);
+
+        var result = await dialogService.ShowDialog(new SelectTypeFilterViewModel(_filterTypes));
+        if (result == null)
+            return;
+
+        // set filtered list
+        _filterTypesFiltered = result.ToHashSet();
+
+        // also generate a list of file instance + script index -> actual script for quick lookup
+        if (_typeRefLookup.Count == 0)
+        {
+            foreach (var fileInst in FileInsts)
+            {
+                var scriptTypes = fileInst.file.Metadata.ScriptTypes;
+                var scriptRefArray = new AssetTypeReference?[scriptTypes.Count];
+
+                for (int i = 0; i < scriptTypes.Count; i++)
+                {
+                    AssetTypeReference typeRef = AssetHelper.GetAssetsFileScriptInfo(Workspace.Manager, fileInst, i);
+                    if (typeRef == null)
+                    {
+                        scriptRefArray[i] = null;
+                        continue;
+                    }
+
+                    scriptRefArray[i] = typeRef;
+                }
+
+                _typeRefLookup[fileInst] = scriptRefArray;
+            }
+        }
+
+        // reload filter
+        CollectionView.Filter = SetDataGridFilter(SearchText);
+    }
+
     public void OnAssetOpened(List<AssetInst> assets)
     {
         if (assets.Count > 0)
@@ -532,6 +684,8 @@ public partial class AssetDocumentViewModel : Document
         await Load([]);
     }
 }
+
+// todo: move all classes to new namespace
 
 public class PluginItemInfo
 {
@@ -564,4 +718,10 @@ public class PluginItemInfo
     {
         return Name;
     }
+}
+
+public enum AssetTextSearchKind
+{
+    PlainSearch,
+    RegexSearch
 }

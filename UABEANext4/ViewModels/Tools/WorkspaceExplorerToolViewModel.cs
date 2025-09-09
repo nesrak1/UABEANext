@@ -17,7 +17,6 @@ namespace UABEANext4.ViewModels.Tools
         const string TOOL_TITLE = "Workspace Explorer";
 
         public delegate void SelectedWorkspaceItemChangedEvent(List<WorkspaceItem> workspaceItems);
-        public event SelectedWorkspaceItemChangedEvent? SelectedWorkspaceItemChanged;
 
         public Workspace Workspace { get; }
 

@@ -64,6 +64,9 @@
     <Compile Update="Views\Dialogs\MessageBoxView.axaml.cs">
       <DependentUpon>MessageBoxView.axaml</DependentUpon>
     </Compile>
+    <Compile Update="Views\Dialogs\SelectTypeFilterView.axaml.cs">
+      <DependentUpon>SelectTypeFilterView.axaml</DependentUpon>
+    </Compile>
     <Compile Update="Views\Dialogs\VersionSelectView.axaml.cs">
       <DependentUpon>VersionSelectView.axaml</DependentUpon>
     </Compile>
