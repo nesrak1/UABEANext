@@ -5,6 +5,8 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using CommunityToolkit.Mvvm.Messaging;
 using Dock.Model.Controls;
+using Dock.Model.Core;
+using Dock.Model.Core.Events;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -25,6 +27,15 @@ public partial class MainViewModel : ViewModelBase
 {
     [ObservableProperty]
     public IRootDock? _layout;
+
+    [ObservableProperty]
+    public bool _dockWorkspaceExplorerVisible = true;
+    [ObservableProperty]
+    public bool _dockHierarchyVisible = true;
+    [ObservableProperty]
+    public bool _dockInspectorVisible = true;
+    [ObservableProperty]
+    public bool _dockPreviewerVisible = true;
 
     public Workspace Workspace { get; }
 
@@ -49,8 +60,125 @@ public partial class MainViewModel : ViewModelBase
 
         WeakReferenceMessenger.Default.Register<SelectedWorkspaceItemChangedMessage>(this, (r, h) => _ = OnSelectedWorkspaceItemsChanged(r, h));
         WeakReferenceMessenger.Default.Register<RequestEditAssetMessage>(this, OnRequestEditAsset);
+
+        _factory.DockableAdded += FactoryDockableAdded;
+        _factory.DockableClosed += FactoryDockableClosed;
     }
 
+    // todo: split out
+
+    #region Dockable toggles
+    private void FactoryDockableAdded(object? sender, DockableAddedEventArgs e)
+    {
+        if (e.Dockable is not IDockable dockable)
+            return;
+
+        switch (dockable.Id)
+        {
+            case "WorkspaceExplorer": DockWorkspaceExplorerVisible = true; break;
+            case "Hierarchy": DockHierarchyVisible = true; break;
+            case "Inspector": DockInspectorVisible = true; break;
+            case "Previewer": DockPreviewerVisible = true; break;
+        }
+    }
+
+    private void FactoryDockableClosed(object? sender, DockableClosedEventArgs e)
+    {
+        if (e.Dockable is not IDockable dockable)
+            return;
+
+        switch (dockable.Id)
+        {
+            case "WorkspaceExplorer": DockWorkspaceExplorerVisible = false; break;
+            case "Hierarchy": DockHierarchyVisible = false; break;
+            case "Inspector": DockInspectorVisible = false; break;
+            case "Previewer": DockPreviewerVisible = false; break;
+        }
+    }
+
+    partial void OnDockWorkspaceExplorerVisibleChanged(bool value)
+    {
+        var explorer = _factory.GetDockable<WorkspaceExplorerToolViewModel>("WorkspaceExplorer");
+        if (explorer is null || Layout is null)
+            return;
+
+        ShowHideDockable(explorer, value);
+    }
+
+    partial void OnDockHierarchyVisibleChanged(bool value)
+    {
+        var hierarchy = _factory.GetDockable<HierarchyToolViewModel>("Hierarchy");
+        if (hierarchy is null || Layout is null)
+            return;
+
+        ShowHideDockable(hierarchy, value);
+    }
+
+    partial void OnDockInspectorVisibleChanged(bool value)
+    {
+        var inspector = _factory.GetDockable<InspectorToolViewModel>("Inspector");
+        if (inspector is null || Layout is null)
+            return;
+
+        ShowHideDockable(inspector, value);
+    }
+
+    partial void OnDockPreviewerVisibleChanged(bool value)
+    {
+        var previewer = _factory.GetDockable<PreviewerToolViewModel>("Previewer");
+        if (previewer is null || Layout is null)
+            return;
+
+        ShowHideDockable(previewer, value);
+    }
+
+    private void ShowHideDockable(IDockable dockable, bool show)
+    {
+        if (show)
+        {
+            if (dockable.Owner is IDock dock && HasPathToRoot(dock))
+            {
+                _factory.AddDockable(dock, dockable);
+                _factory.SetActiveDockable(dockable);
+                _factory.SetFocusedDockable(dock, dockable);
+            }
+            else if (_factory.MainPane is not null)
+            {
+                _factory.AddDockable(_factory.MainPane, dockable);
+                _factory.FloatDockable(dockable); // make floating for now, no idea where else to put it
+                _factory.SetActiveDockable(dockable);
+                _factory.SetFocusedDockable(_factory.MainPane, dockable);
+            }
+        }
+        else
+        {
+            _factory.CloseDockable(dockable);
+        }
+    }
+
+    // a very roundabout way to check if a dock is visible all the way to the root
+    private bool HasPathToRoot(IDockable baseDockable)
+    {
+        IDockable? dockable = baseDockable;
+        while (true)
+        {
+            if (dockable is null || dockable.Owner is null)
+                return false;
+
+            if (dockable.Owner is not IDock parentDock)
+                return false;
+
+            if (parentDock.VisibleDockables is null || !parentDock.VisibleDockables.Contains(dockable))
+                return false;
+
+            dockable = dockable.Owner;
+            if (dockable == Layout)
+                return true;
+        }
+    }
+    #endregion
+
+    #region Menu items
     public async Task OpenFiles(IEnumerable<string?> enumerable)
     {
         int totalCount = enumerable.Count();
@@ -331,6 +459,7 @@ public partial class MainViewModel : ViewModelBase
             }
         }
     }
+    #endregion
 
     private async Task OnSelectedWorkspaceItemsChanged(object recipient, SelectedWorkspaceItemChangedMessage message)
     {

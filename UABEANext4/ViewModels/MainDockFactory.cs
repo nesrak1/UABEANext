@@ -12,6 +12,8 @@ using UABEANext4.ViewModels.Tools;
 namespace UABEANext4.ViewModels;
 internal class MainDockFactory : Factory
 {
+    public ProportionalDock? MainPane;
+
     private IRootDock? _rootDock;
     private IDocumentDock? _fileDocumentDock;
     private WorkspaceExplorerToolViewModel? _workspaceExplorerTool;
@@ -77,7 +79,7 @@ internal class MainDockFactory : Factory
             Proportion = 0.25
         };
 
-        var topRightPane = new ProportionalDock
+        MainPane = new ProportionalDock
         {
             Orientation = Orientation.Horizontal,
             IsCollapsable = false,
@@ -94,8 +96,8 @@ internal class MainDockFactory : Factory
         var windowLayout = CreateRootDock();
         windowLayout.Title = "Default";
         windowLayout.IsCollapsable = false;
-        windowLayout.VisibleDockables = CreateList<IDockable>(topRightPane);
-        windowLayout.ActiveDockable = topRightPane;
+        windowLayout.VisibleDockables = CreateList<IDockable>(MainPane);
+        windowLayout.ActiveDockable = MainPane;
 
         _rootDock = CreateRootDock();
         _rootDock.IsCollapsable = false;

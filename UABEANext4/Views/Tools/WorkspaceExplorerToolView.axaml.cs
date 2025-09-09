@@ -22,7 +22,9 @@ public partial class WorkspaceExplorerToolView : UserControl
         if (DataContext == null || DataContext is not WorkspaceExplorerToolViewModel viewModel)
             return;
 
-        var selectionEventArgs = e as SelectionChangedEventArgs;
+        if (e is not SelectionChangedEventArgs selectionEventArgs)
+            return;
+
         var selectionActuallyChanged = selectionEventArgs.AddedItems.Count > 0 || selectionEventArgs.RemovedItems.Count > 0;
         if (selectionActuallyChanged)
         {
