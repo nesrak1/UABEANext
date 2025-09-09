@@ -139,17 +139,17 @@ public partial class Workspace
         }
     }
 
-    public async Task<bool> Save(WorkspaceItem item)
+    public async Task<(bool saved, bool failed)> Save(WorkspaceItem item)
     {
         if (!UnsavedItems.Contains(item))
         {
-            return false;
+            return (false, false);
         }
 
         var storageProvider = StorageService.GetStorageProvider();
         if (storageProvider is null)
         {
-            return false;
+            return (false, false);
         }
 
         var type = item.ObjectType;
@@ -162,7 +162,7 @@ public partial class Workspace
         if (!TryGetFileStream(item, out var stream))
         {
             await MessageBoxUtil.ShowDialog("Error saving", "Workspace item isn't using a FileStream");
-            return false;
+            return (false, true);
         }
 
         var streamPath = stream.Name;
@@ -170,7 +170,7 @@ public partial class Workspace
         if (!TryOpenForWriting(streamPath, out var writeStream))
         {
             await MessageBoxUtil.ShowDialog("Error saving", "Couldn't open stream for writing");
-            return false;
+            return (false, true);
         }
 
         var newName = "~" + Path.GetFileName(streamPath);
@@ -179,7 +179,7 @@ public partial class Workspace
         if (!TryOpenForWriting(tempWriteStreamPath, out var tempWriteStream))
         {
             await MessageBoxUtil.ShowDialog("Error saving", "Couldn't open temp file stream for writing");
-            return false;
+            return (false, true);
         }
 
         if (type == WorkspaceItemType.AssetsFile)
@@ -259,9 +259,9 @@ public partial class Workspace
         catch (Exception ex)
         {
             await MessageBoxUtil.ShowDialog("Error saving", "Unknown error:\n" + ex);
-            return false;
+            return (false, true);
         }
-        return true;
+        return (true, false);
     }
 
     public async Task<bool> SaveAs(WorkspaceItem item)

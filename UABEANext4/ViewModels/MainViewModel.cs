@@ -64,6 +64,7 @@ public partial class MainViewModel : ViewModelBase
             MaxDegreeOfParallelism = Math.Min(Environment.ProcessorCount - 1, 4)
         };
 
+        Workspace.SetProgressThreadSafe(0f, "Loading files...");
         await Task.Run(() =>
         {
             Workspace.ModifyMutex.WaitOne();
@@ -176,10 +177,14 @@ public partial class MainViewModel : ViewModelBase
             var someFailed = false;
             foreach (var item in rootItems)
             {
-                var success = await Workspace.Save(item);
-                if (!success)
+                var (saved, failed) = await Workspace.Save(item);
+                if (failed)
                 {
                     someFailed = true;
+                    continue;
+                }
+                else if (!saved)
+                {
                     continue;
                 }
 
