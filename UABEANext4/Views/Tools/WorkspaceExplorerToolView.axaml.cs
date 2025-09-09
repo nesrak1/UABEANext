@@ -1,5 +1,6 @@
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.Interactivity;
 using System.Collections.Generic;
 using UABEANext4.AssetWorkspace;
 using UABEANext4.Util;
@@ -49,6 +50,36 @@ public partial class WorkspaceExplorerToolView : UserControl
         if (treeViewItem != null)
         {
             treeViewItem.IsExpanded = true;
+        }
+    }
+
+    private void ExpandAll(object? sender, RoutedEventArgs e)
+    {
+        foreach (var treeViewObj in SolutionTreeView.Items)
+        {
+            if (treeViewObj is null)
+                continue;
+
+            var treeViewItem = (TreeViewItem?)SolutionTreeView.TreeContainerFromItem(treeViewObj);
+            if (treeViewItem is null)
+                continue;
+
+            SolutionTreeView.ExpandSubTree(treeViewItem);
+        }
+    }
+
+    private void CollapseAll(object? sender, RoutedEventArgs e)
+    {
+        foreach (var treeViewObj in SolutionTreeView.Items)
+        {
+            if (treeViewObj is null)
+                continue;
+
+            var treeViewItem = (TreeViewItem?)SolutionTreeView.TreeContainerFromItem(treeViewObj);
+            if (treeViewItem is null)
+                continue;
+
+            SolutionTreeView.CollapseSubTree(treeViewItem);
         }
     }
 }

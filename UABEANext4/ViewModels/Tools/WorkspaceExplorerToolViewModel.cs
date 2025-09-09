@@ -65,9 +65,29 @@ namespace UABEANext4.ViewModels.Tools
             Workspace.RenameFile(wsItem, newName);
         }
 
+        public void LoadAll()
+        {
+            var itemsToLoad = new List<WorkspaceItem>();
+            foreach (var rootItem in Workspace.RootItems)
+                GatherWorkspaceItemsRecursive(rootItem, itemsToLoad);
+
+            SelectedItemsChanged(itemsToLoad);
+        }
+
         private bool IsItemRenamable(WorkspaceItem wsItem)
         {
             return wsItem.Parent != null && wsItem.Parent.ObjectType == WorkspaceItemType.BundleFile;
+        }
+
+        private void GatherWorkspaceItemsRecursive(WorkspaceItem thisItem, List<WorkspaceItem> allItems)
+        {
+            foreach (var childItem in thisItem.Children)
+            {
+                if (childItem.ObjectType == WorkspaceItemType.AssetsFile)
+                    allItems.Add(childItem);
+                else
+                    GatherWorkspaceItemsRecursive(childItem, allItems);
+            }
         }
     }
 }
