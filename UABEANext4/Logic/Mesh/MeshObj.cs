@@ -221,11 +221,11 @@ public class MeshObj
             var fixedStreamPath = path;
 
             // user may have extracted serialized file and resS from bundle to disk
-            if (fileInst.parentBundle == null && path.StartsWith("archive:/"))
+            var bundleInst = fileInst.parentBundle;
+            if (bundleInst == null && path.StartsWith("archive:/"))
             {
                 fixedStreamPath = Path.GetFileName(fixedStreamPath);
             }
-
             if (!Path.IsPathRooted(fixedStreamPath) && rootPath != null)
             {
                 fixedStreamPath = Path.Combine(rootPath, fixedStreamPath);
@@ -239,6 +239,16 @@ public class MeshObj
                 stream.Read(data, 0, (int)size);
                 return data;
             }
+            // we still haven't found it yet. maybe a data.unity3d bundle?
+            // in this case, we won't have the archive:/ prefix, so use the original path
+            else if (bundleInst != null && TryGetBundleFileIndex(bundleInst.file, path, out var fileIdx))
+            {
+                var bundle = bundleInst.file;
+                bundle.GetFileRange(fileIdx, out var bunOffset, out var _);
+                var reader = bundle.DataReader;
+                reader.Position = bunOffset + offset;
+                return reader.ReadBytes((int)size);
+            }
             else
             {
                 throw new FileNotFoundException("Can't find resS for mesh");
@@ -248,6 +258,12 @@ public class MeshObj
         {
             return baseField["m_VertexData"]["m_DataSize"].AsByteArray;
         }
+    }
+
+    private static bool TryGetBundleFileIndex(AssetBundleFile bunFile, string name, out int dirInf)
+    {
+        dirInf = bunFile.BlockAndDirInfo.DirectoryInfos.FindIndex(i => i.Name == name);
+        return dirInf != -1;
     }
 
     private void ReadVertexData(AssetsFileInstance fileInst, AssetTypeValueField baseField, UnityVersion version)
