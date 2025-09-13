@@ -25,7 +25,7 @@ public class SpritePreviewer : IUavPluginPreviewer
 
     public Bitmap? ExecuteImage(Workspace workspace, IUavPluginFunctions funcs, AssetInst selection, out string? error)
     {
-        var image = _textureLoader.GetSpriteBitmap(workspace, selection, out TextureFormat format);
+        var image = _textureLoader.GetSpriteAvaloniaBitmap(workspace, selection, out TextureFormat format);
         if (image != null)
         {
             error = null;

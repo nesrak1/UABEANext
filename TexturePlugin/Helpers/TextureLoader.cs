@@ -16,14 +16,67 @@ public class TextureLoader
     private readonly Queue<AssetInst> _spriteBitmapQueue = new();
     private readonly SpriteAtlasLookup _spriteAtlasLookup = new();
 
+    // todo: this should be configurable
     public const int DEFAULT_MAX_SPRITE_BITMAP_CACHE_SIZE = 10;
 
-    public Bitmap? GetSpriteBitmap(Workspace workspace, AssetInst asset, out TextureFormat format)
+    public Bitmap? GetSpriteAvaloniaBitmap(Workspace workspace, AssetInst asset, out TextureFormat format)
     {
+        SKBitmap? skBitmap = GetSpriteSkBitmap(workspace, asset, out format);
+        if (skBitmap == null)
+        {
+            return null;
+        }
+
+        var croppedByteSize = skBitmap.Width * skBitmap.Height * 4;
+        var bitmap = new WriteableBitmap(new PixelSize(skBitmap.Width, skBitmap.Height), new Vector(96, 96), PixelFormat.Bgra8888, AlphaFormat.Unpremul);
+        using var croppedPixels = skBitmap.PeekPixels();
+        using var frameBuffer = bitmap.Lock();
+        {
+            var destByteSize = frameBuffer.RowBytes * frameBuffer.Size.Height;
+            unsafe
+            {
+                // marshal.copy can't do native -> native so we have to do this unsafe copy
+                Buffer.MemoryCopy(croppedPixels.GetPixels().ToPointer(), frameBuffer.Address.ToPointer(), destByteSize, croppedByteSize);
+            }
+        }
+
+        skBitmap.Dispose();
+        return bitmap;
+    }
+
+    public byte[]? GetSpriteRawBytes(
+        Workspace workspace, AssetInst asset,
+        out TextureFormat format, out int width, out int height)
+    {
+        SKBitmap? skBitmap = GetSpriteSkBitmap(workspace, asset, out format);
+        if (skBitmap == null)
+        {
+            width = 0;
+            height = 0;
+            return null;
+        }
+
+        width = skBitmap.Width;
+        height = skBitmap.Height;
+
+        byte[] outData = new byte[width * height * 4];
+        using (var croppedPixels = skBitmap.PeekPixels())
+        {
+            Marshal.Copy(croppedPixels.GetPixels(), outData, 0, outData.Length);
+        }
+
+        skBitmap.Dispose();
+        return outData;
+    }
+
+    // format output is only for error messages. the byte output is rgba32.
+    public SKBitmap? GetSpriteSkBitmap(Workspace workspace, AssetInst asset, out TextureFormat format)
+    {
+        format = 0;
+
         var spriteBf = workspace.GetBaseField(asset);
         if (spriteBf == null)
         {
-            format = 0;
             return null;
         }
 
@@ -40,7 +93,6 @@ public class TextureLoader
             texturePtr = AssetPPtr.FromField(renderData["texture"]);
             if (texturePtr.IsNull())
             {
-                format = 0;
                 return null;
             }
         }
@@ -48,7 +100,6 @@ public class TextureLoader
         var textureAsset = workspace.GetAssetInst(asset.FileInstance, texturePtr.FileId, texturePtr.PathId);
         if (textureAsset == null)
         {
-            format = 0;
             return null;
         }
 
@@ -57,11 +108,10 @@ public class TextureLoader
         if (_spriteBitmapCache.TryGetValue(textureAsset, out var cachedBitmap))
         {
             baseBitmap = cachedBitmap;
-            format = 0;
         }
         else
         {
-            var textureEditBf = GetByteArrayTexture(workspace, textureAsset);
+            var textureEditBf = TextureHelper.GetByteArrayTexture(workspace, textureAsset);
             var texture = TextureFile.ReadTextureFile(textureEditBf);
             format = (TextureFormat)texture.m_TextureFormat;
 
@@ -140,13 +190,12 @@ public class TextureLoader
         var flipY = (settingsRaw & 8) != 0;
         var rot90 = (settingsRaw & 16) != 0;
 
-        using var croppedBitmap = new SKBitmap((int)Math.Round(textureRectWidth), (int)Math.Round(textureRectHeight));
+        var croppedBitmap = new SKBitmap((int)Math.Round(textureRectWidth), (int)Math.Round(textureRectHeight));
 
         var version = asset.FileInstance.file.Metadata.UnityVersion;
         var mesh = new MeshObj(asset.FileInstance, renderData, new UnityVersion(version));
         if (mesh.Vertices.Length % 3 != 0)
         {
-            format = 0;
             return null;
         }
 
@@ -178,28 +227,30 @@ public class TextureLoader
                     path.AddPoly(points);
                 }
                 canvas.ClipPath(path);
+
+                if (flipX)
+                {
+                    canvas.Translate(croppedBitmap.Width, 0);
+                    canvas.Scale(-1, 1);
+                }
+                if (flipY)
+                {
+                    canvas.Translate(0, croppedBitmap.Height);
+                    canvas.Scale(1, -1);
+                }
+                // todo: rot90
+
                 canvas.DrawBitmap(baseBitmap, -textureRectX, -textureRectY);
             }
         }
 
-        var croppedByteSize = croppedBitmap.Width * croppedBitmap.Height * 4;
-        var bitmap = new WriteableBitmap(new PixelSize(croppedBitmap.Width, croppedBitmap.Height), new Vector(96, 96), PixelFormat.Bgra8888, AlphaFormat.Unpremul);
-        using var croppedPixels = croppedBitmap.PeekPixels();
-        using (var frameBuffer = bitmap.Lock())
-        {
-            var destByteSize = frameBuffer.RowBytes * frameBuffer.Size.Height;
-            unsafe
-            {
-                // marshal.copy can't do native -> native so we have to do this unsafe copy
-                Buffer.MemoryCopy(croppedPixels.GetPixels().ToPointer(), frameBuffer.Address.ToPointer(), destByteSize, croppedByteSize);
-            }
-        }
-
-        return bitmap;
+        return croppedBitmap;
     }
 
     private SpriteAtlasData? GetSpriteAtlas(Workspace workspace, AssetInst asset, AssetTypeValueField spriteBf)
     {
+        // in some versions of unity, m_SpriteAtlas is not set, but a SpriteAtlas
+        // in the same file references this sprite. we don't handle this right now.
         var spriteAtlas = spriteBf["m_SpriteAtlas"];
         var spriteAtlasPtr = AssetPPtr.FromField(spriteAtlas);
         if (spriteAtlasPtr.IsNull())
@@ -227,7 +278,7 @@ public class TextureLoader
 
     public static Bitmap? GetTexture2DBitmap(Workspace workspace, AssetInst asset, out TextureFormat format)
     {
-        var textureEditBf = GetByteArrayTexture(workspace, asset);
+        var textureEditBf = TextureHelper.GetByteArrayTexture(workspace, asset);
         var texture = TextureFile.ReadTextureFile(textureEditBf);
         format = (TextureFormat)texture.m_TextureFormat;
 
@@ -253,30 +304,6 @@ public class TextureLoader
         }
 
         return bitmap;
-    }
-
-    private static AssetTypeValueField? GetByteArrayTexture(Workspace workspace, AssetInst tex)
-    {
-        var textureTemp = workspace.GetTemplateField(tex.FileInstance, tex);
-        var imageData = textureTemp.Children.FirstOrDefault(f => f.Name == "image data");
-        if (imageData == null)
-            return null;
-
-        imageData.ValueType = AssetValueType.ByteArray;
-
-        var platformBlob = textureTemp.Children.FirstOrDefault(f => f.Name == "m_PlatformBlob");
-        if (platformBlob != null)
-        {
-            var m_PlatformBlob_Array = platformBlob.Children[0];
-            m_PlatformBlob_Array.ValueType = AssetValueType.ByteArray;
-        }
-
-        AssetTypeValueField baseField;
-        lock (tex.FileInstance.LockReader)
-        {
-            baseField = textureTemp.MakeValue(tex.FileReader, tex.AbsoluteByteStart);
-        }
-        return baseField;
     }
 
     public void Cleanup()
