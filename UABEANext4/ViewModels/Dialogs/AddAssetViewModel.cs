@@ -174,7 +174,13 @@ public partial class AddAssetViewModel : ViewModelBaseValidator, IDialogAware<Ad
     {
         tempField = null;
 
-        ClassDatabaseFile cldb = _workspace.Manager.ClassDatabase;
+        ClassDatabaseFile? cldb = (ClassDatabaseFile?)_workspace.Manager.ClassDatabase;
+        if (cldb == null)
+        {
+            typeId = -1;
+            return false;
+        }
+
         ClassDatabaseType cldbType;
         bool needsTypeId;
         if (int.TryParse(typeIdText, out typeId))
