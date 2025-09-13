@@ -40,7 +40,7 @@ internal class MainDockFactory : Factory
         _previewerToolViewModel = new PreviewerToolViewModel(_workspace);
         _hierarchyToolViewModel = new HierarchyToolViewModel(_workspace);
 
-        var assetDocumentDock = new AssetDocumentViewModel(_workspace);
+        var assetDocumentDock = new AssetDocumentViewModel(_workspace, false);
         var documentDock = _fileDocumentDock = new DocumentDock
         {
             ActiveDockable = assetDocumentDock,

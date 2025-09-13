@@ -36,6 +36,8 @@ public partial class MainViewModel : ViewModelBase
     public bool _dockInspectorVisible = true;
     [ObservableProperty]
     public bool _dockPreviewerVisible = true;
+    [ObservableProperty]
+    public bool _loadContainers = false;
 
     public Workspace Workspace { get; }
 
@@ -476,7 +478,7 @@ public partial class MainViewModel : ViewModelBase
             if (workspaceItem.Object is not AssetsFileInstance mainFileInst)
                 return;
 
-            document = new AssetDocumentViewModel(Workspace)
+            document = new AssetDocumentViewModel(Workspace, LoadContainers)
             {
                 Title = mainFileInst.name,
                 Id = mainFileInst.name
@@ -499,7 +501,7 @@ public partial class MainViewModel : ViewModelBase
             if (assetsFileItems[0] is not AssetsFileInstance mainFileInst)
                 return;
 
-            document = new AssetDocumentViewModel(Workspace)
+            document = new AssetDocumentViewModel(Workspace, LoadContainers)
             {
                 Title = $"{mainFileInst.name} and {assetsFileItems.Count - 1} other files"
             };

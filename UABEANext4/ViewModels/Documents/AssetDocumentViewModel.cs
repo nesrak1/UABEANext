@@ -32,6 +32,7 @@ public partial class AssetDocumentViewModel : Document
     const string TOOL_TITLE = "Asset Document";
 
     public Workspace Workspace { get; }
+    public bool LoadContainers { get; }
 
     public List<AssetInst> SelectedItems { get; set; } = [];
     public List<AssetsFileInstance> FileInsts { get; set; } = [];
@@ -60,12 +61,13 @@ public partial class AssetDocumentViewModel : Document
     private readonly Action<string> _setDataGridFilterDb;
 
     private IDisposable? _disposableLastList;
-    private CancellationToken? _cancellationToken;
+    private CancellationTokenSource? _loadCtSrc;
 
     [Obsolete("This constructor is for the designer only and should not be used directly.", true)]
     public AssetDocumentViewModel()
     {
         Workspace = new();
+        LoadContainers = false;
         ClassIdToString = Enum
             .GetValues(typeof(AssetClassID))
             .Cast<AssetClassID>()
@@ -80,9 +82,10 @@ public partial class AssetDocumentViewModel : Document
         }, 300);
     }
 
-    public AssetDocumentViewModel(Workspace workspace)
+    public AssetDocumentViewModel(Workspace workspace, bool loadContainers)
     {
         Workspace = workspace;
+        LoadContainers = loadContainers;
         ClassIdToString = Enum
             .GetValues(typeof(AssetClassID))
             .Cast<AssetClassID>()
@@ -239,15 +242,31 @@ public partial class AssetDocumentViewModel : Document
 
         var sourceList = new SourceList<RangeObservableCollection<AssetFileInfo>>();
         var tasks = new List<Task>();
-        _cancellationToken = new CancellationToken();
-        await Task.Run(() =>
+
+        _loadCtSrc?.Cancel();
+        _loadCtSrc = new CancellationTokenSource();
+        var loadCt = _loadCtSrc.Token;
+        try
         {
-            foreach (var fileInst in fileInsts)
+            await Task.Run(() =>
             {
-                var infosObsCol = (RangeObservableCollection<AssetFileInfo>)fileInst.file.Metadata.AssetInfos;
-                sourceList.Add(infosObsCol);
-            }
-        }, _cancellationToken.Value);
+                foreach (var fileInst in fileInsts)
+                {
+                    if (loadCt.IsCancellationRequested)
+                        loadCt.ThrowIfCancellationRequested();
+
+                    var infosObsCol = (RangeObservableCollection<AssetFileInfo>)fileInst.file.Metadata.AssetInfos;
+                    sourceList.Add(infosObsCol);
+
+                    if (LoadContainers)
+                        LoadContainersIntoInfos(fileInst, infosObsCol);
+                }
+            }, loadCt);
+        }
+        catch (OperationCanceledException)
+        {
+            sourceList.Clear();
+        }
 
         var observableList = sourceList
             .Connect()
@@ -264,6 +283,34 @@ public partial class AssetDocumentViewModel : Document
         _filterTypes = null;
         _filterTypesFiltered = [];
         _typeRefLookup = [];
+    }
+
+    private void LoadContainersIntoInfos(AssetsFileInstance fileInst, IList<AssetFileInfo> fileInfos)
+    {
+        ContainerTool? contToolRes = null;
+        AssetsFileInstance? contFile; // file that stores container mapping for this file
+        AssetTypeValueField? contBf; // base field that stores container mapping
+        if (ContainerTool.TryGetBundleContainerBaseField(Workspace, fileInst, out contFile, out contBf))
+        {
+            contToolRes = ContainerTool.FromAssetBundle(Workspace.Manager, contFile, contBf);
+        }
+        else if (ContainerTool.TryGetRsrcManContainerBaseField(Workspace, fileInst, out contFile, out contBf))
+        {
+            contToolRes = ContainerTool.FromResourceManager(Workspace.Manager, contFile, contBf);
+        }
+
+        if (contToolRes is null)
+            return;
+
+        foreach (var assetInf in fileInfos)
+        {
+            var assetPtr = new AssetPPtr(fileInst.path, assetInf.PathId);
+            var path = contToolRes.GetContainerPath(assetPtr);
+            if (path is not null && assetInf is AssetInst asset)
+            {
+                asset.DisplayContainer = path;
+            }
+        }
     }
 
     public void ViewScene()
