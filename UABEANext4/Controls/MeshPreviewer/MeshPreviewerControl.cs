@@ -112,14 +112,17 @@ public class MeshPreviewerControl : OpenGlControlBase, ICustomHitTest
 
         _indices = gl.Indices;
 
-        var skip = gl.Normals.Length / vertexCount;
-        for (var i = 0; i < vertexCount; i++)
+        if (vertexCount > 0)
         {
-            _points[i] = new Vertex
+            var skip = gl.Normals.Length / vertexCount;
+            for (var i = 0; i < vertexCount; i++)
             {
-                Position = new Vector3(gl.Vertices[i * 3], gl.Vertices[i * 3 + 1], gl.Vertices[i * 3 + 2]),
-                Normal = new Vector3(-gl.Normals[i * skip], gl.Normals[i * skip + 1], gl.Normals[i * skip + 2])
-            };
+                _points[i] = new Vertex
+                {
+                    Position = new Vector3(gl.Vertices[i * 3], gl.Vertices[i * 3 + 1], gl.Vertices[i * 3 + 2]),
+                    Normal = new Vector3(-gl.Normals[i * skip], gl.Normals[i * skip + 1], gl.Normals[i * skip + 2])
+                };
+            }
         }
 
         _dirtyModel = true;
