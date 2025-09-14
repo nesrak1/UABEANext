@@ -26,19 +26,6 @@ public partial class SelectTypeFilterViewModel : ViewModelBase, IDialogAware<IEn
         FilterTypes.AddRange(filterTypes);
     }
 
-    //private void SelectFilterTypes(ICollection<TypeFilterTypeEntry> encodedSelectedTypes)
-    //{
-    //    if (encodedSelectedTypes.Count > 0)
-    //    {
-    //        foreach (var filterType in FilterTypes)
-    //        {
-    //            var encoded = filterType.ToEncodedType();
-    //            if (encodedSelectedTypes.Contains(encoded))
-    //                filterType.IsSelected = true;
-    //        }
-    //    }
-    //}
-
     public void SelectAll()
     {
         foreach (var filterType in FilterTypes)
@@ -57,7 +44,19 @@ public partial class SelectTypeFilterViewModel : ViewModelBase, IDialogAware<IEn
 
     public void Accept()
     {
-        RequestClose?.Invoke(FilterTypes.Where(ft => ft.IsSelected));
+        bool includeAllMonoBehaviours = false;
+
+        var monoBehaviourType = FilterTypes.FirstOrDefault(ft => ft.TypeId == 0x72 && ft.ScriptRef is null);
+        if (monoBehaviourType is not null)
+            includeAllMonoBehaviours = monoBehaviourType.IsSelected;
+
+        IEnumerable<TypeFilterTypeEntry> filteredTypes;
+        if (includeAllMonoBehaviours)
+            filteredTypes = FilterTypes.Where(ft => ft.IsSelected || ft.ScriptRef is not null);
+        else
+            filteredTypes = FilterTypes.Where(ft => ft.IsSelected);
+
+        RequestClose?.Invoke(filteredTypes);
     }
 
     public void Cancel()
@@ -141,7 +140,7 @@ public partial class SelectTypeFilterViewModel : ViewModelBase, IDialogAware<IEn
 public partial class TypeFilterTypeEntry : ObservableObject
 {
     public required string DisplayText { get; set; }
-    public required int TypeId { get; set; } // todo: use -1 for advanced picker, todo2: what did past me mean by that?
+    public required int TypeId { get; set; }
     public required AssetTypeReference? ScriptRef { get; set; }
 
     [ObservableProperty]
@@ -193,55 +192,6 @@ public partial class TypeFilterTypeEntry : ObservableObject
     {
         return HashCode.Combine(TypeId, ScriptRef);
     }
-
-    //public static TypeFilterTypeEntry FromMonoId(ushort monoId)
-    //{
-    //    //var scriptRef = AssetHelper.GetAssetsFileScriptInfo(manager, fileInst, monoId);
-    //    //var displayText = (scriptRef != null)
-    //    //    ? $"MB {scriptRef.Namespace}.{scriptRef.ClassName}"
-    //    //    : $"MB #{monoId}";
-
-    //    return new TypeFilterTypeEntry
-    //    {
-    //        TypeId = 0x72,
-    //        MonoId = monoId,
-    //        DisplayText = $"MB #{monoId}"
-    //    };
-    //}
-
-    //public static TypeFilterTypeEntry FromMonoPptr(ushort monoId, string nameSpace, string className)
-    //{
-    //    //var scriptRef = AssetHelper.GetAssetsFileScriptInfo(manager, fileInst, monoId);
-    //    //var displayText = (scriptRef != null)
-    //    //    ? $"MB {scriptRef.Namespace}.{scriptRef.ClassName}"
-    //    //    : $"MB #{monoId}";
-
-    //    return new TypeFilterTypeEntry
-    //    {
-    //        TypeId = 0x72,
-    //        MonoId = monoId,
-    //        DisplayText = nameSpace != ""
-    //            ? $"MB {nameSpace}.{className}"
-    //            : $"MB {className}"
-    //    };
-    //}
-
-    //public long ToEncodedType()
-    //{
-    //    return (long)TypeId | ((long)MonoId << 32);
-    //}
-
-    //public static long ToEncodedType(int typeId, ushort monoId)
-    //{
-    //    return (long)typeId | ((long)monoId << 32);
-    //}
-
-    //public static (int, ushort) FromEncodedType(long encoded)
-    //{
-    //    var typeId = (int)encoded;
-    //    var monoId = (ushort)(encoded >> 32);
-    //    return (typeId, monoId);
-    //}
 
     public override string ToString()
     {
