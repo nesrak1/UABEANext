@@ -15,12 +15,24 @@
   <Grid RowDefinitions="Auto,*,22" Margin="4">
     <Menu Grid.Row="0" Padding="0,6">
       <MenuItem Header="File">
-        <MenuItem Header="Open" Command="{Binding FileOpen}" />
-        <MenuItem Header="Save" Command="{Binding FileSave}" />
-        <MenuItem Header="Save As..." Command="{Binding FileSaveAs}" />
-        <!--<MenuItem Header="Save All" />-->
-        <!--<MenuItem Header="Save All As..." Command="{Binding FileSaveAllAs}" />-->
-        <MenuItem Header="Close All" Command="{Binding FileCloseAll}" />
+        <MenuItem
+          Header="Open" Command="{Binding FileOpen}"
+          HotKey="Ctrl+O" InputGesture="Ctrl+O" />
+        <MenuItem
+          Header="Save Selected" Command="{Binding FileSave}"
+          HotKey="Ctrl+S" InputGesture="Ctrl+S" />
+        <MenuItem
+          Header="Save Selected As..." Command="{Binding FileSaveAs}"
+          HotKey="Ctrl+Shift+S" InputGesture="Ctrl+Shift+S" />
+        <MenuItem
+          Header="Save All" Command="{Binding FileSaveAll}"
+          HotKey="Ctrl+Alt+S" InputGesture="Ctrl+Alt+S" />
+        <!--<MenuItem
+          Header="Save All As..." Command="{Binding FileSaveAllAs}"
+          HotKey="Ctrl+Shift+L" InputGesture="Ctrl+Shift+L" />-->
+        <MenuItem
+          Header="Close All" Command="{Binding FileCloseAll}"
+          HotKey="Ctrl+Shift+W" InputGesture="Ctrl+Shift+W" />
       </MenuItem>
       <MenuItem Header="View">
         <MenuItem Header="Duplicate Tab" Command="{Binding ViewDuplicateTab}" />
@@ -34,7 +46,7 @@
       </MenuItem>
       <MenuItem Header="Tools">
         <MenuItem Header="Asset Info" Command="{Binding ShowAssetInfoDialog}" IsEnabled="{Binding Workspace.RootItems.Count}"/>
-        <MenuItem Header="Generate XRefs" Command="{Binding ToolsXrefs}" />
+        <!--<MenuItem Header="Generate XRefs" Command="{Binding ToolsXrefs}" />-->
       </MenuItem>
     </Menu>
     <DockControl Layout="{Binding Layout}" Margin="4" Grid.Row="1" />

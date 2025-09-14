@@ -406,6 +406,11 @@ public partial class MainViewModel : ViewModelBase
         await DoSaveCopy(items);
     }
 
+    public async Task FileSaveAll()
+    {
+        await DoSaveOverwrite(Workspace.RootItems);
+    }
+
     public async Task FileSaveAllAs()
     {
         await DoSaveCopy(Workspace.RootItems);

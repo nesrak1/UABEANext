@@ -21,9 +21,9 @@
       </TreeView.ItemTemplate>
     </TreeView>
     <Grid ColumnDefinitions="*,*,*" Grid.Row="1">
-      <Button Grid.Column="0" Command="{Binding LoadAll}" IsEnabled="{Binding !!Workspace.RootItems.Count}">Load all</Button>
-      <Button Grid.Column="1" Click="ExpandAll" IsEnabled="{Binding !!Workspace.RootItems.Count}">Expand all</Button>
-      <Button Grid.Column="2" Click="CollapseAll" IsEnabled="{Binding !!Workspace.RootItems.Count}">Collapse all</Button>
+      <Button Grid.Column="0" Command="{Binding LoadAll}" IsEnabled="{Binding Workspace.RootItems.Count}">Load all</Button>
+      <Button Grid.Column="1" Click="ExpandAll" IsEnabled="{Binding Workspace.RootItems.Count}">Expand all</Button>
+      <Button Grid.Column="2" Click="CollapseAll" IsEnabled="{Binding Workspace.RootItems.Count}">Collapse all</Button>
     </Grid>
   </Grid>
 </UserControl>
