@@ -1,0 +1,14 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             xmlns:docs="using:UABEANext4.ViewModels.Documents"
+             xmlns:uac="using:UABEANext4.Converters"
+             xmlns:ws="using:UABEANext4.AssetWorkspace"
+             x:Class="UABEANext4.Views.Documents.BlankDocumentView"
+             x:DataType="docs:BlankDocumentViewModel">
+  <TextBlock TextAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap">
+    Open an assets file or bundle file and select it in the Workspace Explorer to load it here.
+  </TextBlock>
+</UserControl>
