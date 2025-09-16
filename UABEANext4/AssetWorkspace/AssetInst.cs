@@ -23,6 +23,7 @@ public class AssetInst : AssetFileInfo, INotifyPropertyChanged
         ? (uint)Replacer.GetPreviewStream().Length
         : ByteSize;
     public string DisplayName => AssetNameUtils.GetFallbackName(this, AssetName);
+    public string BundleName => FileInstance.parentBundle != null ? FileInstance.parentBundle.name : "";
 
     public AssetInst(AssetsFileInstance parentFile, AssetFileInfo origInfo)
     {

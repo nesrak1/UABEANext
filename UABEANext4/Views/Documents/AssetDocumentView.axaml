@@ -129,6 +129,7 @@
         <DataGridTextColumn Header="Name" Width="150" Binding="{Binding DisplayName}" x:DataType="ws:AssetInst"/>
         <DataGridTextColumn Header="Type" Width="120" Binding="{Binding Type}" x:DataType="ws:AssetInst"/>
         <DataGridTextColumn Header="Container" Width="100" Binding="{Binding DisplayContainer}" x:DataType="ws:AssetInst" IsVisible="{Binding $parent[UserControl].((docs:AssetDocumentViewModel)DataContext).LoadContainers}"/>
+        <DataGridTextColumn Header="Bundle Name" Width="120" Binding="{Binding BundleName}" x:DataType="ws:AssetInst"/>
         <DataGridTextColumn Header="File Name" Width="120" Binding="{Binding FileName}" x:DataType="ws:AssetInst"/>
         <DataGridTextColumn Header="Path ID" Width="130" Binding="{Binding PathId}" x:DataType="ws:AssetInst"/>
         <!--<DataGridTextColumn Header="Offset" Binding="{Binding ByteStart}" x:DataType="ws:AssetInst"/>-->
