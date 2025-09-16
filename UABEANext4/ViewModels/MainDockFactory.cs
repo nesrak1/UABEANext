@@ -6,7 +6,6 @@ using Dock.Model.Mvvm;
 using Dock.Model.Mvvm.Controls;
 using System;
 using System.Collections.Generic;
-using System.Windows.Input;
 using UABEANext4.AssetWorkspace;
 using UABEANext4.ViewModels.Documents;
 using UABEANext4.ViewModels.Tools;
@@ -41,8 +40,6 @@ internal class MainDockFactory : Factory
         _inspectorToolViewModel = new InspectorToolViewModel(_workspace);
         _previewerToolViewModel = new PreviewerToolViewModel(_workspace);
         _hierarchyToolViewModel = new HierarchyToolViewModel(_workspace);
-
-        ICommand a;
 
         var assetDocumentDock = new BlankDocumentViewModel();
         var documentDock = _fileDocumentDock = new DocumentDock
