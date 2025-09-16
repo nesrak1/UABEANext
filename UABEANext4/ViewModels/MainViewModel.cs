@@ -446,8 +446,11 @@ public partial class MainViewModel : ViewModelBase
     {
     }
 
-    // todo should we just replace every assetinst? is that too expensive?
+    // todo: should we just replace every assetinst? is that too expensive?
     // would it be better than unselecting everything?
+    // todo: we do not handle dockables that _aren't_ in the files dock.
+    // we should keep a list of all assetdocumentviewmodels so we can
+    // update them independently of this specific dock.
     private async Task ReloadAssetDocuments(HashSet<AssetsFileInstance> fileInst)
     {
         var files = _factory.GetDockable<IDocumentDock>("Files");

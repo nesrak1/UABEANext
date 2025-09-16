@@ -1,10 +1,12 @@
-﻿using Dock.Avalonia.Controls;
+﻿using CommunityToolkit.Mvvm.Input;
+using Dock.Avalonia.Controls;
 using Dock.Model.Controls;
 using Dock.Model.Core;
 using Dock.Model.Mvvm;
 using Dock.Model.Mvvm.Controls;
 using System;
 using System.Collections.Generic;
+using System.Windows.Input;
 using UABEANext4.AssetWorkspace;
 using UABEANext4.ViewModels.Documents;
 using UABEANext4.ViewModels.Tools;
@@ -40,7 +42,9 @@ internal class MainDockFactory : Factory
         _previewerToolViewModel = new PreviewerToolViewModel(_workspace);
         _hierarchyToolViewModel = new HierarchyToolViewModel(_workspace);
 
-        var assetDocumentDock = new AssetDocumentViewModel(_workspace, false);
+        ICommand a;
+
+        var assetDocumentDock = new BlankDocumentViewModel();
         var documentDock = _fileDocumentDock = new DocumentDock
         {
             ActiveDockable = assetDocumentDock,
@@ -49,6 +53,7 @@ internal class MainDockFactory : Factory
                 assetDocumentDock
             ),
             CanCreateDocument = true,
+            CreateDocument = new RelayCommand(AddNewBlankDocument),
             IsCollapsable = false,
             Proportion = double.NaN
         };
@@ -106,6 +111,16 @@ internal class MainDockFactory : Factory
         _rootDock.DefaultDockable = windowLayout;
 
         return _rootDock;
+    }
+
+    private void AddNewBlankDocument()
+    {
+        if (_fileDocumentDock is not null)
+        {
+            var newDoc = new BlankDocumentViewModel();
+            AddDockable(_fileDocumentDock, newDoc);
+            SetActiveDockable(newDoc);
+        }
     }
 
     public override void InitLayout(IDockable layout)
