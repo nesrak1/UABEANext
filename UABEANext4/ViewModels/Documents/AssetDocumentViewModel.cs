@@ -313,11 +313,38 @@ public partial class AssetDocumentViewModel : Document
         }
     }
 
-    public void ViewScene()
+    public async void ViewScene()
     {
         if (SelectedItems.Count >= 1)
         {
-            WeakReferenceMessenger.Default.Send(new RequestSceneViewMessage(SelectedItems.First()));
+            var asset = SelectedItems.First();
+
+            // select gameobject if this is a component
+            if (asset.Type != AssetClassID.GameObject)
+            {
+                var assetBf = Workspace.GetBaseField(asset);
+                if (assetBf is null)
+                {
+                    await MessageBoxUtil.ShowDialog("Read error", "Tried to check for component fields but couldn't deserialize the asset.");
+                    return;
+                }
+
+                var assetBfGoPtr = assetBf["m_GameObject"];
+                if (assetBfGoPtr.IsDummy)
+                {
+                    await MessageBoxUtil.ShowDialog("Not a GameObject or component", "The selected asset must be a GameObject or GameObject component.");
+                    return;
+                }
+
+                asset = Workspace.GetAssetInst(asset.FileInstance, assetBfGoPtr);
+                if (asset is null)
+                {
+                    await MessageBoxUtil.ShowDialog("Invalid GameObject reference", "Can't find component's GameObject. Do you need to load a dependency?");
+                    return;
+                }
+            }
+
+            WeakReferenceMessenger.Default.Send(new RequestSceneViewMessage(asset));
         }
     }
 
