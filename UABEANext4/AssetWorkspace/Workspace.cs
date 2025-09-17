@@ -358,27 +358,19 @@ public partial class Workspace : ObservableObject
         }
     }
 
-    public AssetTypeValueField? GetBaseField(AssetsFileInstance fileInst, AssetTypeValueField pptrField)
-    {
-        return GetBaseField(fileInst, pptrField["m_FileID"].AsInt, pptrField["m_PathID"].AsLong);
-    }
-
     public AssetTypeValueField? GetBaseField(AssetInst asset)
     {
-        // todo cache latest n base fields in workspace?
-        //if (asset.BaseValueField != null)
-        //{
-        //    return asset.BaseValueField;
-        //}
-        //
-        //var baseField = GetBaseField(asset.FileInstance, asset.PathId);
-        //asset.BaseValueField = baseField;
         return GetBaseField(asset.FileInstance, asset.PathId);
     }
 
     public AssetTypeValueField? GetBaseField(AssetsFileInstance fileInst, long pathId)
     {
         return GetBaseField(fileInst, 0, pathId);
+    }
+
+    public AssetTypeValueField? GetBaseField(AssetsFileInstance fileInst, AssetTypeValueField pptrField)
+    {
+        return GetBaseField(fileInst, pptrField["m_FileID"].AsInt, pptrField["m_PathID"].AsLong);
     }
 
     public AssetTypeValueField? GetBaseField(AssetsFileInstance fileInst, int fileId, long pathId)
@@ -467,5 +459,53 @@ public partial class Workspace : ObservableObject
             ItemLookup.Remove(oldName);
             ItemLookup[newName] = wsItem;
         }
+    }
+
+    public WorkspaceItem? FindWorkspaceItemByInstance(AssetsFileInstance fileInst)
+    {
+        // todo: keying needs to be a generic method
+        var key = fileInst.name;
+
+        if (ItemLookup.TryGetValue(key, out var wsItem))
+            return wsItem;
+
+        // no match? try bfs searching starting at the root
+        // we pass the null since this is the last resort option
+        return FindWorkspaceItemBfs(i =>
+            i.Object is AssetsFileInstance thisFileInst && thisFileInst == fileInst
+        );
+    }
+
+    public WorkspaceItem? FindWorkspaceItemByInstance(BundleFileInstance bunInst)
+    {
+        // todo: keying needs to be a generic method
+        var key = bunInst.name;
+
+        if (ItemLookup.TryGetValue(key, out var wsItem))
+            return wsItem;
+
+        return FindWorkspaceItemBfs(i =>
+            i.Object is BundleFileInstance thisBunInst && thisBunInst == bunInst
+        );
+    }
+
+    private WorkspaceItem? FindWorkspaceItemBfs(Func<WorkspaceItem, bool> predicate)
+    {
+        var searchQueue = new Queue<WorkspaceItem>(RootItems);
+        while (searchQueue.Count > 0)
+        {
+            var current = searchQueue.Dequeue();
+
+            if (predicate(current))
+                return current;
+
+            if (current.Children != null)
+            {
+                foreach (var child in current.Children)
+                    searchQueue.Enqueue(child);
+            }
+        }
+
+        return null;
     }
 }

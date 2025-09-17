@@ -7,6 +7,7 @@ using Dock.Model.Mvvm.Controls;
 using System;
 using System.Collections.Generic;
 using UABEANext4.AssetWorkspace;
+using UABEANext4.Logic.Documents;
 using UABEANext4.ViewModels.Documents;
 using UABEANext4.ViewModels.Tools;
 
@@ -14,6 +15,7 @@ namespace UABEANext4.ViewModels;
 internal class MainDockFactory : Factory
 {
     public ProportionalDock? MainPane;
+    public DocumentManager DocMan;
 
     private IRootDock? _rootDock;
     private IDocumentDock? _fileDocumentDock;
@@ -27,11 +29,13 @@ internal class MainDockFactory : Factory
     public MainDockFactory()
     {
         _workspace = new();
+        DocMan = new();
     }
 
     public MainDockFactory(Workspace workspace)
     {
         _workspace = workspace;
+        DocMan = new();
     }
 
     public override IRootDock CreateLayout()
@@ -117,6 +121,9 @@ internal class MainDockFactory : Factory
             var newDoc = new BlankDocumentViewModel();
             AddDockable(_fileDocumentDock, newDoc);
             SetActiveDockable(newDoc);
+
+            DocMan.Documents.Add(newDoc);
+            DocMan.LastFocusedDocument = newDoc;
         }
     }
 

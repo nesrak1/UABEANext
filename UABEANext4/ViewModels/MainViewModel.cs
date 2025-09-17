@@ -7,6 +7,8 @@ using CommunityToolkit.Mvvm.Messaging;
 using Dock.Model.Controls;
 using Dock.Model.Core;
 using Dock.Model.Core.Events;
+using Dock.Model.Mvvm.Controls;
+using DynamicData;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -48,7 +50,7 @@ public partial class MainViewModel : ViewModelBase
         : ExtendClientAreaChromeHints.Default;
 
     private readonly MainDockFactory _factory;
-    private List<AssetsFileInstance> _lastLoadedFiles = new();
+    private List<AssetsFileInstance> _lastLoadedFiles = [];
 
     public MainViewModel()
     {
@@ -62,9 +64,11 @@ public partial class MainViewModel : ViewModelBase
 
         WeakReferenceMessenger.Default.Register<SelectedWorkspaceItemChangedMessage>(this, (r, h) => _ = OnSelectedWorkspaceItemsChanged(r, h));
         WeakReferenceMessenger.Default.Register<RequestEditAssetMessage>(this, OnRequestEditAsset);
+        WeakReferenceMessenger.Default.Register<RequestVisitAssetMessage>(this, (r, h) => _ = OnRequestVisitAsset(r, h));
 
         _factory.DockableAdded += FactoryDockableAdded;
         _factory.DockableClosed += FactoryDockableClosed;
+        _factory.FocusedDockableChanged += FactoryDockableFocused;
     }
 
     // todo: split out
@@ -96,6 +100,12 @@ public partial class MainViewModel : ViewModelBase
             case "Inspector": DockInspectorVisible = false; break;
             case "Previewer": DockPreviewerVisible = false; break;
         }
+    }
+
+    private void FactoryDockableFocused(object? sender, FocusedDockableChangedEventArgs e)
+    {
+        if (e.Dockable is Document document)
+            _factory.DocMan.LastFocusedDocument = document;
     }
 
     partial void OnDockWorkspaceExplorerVisibleChanged(bool value)
@@ -426,6 +436,8 @@ public partial class MainViewModel : ViewModelBase
         {
             // lol you have to pass in a child
             _factory.CloseAllDockables(files.VisibleDockables[0]);
+
+            _factory.DocMan.Clear();
         }
     }
 
@@ -442,30 +454,19 @@ public partial class MainViewModel : ViewModelBase
         }
     }
 
-    public void ToolsXrefs()
-    {
-    }
-
     // todo: should we just replace every assetinst? is that too expensive?
     // would it be better than unselecting everything?
-    // todo: we do not handle dockables that _aren't_ in the files dock.
-    // we should keep a list of all assetdocumentviewmodels so we can
-    // update them independently of this specific dock.
     private async Task ReloadAssetDocuments(HashSet<AssetsFileInstance> fileInst)
     {
-        var files = _factory.GetDockable<IDocumentDock>("Files");
-        if (Layout is not null && files is not null && files.VisibleDockables is not null)
+        foreach (var dockable in _factory.DocMan.Documents)
         {
-            foreach (var dockable in files.VisibleDockables)
-            {
-                if (dockable is not AssetDocumentViewModel document)
-                    continue;
+            if (dockable is not AssetDocumentViewModel document)
+                continue;
 
-                var matchesAny = document.FileInsts.Intersect(fileInst).Any();
-                if (matchesAny)
-                {
-                    await document.Load(document.FileInsts);
-                }
+            var matchesAny = document.FileInsts.Intersect(fileInst).Any();
+            if (matchesAny)
+            {
+                await document.Load(document.FileInsts);
             }
         }
     }
@@ -473,18 +474,21 @@ public partial class MainViewModel : ViewModelBase
 
     private async Task OnSelectedWorkspaceItemsChanged(object recipient, SelectedWorkspaceItemChangedMessage message)
     {
-        var workspaceItems = message.Value;
+        await OpenAssetDocument(message.Value, true);
+    }
 
+    private async Task<AssetDocumentViewModel?> OpenAssetDocument(List<WorkspaceItem> workspaceItems, bool replaceDock)
+    {
         AssetDocumentViewModel document;
         if (workspaceItems.Count == 1)
         {
             var workspaceItem = workspaceItems[0];
 
             if (workspaceItem.ObjectType != WorkspaceItemType.AssetsFile)
-                return;
+                return null;
 
             if (workspaceItem.Object is not AssetsFileInstance mainFileInst)
-                return;
+                return null;
 
             document = new AssetDocumentViewModel(Workspace, LoadContainers)
             {
@@ -504,10 +508,10 @@ public partial class MainViewModel : ViewModelBase
                 .ToList();
 
             if (assetsFileItems.Count == 0)
-                return;
+                return null;
 
             if (assetsFileItems[0] is not AssetsFileInstance mainFileInst)
-                return;
+                return null;
 
             document = new AssetDocumentViewModel(Workspace, LoadContainers)
             {
@@ -521,7 +525,7 @@ public partial class MainViewModel : ViewModelBase
         var files = _factory.GetDockable<IDocumentDock>("Files");
         if (Layout is not null && files is not null)
         {
-            if (files.ActiveDockable != null)
+            if (files.ActiveDockable != null && replaceDock)
             {
                 var oldDockable = files.ActiveDockable;
                 _factory.AddDockable(files, document);
@@ -529,6 +533,9 @@ public partial class MainViewModel : ViewModelBase
                 _factory.CloseDockable(oldDockable);
                 _factory.SetActiveDockable(document);
                 _factory.SetFocusedDockable(files, document);
+
+                if (oldDockable is Document oldDockableDocument)
+                    _factory.DocMan.Documents.Remove(oldDockableDocument);
             }
             else
             {
@@ -536,12 +543,83 @@ public partial class MainViewModel : ViewModelBase
                 _factory.SetActiveDockable(document);
                 _factory.SetFocusedDockable(files, document);
             }
+
+            _factory.DocMan.Documents.Add(document);
+            _factory.DocMan.LastFocusedDocument = document;
         }
+
+        return document;
     }
 
     private void OnRequestEditAsset(object recipient, RequestEditAssetMessage message)
     {
         _ = ShowEditAssetDialog(message.Value);
+    }
+
+    private async Task OnRequestVisitAsset(object recipient, RequestVisitAssetMessage message)
+    {
+        var asset = message.Value;
+        var lastFocusedDoc = _factory.DocMan.LastFocusedDocument;
+        AssetDocumentViewModel? foundAssetDocVm = null;
+
+        // best case scenario: last selected document contains this asset
+        if (lastFocusedDoc is AssetDocumentViewModel assetDocVm
+            && assetDocVm.Items.Contains(asset))
+        {
+            foundAssetDocVm = assetDocVm;
+            goto finish;
+        }
+
+        // second best case scenario: the last selected document is
+        // a blank document we can open the containing file in.
+        var wsItem = Workspace.FindWorkspaceItemByInstance(asset.FileInstance);
+        if (wsItem is not null)
+        {
+            var replaceDock = lastFocusedDoc is BlankDocumentViewModel;
+            var newAssetDocVm = await OpenAssetDocument([wsItem], replaceDock);
+            if (newAssetDocVm is not null)
+            {
+                foundAssetDocVm = newAssetDocVm;
+                goto finish;
+            }
+        }
+
+        // neither of those were the case. hopefully one of the open
+        // asset documents contains this asset?
+        foreach (var dock in _factory.DocMan.Documents)
+        {
+            // we already checked this one, skip
+            if (dock == lastFocusedDoc)
+                continue;
+
+            if (dock is not AssetDocumentViewModel otherAssetDocVm)
+                continue;
+
+            if (otherAssetDocVm.Items.Contains(asset))
+            {
+                foundAssetDocVm = otherAssetDocVm;
+                goto finish;
+            }
+        }
+
+        // give up
+        await MessageBoxUtil.ShowDialog("Error", "Couldn't find asset document to show this asset in.");
+        return;
+
+    finish:
+        if (foundAssetDocVm is not null)
+        {
+            foundAssetDocVm.SetSelectedItems([asset]);
+
+            var files = _factory.GetDockable<IDocumentDock>("Files");
+            if (Layout is not null && files is not null)
+            {
+                // if the document isn't in the Files dock, it won't be focused
+                // I think this is fine for now, but it'd be good to find a way
+                // to bring forward a window if it's popped out.
+                _factory.SetFocusedDockable(files, foundAssetDocVm);
+            }
+        }
     }
 
     private async Task ShowEditAssetDialog(AssetInst asset)

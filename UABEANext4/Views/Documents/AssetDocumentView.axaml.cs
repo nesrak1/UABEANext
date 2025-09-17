@@ -2,6 +2,8 @@ using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
 using Avalonia.VisualTree;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using UABEANext4.AssetWorkspace;
 using UABEANext4.ViewModels.Documents;
@@ -12,11 +14,17 @@ public partial class AssetDocumentView : UserControl
     public AssetDocumentView()
     {
         InitializeComponent();
-        dataGrid.Loaded += DataGrid_Loaded;
 
+        Initialized += AssetDocumentView_Initialized;
+        dataGrid.Loaded += DataGrid_Loaded;
+    }
+
+    private void AssetDocumentView_Initialized(object? sender, EventArgs e)
+    {
         if (DataContext is AssetDocumentViewModel docVm)
         {
-            docVm.ShowPluginsContextMenu += ShowPluginsContextMenu;
+            docVm.ShowPluginsContextMenuAction += ShowPluginsContextMenu;
+            docVm.SetSelectedItemsAction += SetSelectedItems;
         }
     }
 
@@ -78,5 +86,24 @@ public partial class AssetDocumentView : UserControl
             return;
 
         dgColumn.IsVisible = menuItem.IsChecked;
+    }
+
+    // probably not great for many items but fine for a few
+    private void SetSelectedItems(List<AssetInst> assets)
+    {
+        if (DataContext is AssetDocumentViewModel docVm)
+        {
+            dataGrid.SelectedItems.Clear();
+            foreach (var asset in assets)
+            {
+                if (docVm.Items.Contains(asset))
+                    dataGrid.SelectedItems.Add(asset);
+            }
+
+            if (assets.Count > 0)
+            {
+                dataGrid.ScrollIntoView(assets[0], null);
+            }
+        }
     }
 }

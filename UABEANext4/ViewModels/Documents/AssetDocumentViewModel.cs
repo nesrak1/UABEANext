@@ -53,7 +53,8 @@ public partial class AssetDocumentViewModel : Document
     [ObservableProperty]
     public AssetTextSearchKind _searchKind = 0;
 
-    public event Action? ShowPluginsContextMenu;
+    public event Action? ShowPluginsContextMenuAction;
+    public event Action<List<AssetInst>>? SetSelectedItemsAction;
 
     private List<TypeFilterTypeEntry>? _filterTypes = null;
     private HashSet<TypeFilterTypeEntry> _filterTypesFiltered = [];
@@ -68,6 +69,7 @@ public partial class AssetDocumentViewModel : Document
     {
         Workspace = new();
         LoadContainers = false;
+
         ClassIdToString = Enum
             .GetValues(typeof(AssetClassID))
             .Cast<AssetClassID>()
@@ -662,7 +664,7 @@ public partial class AssetDocumentViewModel : Document
             }
         }
 
-        ShowPluginsContextMenu?.Invoke();
+        ShowPluginsContextMenuAction?.Invoke();
     }
 
     public void EditDump()
@@ -733,6 +735,11 @@ public partial class AssetDocumentViewModel : Document
 
         // reload filter
         CollectionView.Filter = SetDataGridFilter(SearchText);
+    }
+
+    public void SetSelectedItems(List<AssetInst> assets)
+    {
+        SetSelectedItemsAction?.Invoke(assets);
     }
 
     public void OnAssetOpened(List<AssetInst> assets)
