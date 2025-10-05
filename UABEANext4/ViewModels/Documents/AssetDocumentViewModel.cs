@@ -243,7 +243,6 @@ public partial class AssetDocumentViewModel : Document
         _disposableLastList?.Dispose();
 
         var sourceList = new SourceList<RangeObservableCollection<AssetFileInfo>>();
-        var tasks = new List<Task>();
 
         _loadCtSrc?.Cancel();
         _loadCtSrc = new CancellationTokenSource();

@@ -12,9 +12,10 @@ using UABEANext4.Logic.Mesh;
 namespace TexturePlugin.Helpers;
 public class TextureLoader
 {
-    private readonly Dictionary<AssetInst, SKBitmap> _spriteBitmapCache = new();
+    private readonly Dictionary<AssetInst, SKBitmap> _spriteBitmapCache = [];
     private readonly Queue<AssetInst> _spriteBitmapQueue = new();
     private readonly SpriteAtlasLookup _spriteAtlasLookup = new();
+    private readonly Dictionary<AssetsFileInstance, Dictionary<string, AssetInst>> _nameToSpriteAtlasLookup = [];
 
     // todo: this should be configurable
     public const int DEFAULT_MAX_SPRITE_BITMAP_CACHE_SIZE = 10;
@@ -249,13 +250,35 @@ public class TextureLoader
 
     private SpriteAtlasData? GetSpriteAtlas(Workspace workspace, AssetInst asset, AssetTypeValueField spriteBf)
     {
-        // in some versions of unity, m_SpriteAtlas is not set, but a SpriteAtlas
-        // in the same file references this sprite. we don't handle this right now.
         var spriteAtlas = spriteBf["m_SpriteAtlas"];
         var spriteAtlasPtr = AssetPPtr.FromField(spriteAtlas);
         if (spriteAtlasPtr.IsNull())
         {
-            return null;
+            var atlasTags = spriteBf["m_AtlasTags.Array"];
+            if (atlasTags.Children.Count == 0)
+            {
+                // nothing we can do. there's no reference to an atlas/texture anywhere.
+                return null;
+            }
+
+            // in some games, m_SpriteAtlas is not set, but a SpriteAtlas in the same
+            // file references this sprite. m_AtlasTags has a list of atlas names.
+            // I am not sure why this list would have multiple entries. this field may
+            // have more than one only in an editor project.
+            var atlasTag = atlasTags[0].AsString;
+
+            // we're going to assume the sprite atlas is always in the same file.
+            // it would probably be good to do a last resort option, but tbd on that.
+            var atlasNameLookup = GetSpriteAtlasNameLookup(workspace, asset.FileInstance);
+
+            var atlasAsset = atlasNameLookup[atlasTag];
+            if (atlasAsset is null)
+            {
+                // nothing we can do. give up.
+                return null;
+            }
+
+            spriteAtlasPtr = new AssetPPtr(0, atlasAsset.PathId);
         }
 
         spriteAtlasPtr.SetFilePathFromFile(workspace.Manager, asset.FileInstance);
@@ -274,6 +297,31 @@ public class TextureLoader
 
         _spriteAtlasLookup.AddSpriteAtlas(spriteAtlasPtr, spriteAtlasBf);
         return _spriteAtlasLookup.GetAtlasData(spriteAtlasPtr, key);
+    }
+
+    private Dictionary<string, AssetInst> GetSpriteAtlasNameLookup(Workspace workspace, AssetsFileInstance fileInstance)
+    {
+        if (_nameToSpriteAtlasLookup.TryGetValue(fileInstance, out var nameLookup))
+        {
+            return nameLookup;
+        }
+
+        var atlasNameLookup = new Dictionary<string, AssetInst>();
+        foreach (var atlasInf in fileInstance.file.GetAssetsOfType(AssetClassID.SpriteAtlas))
+        {
+            // cast is ok, file.Metadata.AssetInfos is always a AssetInst list when loaded by workspace
+            var atlasAsset = (AssetInst)atlasInf;
+
+            var atlasBf = workspace.GetBaseField(atlasAsset);
+            if (atlasBf is null)
+                continue;
+
+            var atlasTag = atlasBf["m_Tag"].AsString;
+            atlasNameLookup[atlasTag] = atlasAsset;
+        }
+
+        _nameToSpriteAtlasLookup[fileInstance] = atlasNameLookup;
+        return atlasNameLookup;
     }
 
     public static Bitmap? GetTexture2DBitmap(Workspace workspace, AssetInst asset, out TextureFormat format)
@@ -315,5 +363,6 @@ public class TextureLoader
         _spriteBitmapCache.Clear();
         _spriteBitmapQueue.Clear();
         _spriteAtlasLookup.Clear();
+        _nameToSpriteAtlasLookup.Clear();
     }
 }
