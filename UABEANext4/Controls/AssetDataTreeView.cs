@@ -203,10 +203,10 @@ public class AssetDataTreeView : TreeView
             text = rtb.Text;
         }
 
+        treeItem.IsExpanded = true;
+
         if (text != "[view asset]")
         {
-            treeItem.IsExpanded = true;
-
             var treeItems = treeItem.Items.Cast<TreeViewItem?>();
             foreach (TreeViewItem? treeItemChild in treeItems)
             {
