@@ -22,7 +22,7 @@ public class MeshPreviewer : IUavPluginPreviewer
         var goComponents = goBase["m_Component.Array"];
         foreach (var componentPair in goComponents)
         {
-            var component = componentPair["component"];
+            var component = componentPair[componentPair.Children.Count - 1];
             // cheaper to use AssetFileInfo rather than AssetInst
             var componentInf = workspace.GetAssetFileInfo(goAsset.FileInstance, component);
             if (componentInf is not null && componentInf.TypeId == (int)AssetClassID.MeshFilter)
@@ -43,7 +43,7 @@ public class MeshPreviewer : IUavPluginPreviewer
         var goComponents = goBase["m_Component.Array"];
         foreach (var componentPair in goComponents)
         {
-            var component = componentPair["component"];
+            var component = componentPair[componentPair.Children.Count - 1];
             // cheaper to use AssetFileInfo rather than AssetInst
             var componentInf = workspace.GetAssetFileInfo(goAsset.FileInstance, component);
             if (componentInf is not null && componentInf.TypeId == (int)AssetClassID.MeshFilter)

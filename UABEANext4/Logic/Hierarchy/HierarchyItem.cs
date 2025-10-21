@@ -80,7 +80,8 @@ public partial class HierarchyItem : ObservableObject
             if (gameObjectBf == null)
                 continue;
 
-            var tfmPtr = AssetPPtr.FromField(gameObjectBf["m_Component.Array"][0]["component"]);
+            var componentPair = gameObjectBf["m_Component.Array"][0];
+            var tfmPtr = AssetPPtr.FromField(componentPair[componentPair.Children.Count - 1]);
 
             var goInfObj = new GameObjectInfo();
             goInfObj.Asset = gameObjectAsset;

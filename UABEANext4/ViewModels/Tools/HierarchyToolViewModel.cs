@@ -232,7 +232,7 @@ public partial class HierarchyToolViewModel : Tool
         var componentPairs = gameObjectBf["m_Component.Array"];
         foreach (var componentPair in componentPairs)
         {
-            var component = Workspace.GetAssetInst(asset.FileInstance, componentPair["component"]);
+            var component = Workspace.GetAssetInst(asset.FileInstance, componentPair[componentPair.Children.Count - 1]);
             if (component != null)
             {
                 allAssets.Add(component);
