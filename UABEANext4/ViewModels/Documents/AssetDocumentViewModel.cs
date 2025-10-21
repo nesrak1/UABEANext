@@ -694,6 +694,29 @@ public partial class AssetDocumentViewModel : Document
         info.UpdateAssetDataAndRow(Workspace, baseField);
     }
 
+    public async void RemoveAsset()
+    {
+        if (SelectedItems.Count == 0)
+            return;
+
+        var singPlurStr = SelectedItems.Count > 1
+            ? "these assets"
+            : "this asset";
+
+        var dialogRes = await MessageBoxUtil.ShowDialog(
+            "Remove asset",
+            $"Are you sure you want to remove {singPlurStr}? Remaining references to {singPlurStr} will not be fixed.",
+            MessageBoxType.YesNo
+        );
+        if (dialogRes == MessageBoxResult.No)
+            return;
+
+        foreach (var selectedItem in SelectedItems)
+        {
+            selectedItem.FileInstance.file.Metadata.RemoveAssetInfo(selectedItem);
+        }
+    }
+
     public async void SetTypeFilter()
     {
         var dialogService = Ioc.Default.GetRequiredService<IDialogService>();
