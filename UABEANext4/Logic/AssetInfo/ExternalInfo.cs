@@ -17,6 +17,9 @@ public partial class ExternalInfo : ViewModelBase
     public ObservableCollection<AssetsFileExternal> Externals { get; set; } = [];
     public ReadOnlyObservableCollection<string> ExternalsDisplay { get; init; }
 
+    private Workspace _workspace;
+    private AssetsFileInstance _fileInst;
+
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsAssetSelected))]
     [NotifyPropertyChangedFor(nameof(CanSelectedAssetMoveUp))]
@@ -36,6 +39,9 @@ public partial class ExternalInfo : ViewModelBase
             Externals.Add(external);
         }
 
+        _workspace = workspace;
+        _fileInst = fileInst;
+
         Externals
             .ToObservableChangeSet()
             .Transform(ExternalsNameTransFac)
@@ -46,12 +52,22 @@ public partial class ExternalInfo : ViewModelBase
         ExternalsDisplay = externalsItems!;
     }
 
-    private static string ExternalsNameTransFac(AssetsFileExternal dep, int idx)
+    private string ExternalsNameTransFac(AssetsFileExternal dep, int idx)
     {
+        var origNameStr = "";
+        if (_fileInst.parentBundle is not null)
+        {
+            var possibleDep = _fileInst.GetDependency(_workspace.Manager, idx);
+            if (possibleDep is { parentBundle: not null })
+            {
+                origNameStr = $" - {possibleDep.parentBundle.name}";
+            }
+        }
+
         if (dep.PathName != string.Empty)
-            return $"{idx} - {dep.PathName}";
+            return $"{idx} - {dep.PathName}{origNameStr}";
         else
-            return $"{idx} - {dep.Guid}";
+            return $"{idx} - {dep.Guid}{origNameStr}";
     }
 
     public async void Add_Click()
