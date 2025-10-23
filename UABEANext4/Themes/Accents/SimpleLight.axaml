@@ -1,0 +1,37 @@
+﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=netstandard">
+
+    <SolidColorBrush x:Key="DockApplicationAccentBrushLow">#007ACC</SolidColorBrush>
+    <SolidColorBrush x:Key="DockApplicationAccentBrushMed">#0E97DD</SolidColorBrush>
+    <SolidColorBrush x:Key="DockApplicationAccentBrushHigh">#1C97EA</SolidColorBrush>
+    <SolidColorBrush x:Key="DockApplicationAccentForegroundBrush">#000000</SolidColorBrush>
+    <SolidColorBrush x:Key="DockApplicationAccentBrushIndicator">#123456</SolidColorBrush>
+
+    <SolidColorBrush x:Key="DockThemeBorderLowBrush" Color="#CCCEDB" />
+    <SolidColorBrush x:Key="DockThemeBackgroundBrush" Color="#EEEEF2" />
+    <SolidColorBrush x:Key="DockThemeAccentBrush" Color="#007ACC" />
+    <SolidColorBrush x:Key="DockThemeForegroundBrush" Color="#000000" />
+    <SolidColorBrush x:Key="DockThemeControlBackgroundBrush" Color="#123456" />
+    <sys:Double x:Key="DockFontSizeNormal">12</sys:Double>
+    
+    <SolidColorBrush x:Key="ThemeAccentBrush" Color="#007ACC" />
+    <SolidColorBrush x:Key="TabViewSelectedBackgroundBrush"  Color="#007ACC" />
+
+    <SolidColorBrush x:Key="DockThemeListBackgroundBrush" Color="#F5F5F5" />
+
+    <SolidColorBrush x:Key="WorkspaceItemBundleBrush" Color="#C17B19" />
+    <SolidColorBrush x:Key="WorkspaceItemAssetsBrush" Color="#642C8F" />
+    <SolidColorBrush x:Key="WorkspaceItemResourceBrush" Color="#0000FF" />
+    <SolidColorBrush x:Key="WorkspaceItemOtherBrush" Color="#777777" />
+    <SolidColorBrush x:Key="WorkspaceItemEtcBrush" Color="#ED0000" />
+
+    <SolidColorBrush x:Key="TypeTextPrimitive" Color="#0000FF" />
+    <SolidColorBrush x:Key="TypeTextType" Color="#2B91AF" />
+    <SolidColorBrush x:Key="TypeTextString" Color="#A31515" />
+    <SolidColorBrush x:Key="TypeTextValue" Color="#5B2DA8" />
+    <SolidColorBrush x:Key="TypeTextPlain" Color="#000000" />
+    <SolidColorBrush x:Key="TypeTextTheme" Color="#FFFFFF" />
+
+</ResourceDictionary>
+

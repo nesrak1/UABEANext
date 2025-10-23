@@ -4,6 +4,7 @@ using Avalonia;
 using Avalonia.Collections;
 using Avalonia.Controls;
 using Avalonia.Controls.Documents;
+using Avalonia.Markup.Xaml.MarkupExtensions;
 using CommunityToolkit.Mvvm.Messaging;
 using System;
 using System.Collections.Generic;
@@ -14,14 +15,11 @@ using System.Text;
 using UABEANext4.AssetWorkspace;
 using UABEANext4.Logic;
 using UABEANext4.Util;
-using static UABEANext4.Themes.TypeHighlightingBrushes;
 
 namespace UABEANext4.Controls;
 public class AssetDataTreeView : TreeView
 {
     protected override Type StyleKeyOverride => typeof(TreeView);
-
-    //private Workspace _workspace;
 
     private AvaloniaList<object> ListItems = new AvaloniaList<object>();
 
@@ -256,7 +254,7 @@ public class AssetDataTreeView : TreeView
 
         Span span1 = new Span()
         {
-            Foreground = TypeNameBrush
+            [!ForegroundProperty] = new DynamicResourceExtension("TypeTextType")
         };
         Bold bold1 = new Bold();
         bold1.Inlines.Add(typeName);
@@ -283,7 +281,9 @@ public class AssetDataTreeView : TreeView
 
         Span span1 = new Span()
         {
-            Foreground = primitiveType ? PrimNameBrush : TypeNameBrush
+            [!ForegroundProperty] = primitiveType
+                ? new DynamicResourceExtension("TypeTextPrimitive")
+                : new DynamicResourceExtension("TypeTextType")
         };
         Bold bold1 = new Bold();
         bold1.Inlines.Add(typeName);
@@ -300,7 +300,9 @@ public class AssetDataTreeView : TreeView
         {
             Span span2 = new Span()
             {
-                Foreground = isString ? StringBrush : ValueBrush
+                [!ForegroundProperty] = isString
+                    ? new DynamicResourceExtension("TypeTextString")
+                    : new DynamicResourceExtension("TypeTextValue")
             };
             Bold bold3 = new Bold();
             bold3.Inlines.Add(value);

@@ -2,6 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:uac="using:UABEANext4.Converters"
              xmlns:uaw="using:UABEANext4.AssetWorkspace"
              xmlns:tools="using:UABEANext4.ViewModels.Tools"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
@@ -10,13 +11,25 @@
   <UserControl.KeyBindings>
     <KeyBinding Gesture="F2" Command="{Binding RenameItem}" />
   </UserControl.KeyBindings>
+  
+  <UserControl.Resources>
+    <uac:WsItemColorConverter x:Key="WsItemColorConverter" />
+  </UserControl.Resources>
+  
   <Grid RowDefinitions="*,26">
-    <TreeView Margin="0,0,0,0" Background="#252526" Name="SolutionTreeView"
+    <TreeView Margin="0,0,0,0" Background="{DynamicResource DockThemeListBackgroundBrush}" Name="SolutionTreeView"
               ItemsSource="{Binding Workspace.RootItems}" SelectedItems="{Binding SelectedItems}"
               SelectionMode="Multiple" Grid.Row="0">
       <TreeView.ItemTemplate>
         <TreeDataTemplate DataType="{x:Type uaw:WorkspaceItem}" ItemsSource="{Binding Children}">
-          <TextBlock Text="{Binding Name}" Foreground="{Binding Color}" />
+          <TextBlock Text="{Binding Name}">
+            <TextBlock.Foreground>
+              <MultiBinding Converter="{StaticResource WsItemColorConverter}">
+                <Binding Path="ObjectType" />
+                <DynamicResource ResourceKey="DockThemeListBackgroundBrush" />
+              </MultiBinding>
+            </TextBlock.Foreground>
+          </TextBlock>
         </TreeDataTemplate>
       </TreeView.ItemTemplate>
     </TreeView>

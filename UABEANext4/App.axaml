@@ -29,6 +29,9 @@
     <Style Selector="Button:pressed /template/ ContentPresenter#PART_ContentPresenter">
       <Setter Property="Background" Value="#0097fb" />
     </Style>
+    <Style Selector="ToolChromeControl /template/ TextBlock#PART_Title">
+      <Setter Property="Margin" Value="0,2,8,2" />
+    </Style>
     <Style>
       <Style.Resources>
         <sys:Double x:Key="ScrollBarThumbThickness">14</sys:Double>

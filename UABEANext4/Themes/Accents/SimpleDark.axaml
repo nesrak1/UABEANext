@@ -18,5 +18,20 @@
     <SolidColorBrush x:Key="ThemeAccentBrush" Color="#007ACC" />
     <SolidColorBrush x:Key="TabViewSelectedBackgroundBrush"  Color="#007ACC" />
 
+    <SolidColorBrush x:Key="DockThemeListBackgroundBrush" Color="#252526" />
+
+    <SolidColorBrush x:Key="WorkspaceItemBundleBrush" Color="#F0CA93" />
+    <SolidColorBrush x:Key="WorkspaceItemAssetsBrush" Color="#B17FD7" />
+    <SolidColorBrush x:Key="WorkspaceItemResourceBrush" Color="#569CD6" />
+    <SolidColorBrush x:Key="WorkspaceItemOtherBrush" Color="#777777" />
+    <SolidColorBrush x:Key="WorkspaceItemEtcBrush" Color="#FF4444" />
+
+    <SolidColorBrush x:Key="TypeTextPrimitive" Color="#569CD6" />
+    <SolidColorBrush x:Key="TypeTextType" Color="#4EC9B0" />
+    <SolidColorBrush x:Key="TypeTextString" Color="#D69D85" />
+    <SolidColorBrush x:Key="TypeTextValue" Color="#B5CEA8" />
+    <SolidColorBrush x:Key="TypeTextPlain" Color="#DEDEDE" />
+    <SolidColorBrush x:Key="TypeTextTheme" Color="#000000" />
+
 </ResourceDictionary>
 

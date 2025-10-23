@@ -25,8 +25,11 @@
         <ResourceInclude Source="avares://Dock.Avalonia/Controls/DockControl.axaml" />
         <ResourceInclude Source="avares://Dock.Avalonia/Controls/HostWindowTitleBar.axaml" />
         <ResourceInclude Source="avares://Dock.Avalonia/Controls/HostWindow.axaml" />
-        <ResourceInclude Source="avares://UABEANext4/Themes/Accents/Simple.axaml" />
       </ResourceDictionary.MergedDictionaries>
+      <ResourceDictionary.ThemeDictionaries>
+        <ResourceInclude Source="avares://UABEANext4/Themes/Accents/SimpleLight.axaml" x:Key="Light" />
+        <ResourceInclude Source="avares://UABEANext4/Themes/Accents/SimpleDark.axaml" x:Key="Dark" />
+      </ResourceDictionary.ThemeDictionaries>
     </ResourceDictionary>
   </Styles.Resources>
 </Styles>

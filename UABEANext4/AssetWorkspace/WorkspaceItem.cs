@@ -1,6 +1,5 @@
 ﻿using AssetsTools.NET;
 using AssetsTools.NET.Extra;
-using Avalonia.Media;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -18,27 +17,6 @@ public class WorkspaceItem : INotifyPropertyChanged
     public int LoadIndex { get; }
 
     public bool Loaded => Object != null;
-
-    private static readonly SolidColorBrush BundleBrush = new(Avalonia.Media.Color.Parse("#f0ca93"));
-    private static readonly SolidColorBrush AssetsBrush = new(Avalonia.Media.Color.Parse("#b17fd7"));
-    private static readonly SolidColorBrush ResourceBrush = new(Avalonia.Media.Color.Parse("#569cd6"));
-    private static readonly SolidColorBrush OtherBrush = new(Avalonia.Media.Color.Parse("#777777"));
-    private static readonly SolidColorBrush EtcBrush = new(Avalonia.Media.Color.Parse("#ff4444"));
-
-    public IBrush Color
-    {
-        get
-        {
-            return ObjectType switch
-            {
-                WorkspaceItemType.BundleFile => BundleBrush,
-                WorkspaceItemType.AssetsFile => AssetsBrush,
-                WorkspaceItemType.ResourceFile => ResourceBrush,
-                WorkspaceItemType.OtherFile => OtherBrush,
-                _ => EtcBrush,
-            };
-        }
-    }
 
     public WorkspaceItem(AssetsFileInstance fileInst, int loadOrder)
     {
