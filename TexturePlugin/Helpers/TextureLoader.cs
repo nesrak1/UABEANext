@@ -12,13 +12,13 @@ using UABEANext4.Logic.Mesh;
 namespace TexturePlugin.Helpers;
 public class TextureLoader
 {
-    private readonly Dictionary<AssetInst, SKBitmap> _spriteBitmapCache = [];
-    private readonly Queue<AssetInst> _spriteBitmapQueue = new();
+    private readonly Dictionary<AssetInst, SKImage> _spriteImageCache = [];
+    private readonly Queue<AssetInst> _spriteImageQueue = new();
     private readonly SpriteAtlasLookup _spriteAtlasLookup = new();
     private readonly Dictionary<AssetsFileInstance, Dictionary<string, AssetInst>> _nameToSpriteAtlasLookup = [];
 
     // todo: this should be configurable
-    public const int DEFAULT_MAX_SPRITE_BITMAP_CACHE_SIZE = 10;
+    public const int DEFAULT_MAX_SPRITE_IMAGE_CACHE_SIZE = 10;
 
     public Bitmap? GetSpriteAvaloniaBitmap(
         Workspace workspace, AssetInst asset,
@@ -108,10 +108,10 @@ public class TextureLoader
         }
 
         // we use skia so we can crop, then convert to avalonia bitmap at the end
-        SKBitmap baseBitmap;
-        if (_spriteBitmapCache.TryGetValue(textureAsset, out var cachedBitmap))
+        SKImage baseImage;
+        if (_spriteImageCache.TryGetValue(textureAsset, out var cachedBitmap))
         {
-            baseBitmap = cachedBitmap;
+            baseImage = cachedBitmap;
         }
         else
         {
@@ -128,24 +128,26 @@ public class TextureLoader
                 return null;
             }
 
-            baseBitmap = new SKBitmap(texture.m_Width, texture.m_Height, SKColorType.Bgra8888, SKAlphaType.Premul);
+            var baseBitmap = new SKBitmap(texture.m_Width, texture.m_Height, SKColorType.Bgra8888, SKAlphaType.Premul);
             using var basePixels = baseBitmap.PeekPixels();
             var basePixelsSpan = basePixels.GetPixelSpan<byte>();
             MemoryExtensions.CopyTo(textureData, basePixelsSpan);
 
+            baseImage = SKImage.FromBitmap(baseBitmap);
+
             // just like the lz4 block decoder, this only pulls whichever item
             // was added earliest since we can't reset the position of elements
             // with a stock .net queue
-            if (_spriteBitmapQueue.Count >= DEFAULT_MAX_SPRITE_BITMAP_CACHE_SIZE)
+            if (_spriteImageQueue.Count >= DEFAULT_MAX_SPRITE_IMAGE_CACHE_SIZE)
             {
-                var lastKey = _spriteBitmapQueue.Dequeue();
-                var lastValue = _spriteBitmapCache[lastKey];
+                var lastKey = _spriteImageQueue.Dequeue();
+                var lastValue = _spriteImageCache[lastKey];
                 lastValue.Dispose();
-                _spriteBitmapCache.Remove(lastKey);
+                _spriteImageCache.Remove(lastKey);
             }
 
-            _spriteBitmapCache[textureAsset] = baseBitmap;
-            _spriteBitmapQueue.Enqueue(textureAsset);
+            _spriteImageCache[textureAsset] = baseImage;
+            _spriteImageQueue.Enqueue(textureAsset);
         }
 
         var pixelsToUnits = spriteBf["m_PixelsToUnits"].AsFloat;
@@ -277,7 +279,7 @@ public class TextureLoader
                 }
                 // todo: rot90
 
-                canvas.DrawBitmap(baseBitmap, xOff, yOff);
+                canvas.DrawImage(baseImage, xOff, yOff);
             }
         }
 
@@ -393,12 +395,12 @@ public class TextureLoader
 
     public void Cleanup()
     {
-        foreach (var bitmap in _spriteBitmapCache.Values)
+        foreach (var bitmap in _spriteImageCache.Values)
         {
             bitmap.Dispose();
         }
-        _spriteBitmapCache.Clear();
-        _spriteBitmapQueue.Clear();
+        _spriteImageCache.Clear();
+        _spriteImageQueue.Clear();
         _spriteAtlasLookup.Clear();
         _nameToSpriteAtlasLookup.Clear();
     }
