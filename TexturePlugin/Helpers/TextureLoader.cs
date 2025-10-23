@@ -309,8 +309,7 @@ public class TextureLoader
             // it would probably be good to do a last resort option, but tbd on that.
             var atlasNameLookup = GetSpriteAtlasNameLookup(workspace, asset.FileInstance);
 
-            var atlasAsset = atlasNameLookup[atlasTag];
-            if (atlasAsset is null)
+            if (!atlasNameLookup.TryGetValue(atlasTag, out var atlasAsset))
             {
                 // nothing we can do. give up.
                 return null;
