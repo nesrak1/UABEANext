@@ -1,12 +1,12 @@
 ﻿using AssetsTools.NET;
 using AssetsTools.NET.Extra;
 using Avalonia.Controls.Documents;
+using Avalonia.Markup.Xaml.MarkupExtensions;
 using AvaloniaEdit.Utils;
 using CommunityToolkit.Mvvm.ComponentModel;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using UABEANext4.AssetWorkspace;
-using static UABEANext4.Themes.TypeHighlightingBrushes;
 
 namespace UABEANext4.Logic.AssetInfo;
 
@@ -112,12 +112,12 @@ public partial class TypeTreeInfo : ObservableObject
         var fieldName = node.GetNameString(type.StringBufferBytes);
         var isValueType = AssetTypeValueField.GetValueTypeByTypeName(typeName) != AssetValueType.None;
 
-        var span1 = new Span()
-        {
-            Foreground = isValueType
-                ? PrimNameBrush
-                : TypeNameBrush
-        };
+        var span1 = new Span();
+        span1.Bind(TextElement.ForegroundProperty,
+            isValueType
+                ? new DynamicResourceExtension("TypeTextPrimitive")
+                : new DynamicResourceExtension("TypeTextType")
+        );
         {
             var bold = new Bold();
             {

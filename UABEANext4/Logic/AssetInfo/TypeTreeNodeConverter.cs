@@ -2,11 +2,11 @@
 using Avalonia.Controls.Documents;
 using Avalonia.Data;
 using Avalonia.Data.Converters;
+using Avalonia.Markup.Xaml.MarkupExtensions;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
-using static UABEANext4.Themes.TypeHighlightingBrushes;
 
 namespace UABEANext4.Logic.AssetInfo;
 
@@ -20,12 +20,12 @@ public class FlatListToTreeConverter : IValueConverter
         var fieldName = node.GetNameString(type.StringBufferBytes);
         var isValueType = AssetTypeValueField.GetValueTypeByTypeName(typeName) != AssetValueType.None;
 
-        var span1 = new Span()
-        {
-            Foreground = isValueType
-                ? ValueBrush
-                : TypeNameBrush
-        };
+        var span1 = new Span();
+        span1.Bind(TextElement.ForegroundProperty,
+            isValueType
+                ? new DynamicResourceExtension("TypeTextValue")
+                : new DynamicResourceExtension("TypeTextType")
+        );
         {
             var bold = new Bold();
             {
