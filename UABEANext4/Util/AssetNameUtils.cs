@@ -157,34 +157,35 @@ public static class AssetNameUtils
     // not very fast but w/e at least it's stable
     public static string GetMonoBehaviourNameFast(Workspace workspace, AssetInst asset)
     {
+        // allow negative monobehaviours (old style) but not positive non-monobehaviours
+        if (asset.Type != AssetClassID.MonoBehaviour && asset.TypeId >= 0)
+            return string.Empty;
+
         try
         {
-            if (asset.Type != AssetClassID.MonoBehaviour && asset.TypeId >= 0)
-                return string.Empty;
+            // get script index but skip any monobehaviours with index 0xffff (not sure why these happen)
+            var scriptIdx = asset.GetScriptIndex(asset.FileInstance.file);
+            if (scriptIdx == ushort.MaxValue)
+                return "MonoBehaviour";
 
-            // hasTypeTree is set to false to ignore type tree (to prevent
-            // reading the entire MonoBehaviour if type trees are provided)
-            // however, this relies on knowing the unity version of the file
-            // and having a class database loaded. when this isn't the case,
-            // our only option is to extract the entire type tree and trim off
-            // everything after the m_Script field so it doesn't load a lot.
+            var scriptPtr = asset.FileInstance.file.Metadata.ScriptTypes[scriptIdx];
+            var fileInst = asset.FileInstance;
 
-            AssetTypeTemplateField monoTemp = workspace.GetTemplateField(asset, true).Clone();
-            // trim off extra (needs a speedup. findindex isn't going to be the fastest.)
-            int nameIndex = monoTemp.Children.FindIndex(monoTemp => monoTemp.Name == "m_Script");
-            if (nameIndex != -1)
+            if (scriptPtr.FileId != 0)
+                fileInst = fileInst.GetDependency(workspace.Manager, scriptPtr.FileId - 1);
+            if (fileInst == null)
+                return "MonoBehaviour";
+
+            AssetFileInfo? info = fileInst.file.GetAssetInfo(scriptPtr.PathId);
+            if (info == null)
+                return "MonoBehaviour";
+
+            lock (fileInst.LockReader)
             {
-                monoTemp.Children.RemoveRange(nameIndex + 1, monoTemp.Children.Count - (nameIndex + 1));
+                var reader = fileInst.file.Reader;
+                reader.Position = info.GetAbsoluteByteOffset(fileInst.file);
+                return reader.ReadCountStringInt32();
             }
-
-            AssetTypeValueField monoBf = monoTemp.MakeValue(asset.FileReader, asset.AbsoluteByteStart);
-            AssetTypeValueField? scriptBaseField = workspace.GetBaseField(asset.FileInstance, monoBf["m_Script"]);
-            if (scriptBaseField == null)
-            {
-                return string.Empty;
-            }
-
-            return scriptBaseField["m_ClassName"].AsString;
         }
         catch
         {

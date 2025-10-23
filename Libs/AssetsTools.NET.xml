@@ -420,6 +420,11 @@
             Is the replacer non-null and does the replacer has a preview?
             </summary>
         </member>
+        <member name="P:AssetsTools.NET.AssetBundleDirectoryInfo.IsSerialized">
+            <summary>
+            Is the file serialized?
+            </summary>
+        </member>
         <member name="M:AssetsTools.NET.AssetBundleDirectoryInfo.SetNewData(System.Byte[])">
             <summary>
             Sets the bytes used when the AssetBundleFile is written.
@@ -861,7 +866,7 @@
         <member name="M:AssetsTools.NET.AssetsFile.GetAssetsOfType(System.Int32,System.UInt16)">
             <summary>
             Get all assets of a specific type ID and script index. The script index of an asset can be
-            found from <see cref="M:AssetsTools.NET.AssetsFile.GetScriptIndex(AssetsTools.NET.AssetFileInfo)"/> or <see cref="P:AssetsTools.NET.AssetsFileMetadata.ScriptTypes"/>.
+            found from <see cref="M:AssetsTools.NET.AssetFileInfo.GetScriptIndex(AssetsTools.NET.AssetsFile)"/> or <see cref="P:AssetsTools.NET.AssetsFileMetadata.ScriptTypes"/>.
             </summary>
             <param name="typeId">The type ID to search for.</param>
             <param name="scriptIndex">The script index to search for.</param>
@@ -870,7 +875,7 @@
         <member name="M:AssetsTools.NET.AssetsFile.GetAssetsOfType(AssetsTools.NET.Extra.AssetClassID,System.UInt16)">
             <summary>
             Get all assets of a specific type ID and script index. The script index of an asset can be
-            found from <see cref="M:AssetsTools.NET.AssetsFile.GetScriptIndex(AssetsTools.NET.AssetFileInfo)"/> or <see cref="P:AssetsTools.NET.AssetsFileMetadata.ScriptTypes"/>.
+            found from <see cref="M:AssetsTools.NET.AssetFileInfo.GetScriptIndex(AssetsTools.NET.AssetsFile)"/> or <see cref="P:AssetsTools.NET.AssetsFileMetadata.ScriptTypes"/>.
             </summary>
             <param name="typeId">The type ID to search for.</param>
             <param name="scriptIndex">The script index to search for.</param>
@@ -1076,7 +1081,7 @@
             found from <see cref="M:AssetsTools.NET.AssetFileInfo.GetScriptIndex(AssetsTools.NET.AssetsFile)"/> or <see cref="P:AssetsTools.NET.AssetsFileMetadata.ScriptTypes"/>.
             </summary>
             <param name="typeId">The type ID to search for.</param>
-            <param name="scriptIndex">The script index to search for.</param>
+            <param name="scriptIndex">The script index to search for, or <see cref="F:System.UInt16.MaxValue"/> for any.</param>
             <returns>A list of infos for that type ID and script index.</returns>
         </member>
         <member name="M:AssetsTools.NET.AssetsFileMetadata.GetAssetsOfType(AssetsTools.NET.Extra.AssetClassID)">
@@ -1457,9 +1462,15 @@
         </member>
         <member name="M:AssetsTools.NET.AssetTypeTemplateField.Clone">
             <summary>
-            Clone the field.
+            Perform a deep clone of the <see cref="T:AssetsTools.NET.AssetTypeTemplateField"/>.
             </summary>
             <returns>The cloned field.</returns>
+        </member>
+        <member name="M:AssetsTools.NET.AssetTypeValue.Clone">
+            <summary>
+            Perform a clone of the <see cref="T:AssetsTools.NET.AssetTypeValue"/>.
+            </summary>
+            <returns>The cloned value.</returns>
         </member>
         <member name="P:AssetsTools.NET.AssetTypeValueField.TemplateField">
             <summary>
@@ -1474,6 +1485,11 @@
         <member name="P:AssetsTools.NET.AssetTypeValueField.Children">
             <summary>
             Children of this field.
+            </summary>
+        </member>
+        <member name="P:AssetsTools.NET.AssetTypeValueField.IsDummy">
+            <summary>
+            Set to true if a field did not exist.
             </summary>
         </member>
         <member name="F:AssetsTools.NET.AssetTypeValueField.DUMMY_FIELD">
@@ -1500,6 +1516,12 @@
             Write the <see cref="T:AssetsTools.NET.AssetTypeValueField"/> with a new writer to a byte array.
             </summary>
             <param name="bigEndian">Write in big endian?</param>
+        </member>
+        <member name="M:AssetsTools.NET.AssetTypeValueField.Clone">
+            <summary>
+            Perform a deep clone of the <see cref="T:AssetsTools.NET.AssetTypeValueField"/>.
+            </summary>
+            <returns>The cloned field.</returns>
         </member>
         <member name="M:AssetsTools.NET.RefTypeManager.Clear">
             <summary>
