@@ -669,4 +669,36 @@ public partial class MainViewModel : ViewModelBase
 
         await dialogService.ShowDialog(new AssetInfoViewModel(Workspace, items));
     }
+
+    public async Task ShowSearchBytesDialog()
+    {
+        var dialogService = Ioc.Default.GetRequiredService<IDialogService>();
+        var explorer = _factory.GetDockable<WorkspaceExplorerToolViewModel>("WorkspaceExplorer");
+
+        if (explorer is null)
+        {
+            return;
+        }
+
+        List<AssetsFileInstance> fileInsts;
+        var lastFocusedDoc = _factory.DocMan.LastFocusedDocument;
+        if (lastFocusedDoc is AssetDocumentViewModel assetDocVm)
+        {
+            fileInsts = assetDocVm.FileInsts;
+        }
+        else
+        {
+            // fallback to all items
+            fileInsts = [];
+            foreach (var item in WorkspaceItem.GetAssetsFileWorkspaceItems(Workspace.RootItems))
+            {
+                if (item.Object is AssetsFileInstance fileInst)
+                {
+                    fileInsts.Add(fileInst);
+                }
+            }
+        }
+
+        await dialogService.ShowDialog(new AssetDataSearchViewModel(Workspace, fileInsts));
+    }
 }

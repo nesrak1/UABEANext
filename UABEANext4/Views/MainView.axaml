@@ -46,10 +46,11 @@
       </MenuItem>
       <MenuItem Header="Tools">
         <MenuItem Header="Asset Info" Command="{Binding ShowAssetInfoDialog}" IsEnabled="{Binding Workspace.RootItems.Count}"/>
+        <MenuItem Header="Search Bytes" Command="{Binding ShowSearchBytesDialog}" IsEnabled="{Binding Workspace.RootItems.Count}"/>
         <!--<MenuItem Header="Generate XRefs" Command="{Binding ToolsXrefs}" />-->
       </MenuItem>
     </Menu>
-    <DockControl Layout="{Binding Layout}" Margin="4" Grid.Row="1" />
+    <DockControl Layout="{Binding Layout}" Margin="4" Grid.Row="1" Name="dockControl" />
     <Grid ColumnDefinitions="1*,4,2*" Margin="4,0,0,4" Grid.Row="2">
       <ProgressBar Value="{Binding Workspace.ProgressValue}" Minimum="0" Maximum="1" Grid.Column="0" />
       <Label Content="{Binding Workspace.ProgressText}" Grid.Column="2" Padding="0" />
