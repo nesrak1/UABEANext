@@ -20,9 +20,11 @@ public class TextureLoader
     // todo: this should be configurable
     public const int DEFAULT_MAX_SPRITE_BITMAP_CACHE_SIZE = 10;
 
-    public Bitmap? GetSpriteAvaloniaBitmap(Workspace workspace, AssetInst asset, out TextureFormat format)
+    public Bitmap? GetSpriteAvaloniaBitmap(
+        Workspace workspace, AssetInst asset,
+        bool fullCrop, out TextureFormat format)
     {
-        SKBitmap? skBitmap = GetSpriteSkBitmap(workspace, asset, out format);
+        SKBitmap? skBitmap = GetSpriteSkBitmap(workspace, asset, fullCrop, out format);
         if (skBitmap == null)
         {
             return null;
@@ -47,9 +49,10 @@ public class TextureLoader
 
     public byte[]? GetSpriteRawBytes(
         Workspace workspace, AssetInst asset,
-        out TextureFormat format, out int width, out int height)
+        bool fullCrop, out TextureFormat format,
+        out int width, out int height)
     {
-        SKBitmap? skBitmap = GetSpriteSkBitmap(workspace, asset, out format);
+        SKBitmap? skBitmap = GetSpriteSkBitmap(workspace, asset, fullCrop, out format);
         if (skBitmap == null)
         {
             width = 0;
@@ -71,7 +74,7 @@ public class TextureLoader
     }
 
     // format output is only for error messages. the byte output is rgba32.
-    public SKBitmap? GetSpriteSkBitmap(Workspace workspace, AssetInst asset, out TextureFormat format)
+    public SKBitmap? GetSpriteSkBitmap(Workspace workspace, AssetInst asset, bool fullCrop, out TextureFormat format)
     {
         format = 0;
 
@@ -191,7 +194,13 @@ public class TextureLoader
         var flipY = (settingsRaw & 8) != 0;
         var rot90 = (settingsRaw & 16) != 0;
 
-        var croppedBitmap = new SKBitmap((int)Math.Round(textureRectWidth), (int)Math.Round(textureRectHeight));
+        // full crop: bounded by the sprite texture rect
+        // regular crop: bounded by the sprite's working area
+        SKBitmap croppedBitmap;
+        if (fullCrop)
+            croppedBitmap = new SKBitmap((int)Math.Round(textureRectWidth), (int)Math.Round(textureRectHeight));
+        else
+            croppedBitmap = new SKBitmap((int)Math.Round(rectWidth), (int)Math.Round(rectHeight));
 
         var version = asset.FileInstance.file.Metadata.UnityVersion;
         var mesh = new MeshObj(asset.FileInstance, renderData, new UnityVersion(version));
@@ -205,8 +214,14 @@ public class TextureLoader
             canvas.Clear(SKColors.Transparent);
             using (var path = new SKPath())
             {
-                var offX = (rectWidth * pivotX) - textureRectOffsetX;
-                var offY = (rectHeight * pivotY) - textureRectOffsetY;
+                var offX = rectWidth * pivotX;
+                var offY = rectHeight * pivotY;
+                if (fullCrop)
+                {
+                    offX -= textureRectOffsetX;
+                    offY -= textureRectOffsetY;
+                }
+
                 for (var i = 0; i < mesh.Indices.Length; i += 3)
                 {
                     var pointAIdx = mesh.Indices[i] * 3;
@@ -229,19 +244,40 @@ public class TextureLoader
                 }
                 canvas.ClipPath(path);
 
+                float xOff;
+                float yOff;
                 if (flipX)
                 {
                     canvas.Translate(croppedBitmap.Width, 0);
                     canvas.Scale(-1, 1);
+                    xOff = fullCrop
+                        ? -textureRectX
+                        : -textureRectX + rectWidth - textureRectWidth - textureRectOffsetX;
                 }
+                else
+                {
+                    xOff = fullCrop
+                        ? -textureRectX
+                        : -textureRectX + textureRectOffsetX;
+                }
+
                 if (flipY)
                 {
                     canvas.Translate(0, croppedBitmap.Height);
                     canvas.Scale(1, -1);
+                    yOff = fullCrop
+                        ? -textureRectY
+                        : -textureRectY + rectHeight - textureRectHeight - textureRectOffsetY;
+                }
+                else
+                {
+                    yOff = fullCrop
+                        ? -textureRectY
+                        : -textureRectY + textureRectOffsetY;
                 }
                 // todo: rot90
 
-                canvas.DrawBitmap(baseBitmap, -textureRectX, -textureRectY);
+                canvas.DrawBitmap(baseBitmap, xOff, yOff);
             }
         }
 
@@ -309,8 +345,9 @@ public class TextureLoader
         var atlasNameLookup = new Dictionary<string, AssetInst>();
         foreach (var atlasInf in fileInstance.file.GetAssetsOfType(AssetClassID.SpriteAtlas))
         {
-            // cast is ok, file.Metadata.AssetInfos is always a AssetInst list when loaded by workspace
-            var atlasAsset = (AssetInst)atlasInf;
+            var atlasAsset = workspace.GetAssetInst(fileInstance, 0, atlasInf.PathId);
+            if (atlasAsset is null)
+                continue;
 
             var atlasBf = workspace.GetBaseField(atlasAsset);
             if (atlasBf is null)

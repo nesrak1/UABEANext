@@ -111,7 +111,7 @@ public class ExportTextureOption : IUavPluginOption
             {
                 // need to do crop processing, use TextureLoader
 
-                byte[]? decTextureData = texLoader.GetSpriteRawBytes(workspace, asset, out var _, out var width, out var height);
+                byte[]? decTextureData = texLoader.GetSpriteRawBytes(workspace, asset, true, out var _, out var width, out var height);
                 if (decTextureData == null)
                 {
                     errorBuilder.AppendLine($"[{errorAssetName}]: failed to decode (missing resS, invalid texture format, invalid sprite, etc.)");
@@ -210,7 +210,7 @@ public class ExportTextureOption : IUavPluginOption
         string errorAssetName = $"{Path.GetFileName(asset.FileInstance.path)}/{asset.PathId}";
 
         TextureLoader texLoader = new TextureLoader();
-        byte[]? decTextureData = texLoader.GetSpriteRawBytes(workspace, asset, out var _, out var width, out var height);
+        byte[]? decTextureData = texLoader.GetSpriteRawBytes(workspace, asset, true, out var _, out var width, out var height);
         if (decTextureData == null)
         {
             await funcs.ShowMessageDialog("Error", $"[{errorAssetName}]: failed to decode (missing resS, invalid texture format, invalid sprite, etc.)");
