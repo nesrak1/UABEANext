@@ -11,14 +11,18 @@ public partial class MainWindow : Window
 {
     public MainWindow()
     {
+#if DEBUG
+        InitializeComponent(attachDevTools: true);
+        //DevToolsAdblock.Attach(this, new DevToolsOptions());
+#else
         InitializeComponent();
-
+#endif
         AddHandler(DragDrop.DropEvent, Drop);
     }
 
     private async Task Drop(object? sender, DragEventArgs e)
     {
-        if (e.Data.GetFiles() is { } files && DataContext is MainViewModel viewModel)
+        if (e.DataTransfer.TryGetFiles() is { } files && DataContext is MainViewModel viewModel)
         {
             var fileNames = files.Select(sf => sf.TryGetLocalPath()).Where(p => p != null);
             if (fileNames is not null)
