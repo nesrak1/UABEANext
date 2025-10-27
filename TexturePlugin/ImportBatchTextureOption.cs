@@ -86,6 +86,10 @@ public class ImportBatchTextureOption : IUavPluginOption
 
             try
             {
+                // disable mips until we can support them
+                tex.m_MipCount = 1;
+                tex.m_MipMap = false;
+
                 tex.EncodeTextureImage(info.ImportFile);
                 tex.WriteTo(baseField);
                 asset.UpdateAssetDataAndRow(workspace, baseField);
