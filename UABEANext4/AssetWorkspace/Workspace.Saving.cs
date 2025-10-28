@@ -215,6 +215,7 @@ public partial class Workspace
                     asset.Replacer = null;
                 }
                 UnsavedItems.Remove(item);
+                FixupAssetsFile(fileInst);
             }
             else if (item.Object is BundleFileInstance bunInst)
             {
