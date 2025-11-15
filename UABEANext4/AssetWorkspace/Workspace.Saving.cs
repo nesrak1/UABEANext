@@ -159,22 +159,33 @@ public partial class Workspace
             throw new Exception("Tried to save an assets file that was in a bundle directly");
         }
 
-        if (!TryGetFileStream(item, out var stream))
+        string origBundlePath;
+        if (TryGetFileStream(item, out var stream))
+        {
+            // file is currently using this filestream
+            origBundlePath = stream.Name;
+        }
+        else if (item.Object is BundleFileInstance bunInst)
+        {
+            // file is probably a bundle that we reloaded into a memory stream
+            // todo: we could skip making the temp file, but we don't do that right now
+            origBundlePath = bunInst.path;
+        }
+        else
         {
             await MessageBoxUtil.ShowDialog("Error saving", "Workspace item isn't using a FileStream");
             return (false, true);
         }
 
-        var streamPath = stream.Name;
         // verify we can write to this file
-        if (!TryOpenForWriting(streamPath, out var writeStream))
+        if (!TryOpenForWriting(origBundlePath, out var writeStream))
         {
             await MessageBoxUtil.ShowDialog("Error saving", "Couldn't open stream for writing");
             return (false, true);
         }
 
-        var newName = "~" + Path.GetFileName(streamPath);
-        var dir = Path.GetDirectoryName(streamPath)!;
+        var newName = "~" + Path.GetFileName(origBundlePath);
+        var dir = Path.GetDirectoryName(origBundlePath)!;
         var tempWriteStreamPath = Path.Combine(dir, newName);
         if (!TryOpenForWriting(tempWriteStreamPath, out var tempWriteStream))
         {
@@ -195,7 +206,7 @@ public partial class Workspace
             WriteResource(item, tempWriteStream);
         }
 
-        stream.Close();
+        stream?.Close();
         writeStream.Close();
         tempWriteStream.Close();
         // technically there's a window here where the file could be reopened
@@ -203,8 +214,8 @@ public partial class Workspace
         // since that complicates things a bit...
         try
         {
-            File.Move(tempWriteStreamPath, streamPath, true);
-            var newStream = File.Open(streamPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+            File.Move(tempWriteStreamPath, origBundlePath, true);
+            var newStream = File.Open(origBundlePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
             if (item.Object is AssetsFileInstance fileInst)
             {
                 fileInst.file = new AssetsFile();
