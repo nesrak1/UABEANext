@@ -1451,7 +1451,7 @@
             <param name="refMan">The ref type manager to use, if reading a MonoBehaviour using a ref type.</param>
             <returns>The deserialized value field.</returns>
         </member>
-        <member name="M:AssetsTools.NET.AssetTypeTemplateField.ReadType(AssetsTools.NET.AssetsFileReader,AssetsTools.NET.AssetTypeValueField,AssetsTools.NET.RefTypeManager,System.Int32)">
+        <member name="M:AssetsTools.NET.AssetTypeTemplateField.ReadType(AssetsTools.NET.AssetsFileReader,AssetsTools.NET.AssetTypeValueField,AssetsTools.NET.RefTypeManager)">
             <summary>
             Deserialize a single field and its children.
             </summary>
