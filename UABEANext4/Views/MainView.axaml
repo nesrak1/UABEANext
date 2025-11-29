@@ -41,6 +41,7 @@
         <MenuItem Header="Hierarchy" ToggleType="CheckBox" IsChecked="{Binding DockHierarchyVisible, Mode=TwoWay}" />
         <MenuItem Header="Inspector" ToggleType="CheckBox" IsChecked="{Binding DockInspectorVisible, Mode=TwoWay}" />
         <MenuItem Header="Previewer" ToggleType="CheckBox" IsChecked="{Binding DockPreviewerVisible, Mode=TwoWay}" />
+        <MenuItem Header="Scene View" ToggleType="CheckBox" IsChecked="{Binding DockSceneViewVisible, Mode=TwoWay}" />
         <MenuItem Header="-" />
         <MenuItem Header="Show container paths (slow)" ToggleType="CheckBox" IsChecked="{Binding LoadContainers, Mode=TwoWay}" />
       </MenuItem>

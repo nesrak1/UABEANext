@@ -1,0 +1,31 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:tools="using:UABEANext4.ViewModels.Tools"
+             xmlns:sceneview="using:UABEANext4.Controls.SceneView"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="UABEANext4.Views.Tools.SceneViewToolView"
+             x:DataType="tools:SceneViewToolViewModel">
+  <Grid RowDefinitions="Auto,*,Auto">
+    <!-- Toolbar -->
+    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="4" Spacing="4">
+      <Button Content="Load Scene" Command="{Binding LoadSceneCommand}" ToolTip.Tip="Load the scene from the selected assets file" />
+      <Button Content="Reset Camera" Command="{Binding ResetCameraCommand}" ToolTip.Tip="Reset camera to default position" />
+      <Separator Width="1" Margin="4,0" />
+      <TextBlock VerticalAlignment="Center" Text="Controls: " FontWeight="SemiBold" />
+      <TextBlock VerticalAlignment="Center" Text="Right-click + WASD to move, Mouse to look, Scroll to zoom" Foreground="Gray" />
+    </StackPanel>
+
+    <!-- Scene View -->
+    <Border Grid.Row="1" BorderBrush="Gray" BorderThickness="1" Margin="4,0,4,4">
+      <sceneview:SceneViewControl x:Name="sceneViewControl"
+                                   SceneData="{Binding SceneData}" />
+    </Border>
+
+    <!-- Status Bar -->
+    <Border Grid.Row="2" Background="#2d2d30" Padding="4,2">
+      <TextBlock Text="{Binding StatusText}" Foreground="LightGray" FontSize="11" />
+    </Border>
+  </Grid>
+</UserControl>

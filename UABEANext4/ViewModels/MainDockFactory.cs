@@ -23,6 +23,7 @@ internal class MainDockFactory : Factory
     private InspectorToolViewModel? _inspectorToolViewModel;
     private PreviewerToolViewModel? _previewerToolViewModel;
     private HierarchyToolViewModel? _hierarchyToolViewModel;
+    private SceneViewToolViewModel? _sceneViewToolViewModel;
 
     private Workspace _workspace;
 
@@ -44,6 +45,7 @@ internal class MainDockFactory : Factory
         _inspectorToolViewModel = new InspectorToolViewModel(_workspace);
         _previewerToolViewModel = new PreviewerToolViewModel(_workspace);
         _hierarchyToolViewModel = new HierarchyToolViewModel(_workspace);
+        _sceneViewToolViewModel = new SceneViewToolViewModel(_workspace);
 
         var assetDocumentDock = new BlankDocumentViewModel();
         var documentDock = _fileDocumentDock = new DocumentDock
@@ -78,7 +80,8 @@ internal class MainDockFactory : Factory
             VisibleDockables = CreateList<IDockable>
             (
                 _inspectorToolViewModel,
-                _previewerToolViewModel
+                _previewerToolViewModel,
+                _sceneViewToolViewModel
             ),
             Alignment = Alignment.Left,
             GripMode = GripMode.Visible,
@@ -141,6 +144,7 @@ internal class MainDockFactory : Factory
             ["Files"] = () => _fileDocumentDock,
             ["Inspector"] = () => _inspectorToolViewModel,
             ["Previewer"] = () => _previewerToolViewModel,
+            ["SceneView"] = () => _sceneViewToolViewModel,
         };
 
         HostWindowLocator = new Dictionary<string, Func<IHostWindow?>>

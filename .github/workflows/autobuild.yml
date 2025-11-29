@@ -1,0 +1,45 @@
+name: Auto Build Windows x64
+
+on:
+  push:
+    branches: [ master, main ]
+  pull_request:
+    branches: [ master, main ]
+  workflow_dispatch:
+
+jobs:
+  build-windows-x64:
+    runs-on: windows-2022
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Install .NET Core
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+
+    - name: Setup MSBuild.exe
+      uses: microsoft/setup-msbuild@v2
+
+    - name: Restore dependencies
+      run: dotnet restore UABEANext4.sln
+
+    - name: Build Release
+      run: msbuild UABEANext4.sln /p:Configuration=Release /p:Platform="Any CPU"
+
+    - name: Remove unused platform runtimes
+      run: |
+        Get-ChildItem -Path "UABEANext4.Desktop\bin\Release\net8.0\runtimes" -Directory |
+        Where-Object { $_.Name -notin @("win-x64", "win7-x64", "win") } |
+        Remove-Item -Recurse -Force
+
+    - name: Upload Windows x64 Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: uabea-windows-x64
+        path: UABEANext4.Desktop/bin/Release/net8.0
+        retention-days: 30

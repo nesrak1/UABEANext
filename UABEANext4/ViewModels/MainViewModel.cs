@@ -39,6 +39,8 @@ public partial class MainViewModel : ViewModelBase
     [ObservableProperty]
     public bool _dockPreviewerVisible = true;
     [ObservableProperty]
+    public bool _dockSceneViewVisible = true;
+    [ObservableProperty]
     public bool _loadContainers = false;
 
     public Workspace Workspace { get; }
@@ -85,6 +87,7 @@ public partial class MainViewModel : ViewModelBase
             case "Hierarchy": DockHierarchyVisible = true; break;
             case "Inspector": DockInspectorVisible = true; break;
             case "Previewer": DockPreviewerVisible = true; break;
+            case "SceneView": DockSceneViewVisible = true; break;
         }
     }
 
@@ -99,6 +102,7 @@ public partial class MainViewModel : ViewModelBase
             case "Hierarchy": DockHierarchyVisible = false; break;
             case "Inspector": DockInspectorVisible = false; break;
             case "Previewer": DockPreviewerVisible = false; break;
+            case "SceneView": DockSceneViewVisible = false; break;
         }
     }
 
@@ -142,6 +146,15 @@ public partial class MainViewModel : ViewModelBase
             return;
 
         ShowHideDockable(previewer, value);
+    }
+
+    partial void OnDockSceneViewVisibleChanged(bool value)
+    {
+        var sceneView = _factory.GetDockable<SceneViewToolViewModel>("SceneView");
+        if (sceneView is null || Layout is null)
+            return;
+
+        ShowHideDockable(sceneView, value);
     }
 
     private void ShowHideDockable(IDockable dockable, bool show)
