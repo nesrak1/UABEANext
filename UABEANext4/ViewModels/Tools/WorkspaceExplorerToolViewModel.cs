@@ -81,12 +81,12 @@ namespace UABEANext4.ViewModels.Tools
 
         private void GatherWorkspaceItemsRecursive(WorkspaceItem thisItem, List<WorkspaceItem> allItems)
         {
+            if (thisItem.ObjectType == WorkspaceItemType.AssetsFile)
+                allItems.Add(thisItem);
+
             foreach (var childItem in thisItem.Children)
             {
-                if (childItem.ObjectType == WorkspaceItemType.AssetsFile)
-                    allItems.Add(childItem);
-                else
-                    GatherWorkspaceItemsRecursive(childItem, allItems);
+                GatherWorkspaceItemsRecursive(childItem, allItems);
             }
         }
     }
