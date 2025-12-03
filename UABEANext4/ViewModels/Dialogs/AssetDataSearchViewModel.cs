@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using UABEANext4.AssetWorkspace;
@@ -132,6 +133,11 @@ public partial class AssetDataSearchViewModel : ViewModelBase, IDialogAware<stri
             case AssetDataSearchKind.Bytes:
             {
                 searchBytes = Convert.FromHexString(SearchText.Replace(" ", ""));
+                break;
+            }
+            case AssetDataSearchKind.Text:
+            {
+                searchBytes = Encoding.UTF8.GetBytes(SearchText);
                 break;
             }
             case AssetDataSearchKind.Signed4Byte:
