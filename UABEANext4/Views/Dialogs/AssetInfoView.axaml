@@ -174,7 +174,7 @@
       </TabItem>
 
       <TabItem Header="Script Infos">
-        <ListBox ItemsSource="{Binding ScriptsInfo.ScriptsDisplay}" SelectedItem="{Binding TypeTreeInfo.SelectedType}" />
+        <ListBox ItemsSource="{Binding ScriptsInfo.ScriptsDisplay}" />
       </TabItem>
     </TabControl>
     

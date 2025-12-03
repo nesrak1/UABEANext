@@ -2,6 +2,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UABEANext4.AssetWorkspace;
 using UABEANext4.Interfaces;
 using UABEANext4.Logic.AssetInfo;
@@ -10,7 +11,7 @@ namespace UABEANext4.ViewModels.Dialogs;
 
 public partial class AssetInfoViewModel : ViewModelBase, IDialogAware
 {
-    public IEnumerable<WorkspaceItem> Items { get; }
+    public List<WorkspaceItem> Items { get; }
 
     private WorkspaceItem? _selectedItem;
     public WorkspaceItem? SelectedItem
@@ -60,7 +61,7 @@ public partial class AssetInfoViewModel : ViewModelBase, IDialogAware
 
     public AssetInfoViewModel(Workspace workspace, IEnumerable<WorkspaceItem> items)
     {
-        Items = items;
+        Items = items.ToList();
         _workspace = workspace;
     }
 }

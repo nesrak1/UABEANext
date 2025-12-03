@@ -2,6 +2,7 @@
 using AssetsTools.NET.Extra;
 using CommunityToolkit.Mvvm.ComponentModel;
 using System;
+using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -17,6 +18,8 @@ public partial class AssetDataSearchViewModel : ViewModelBase, IDialogAware<stri
 {
     [ObservableProperty]
     public string _searchText = "";
+    [ObservableProperty]
+    public AssetDataSearchKind _searchKind = AssetDataSearchKind.Bytes;
     [ObservableProperty]
     public ObservableCollection<string> _searchResults = [];
 
@@ -48,7 +51,12 @@ public partial class AssetDataSearchViewModel : ViewModelBase, IDialogAware<stri
             MaxDegreeOfParallelism = Math.Min(Environment.ProcessorCount - 1, 4)
         };
 
-        var searchBytes = Convert.FromHexString(SearchText.Replace(" ", ""));
+        byte[]? searchBytes = GetSearchBytes();
+        if (searchBytes is null)
+        {
+            await MessageBoxUtil.ShowDialog("Invalid input", "Input is invalid for this search kind.");
+            return;
+        }
 
         _workspace.SetProgressThreadSafe(0f, "Searching files...");
         await Task.Run(() =>
@@ -114,7 +122,106 @@ public partial class AssetDataSearchViewModel : ViewModelBase, IDialogAware<stri
         RequestClose?.Invoke(null);
     }
 
-    public static IEnumerable<long> FindAllSubstringsInStream(Stream fs, byte[] patternBytes)
+    private byte[]? GetSearchBytes()
+    {
+        var bigEndian = _items.Count > 0 && _items[0].file.Header.Endianness;
+
+        byte[] searchBytes;
+        switch (SearchKind)
+        {
+            case AssetDataSearchKind.Bytes:
+            {
+                searchBytes = Convert.FromHexString(SearchText.Replace(" ", ""));
+                break;
+            }
+            case AssetDataSearchKind.Signed4Byte:
+            {
+                if (!int.TryParse(SearchText, out int searchInt))
+                    return null;
+
+                searchBytes = new byte[4];
+                if (bigEndian)
+                    BinaryPrimitives.WriteInt32BigEndian(searchBytes, searchInt);
+                else
+                    BinaryPrimitives.WriteInt32LittleEndian(searchBytes, searchInt);
+
+                break;
+            }
+            case AssetDataSearchKind.Signed8Byte:
+            {
+                if (!long.TryParse(SearchText, out long searchLong))
+                    return null;
+
+                searchBytes = new byte[8];
+                if (bigEndian)
+                    BinaryPrimitives.WriteInt64BigEndian(searchBytes, searchLong);
+                else
+                    BinaryPrimitives.WriteInt64LittleEndian(searchBytes, searchLong);
+
+                break;
+            }
+            case AssetDataSearchKind.Unsigned4Byte:
+            {
+                if (!uint.TryParse(SearchText, out uint searchUint))
+                    return null;
+
+                searchBytes = new byte[4];
+                if (bigEndian)
+                    BinaryPrimitives.WriteUInt32BigEndian(searchBytes, searchUint);
+                else
+                    BinaryPrimitives.WriteUInt32LittleEndian(searchBytes, searchUint);
+
+                break;
+            }
+            case AssetDataSearchKind.Unsigned8Byte:
+            {
+                if (!ulong.TryParse(SearchText, out ulong searchUlong))
+                    return null;
+
+                searchBytes = new byte[8];
+                if (bigEndian)
+                    BinaryPrimitives.WriteUInt64BigEndian(searchBytes, searchUlong);
+                else
+                    BinaryPrimitives.WriteUInt64LittleEndian(searchBytes, searchUlong);
+
+                break;
+            }
+            case AssetDataSearchKind.Float4Byte:
+            {
+                if (!float.TryParse(SearchText, out float searchFloat))
+                    return null;
+
+                searchBytes = new byte[4];
+                if (bigEndian)
+                    BinaryPrimitives.WriteSingleBigEndian(searchBytes, searchFloat);
+                else
+                    BinaryPrimitives.WriteSingleLittleEndian(searchBytes, searchFloat);
+
+                break;
+            }
+            case AssetDataSearchKind.Float8Byte:
+            {
+                if (!double.TryParse(SearchText, out double searchDouble))
+                    return null;
+
+                searchBytes = new byte[8];
+                if (bigEndian)
+                    BinaryPrimitives.WriteDoubleBigEndian(searchBytes, searchDouble);
+                else
+                    BinaryPrimitives.WriteDoubleLittleEndian(searchBytes, searchDouble);
+
+                break;
+            }
+            default:
+            {
+                return null;
+            }
+        }
+
+        return searchBytes;
+    }
+
+    private static IEnumerable<long> FindAllSubstringsInStream(Stream fs, byte[] patternBytes)
     {
         const int ChunkSize = 65536;
 
@@ -165,5 +272,17 @@ public partial class AssetDataSearchViewModel : ViewModelBase, IDialogAware<stri
                 return i + start;
         }
         return -1;
+    }
+
+    public enum AssetDataSearchKind
+    {
+        Bytes,
+        Text,
+        Signed4Byte,
+        Signed8Byte,
+        Unsigned4Byte,
+        Unsigned8Byte,
+        Float4Byte,
+        Float8Byte
     }
 }

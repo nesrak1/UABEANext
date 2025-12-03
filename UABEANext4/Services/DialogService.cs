@@ -12,7 +12,27 @@ public class DialogService(Window mainWindow, ViewLocator viewLocator) : IDialog
 
         await window.ShowDialog(mainWindow);
     }
-    
+
+    public void Show(IDialogAware viewModel)
+    {
+        var window = CreateWindow(viewModel);
+        window.Show(mainWindow);
+    }
+
+    public void Show<TResult>(IDialogAware<TResult> viewModel)
+    {
+        var window = CreateWindow(viewModel);
+
+        void eventHandler(TResult? result)
+        {
+            window.Close(result);
+            viewModel.RequestClose -= eventHandler;
+        }
+
+        viewModel.RequestClose += eventHandler;
+        window.Show(mainWindow);
+    }
+
     public async Task<TResult?> ShowDialog<TResult>(IDialogAware<TResult> viewModel)
     {
         var window = CreateWindow(viewModel);

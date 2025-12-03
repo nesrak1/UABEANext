@@ -286,15 +286,32 @@ public partial class MainViewModel : ViewModelBase
         var result = await storageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
         {
             Title = "Open a file",
-            FileTypeFilter = new FilePickerFileType[]
-            {
-                new FilePickerFileType("All files (*.*)") { Patterns = new[] { "*" } }
-            },
+            FileTypeFilter = [
+                new FilePickerFileType("All files (*.*)") { Patterns = [ "*" ] }
+            ],
             AllowMultiple = true
         });
 
         var fileNames = FileDialogUtils.GetOpenFileDialogFiles(result);
         await OpenFiles(fileNames);
+    }
+
+    public async void FileOpenFolder()
+    {
+        var storageProvider = StorageService.GetStorageProvider();
+        if (storageProvider is null)
+        {
+            return;
+        }
+
+        var result = await storageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
+        {
+            Title = "Open a folder",
+            AllowMultiple = true
+        });
+
+        var folderNames = FileDialogUtils.GetOpenFolderDialogFolders(result);
+        await OpenFiles(folderNames);
     }
 
     private async Task DoSaveOverwrite(IEnumerable<WorkspaceItem> items)
@@ -477,6 +494,30 @@ public partial class MainViewModel : ViewModelBase
         await OpenAssetDocument(message.Value, true);
     }
 
+    public List<AssetsFileInstance> GetSelectedDocFileInsts()
+    {
+        List<AssetsFileInstance> fileInsts;
+        var lastFocusedDoc = _factory.DocMan.LastFocusedDocument;
+        if (lastFocusedDoc is AssetDocumentViewModel assetDocVm)
+        {
+            fileInsts = assetDocVm.FileInsts;
+        }
+        else
+        {
+            // fallback to all items
+            fileInsts = [];
+            foreach (var item in WorkspaceItem.GetAssetsFileWorkspaceItems(Workspace.RootItems))
+            {
+                if (item.Object is AssetsFileInstance fileInst)
+                {
+                    fileInsts.Add(fileInst);
+                }
+            }
+        }
+
+        return fileInsts;
+    }
+
     private async Task<AssetDocumentViewModel?> OpenAssetDocument(List<WorkspaceItem> workspaceItems, bool replaceDock)
     {
         AssetDocumentViewModel document;
@@ -641,7 +682,7 @@ public partial class MainViewModel : ViewModelBase
         }
     }
 
-    public async Task ShowAssetInfoDialog()
+    public void ShowAssetInfoDialog()
     {
         var dialogService = Ioc.Default.GetRequiredService<IDialogService>();
         var explorer = _factory.GetDockable<WorkspaceExplorerToolViewModel>("WorkspaceExplorer");
@@ -651,13 +692,11 @@ public partial class MainViewModel : ViewModelBase
             return;
         }
 
-        HashSet<WorkspaceItem> items = [];
-        if (explorer.SelectedItems.Count != 0)
-        {
-            foreach (var item in WorkspaceItem.GetAssetsFileWorkspaceItems(explorer.SelectedItems.OfType<WorkspaceItem>()))
-            {
-                items.Add(item);
-            }
+        var fileInsts = GetSelectedDocFileInsts();
+        var wsItems = fileInsts
+            .Select(Workspace.FindWorkspaceItemByInstance)
+            .Where(i => i is not null) as IEnumerable<WorkspaceItem>;
+        dialogService.Show(new AssetInfoViewModel(Workspace, wsItems));
         }
         else
         {
@@ -667,10 +706,7 @@ public partial class MainViewModel : ViewModelBase
             }
         }
 
-        await dialogService.ShowDialog(new AssetInfoViewModel(Workspace, items));
-    }
-
-    public async Task ShowSearchBytesDialog()
+    public void ShowSearchBytesDialog()
     {
         var dialogService = Ioc.Default.GetRequiredService<IDialogService>();
         var explorer = _factory.GetDockable<WorkspaceExplorerToolViewModel>("WorkspaceExplorer");
@@ -680,25 +716,7 @@ public partial class MainViewModel : ViewModelBase
             return;
         }
 
-        List<AssetsFileInstance> fileInsts;
-        var lastFocusedDoc = _factory.DocMan.LastFocusedDocument;
-        if (lastFocusedDoc is AssetDocumentViewModel assetDocVm)
-        {
-            fileInsts = assetDocVm.FileInsts;
-        }
-        else
-        {
-            // fallback to all items
-            fileInsts = [];
-            foreach (var item in WorkspaceItem.GetAssetsFileWorkspaceItems(Workspace.RootItems))
-            {
-                if (item.Object is AssetsFileInstance fileInst)
-                {
-                    fileInsts.Add(fileInst);
-                }
-            }
-        }
-
-        await dialogService.ShowDialog(new AssetDataSearchViewModel(Workspace, fileInsts));
+        var fileInsts = GetSelectedDocFileInsts();
+        dialogService.Show(new AssetDataSearchViewModel(Workspace, fileInsts));
     }
 }

@@ -5,6 +5,10 @@ namespace UABEANext4.Services;
 public interface IDialogService
 {
     Task ShowDialog(IDialogAware viewModel);
-    
+
+    void Show(IDialogAware viewModel);
+
+    void Show<TResult>(IDialogAware<TResult> viewModel);
+
     Task<TResult?> ShowDialog<TResult>(IDialogAware<TResult> viewModel);
 }
