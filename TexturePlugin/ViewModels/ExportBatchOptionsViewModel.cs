@@ -7,30 +7,22 @@ namespace TexturePlugin.ViewModels;
 public partial class ExportBatchOptionsViewModel : ViewModelBase, IDialogAware<ExportBatchOptionsResult?>
 {
     [ObservableProperty]
-    public ImageExportType _selectedExportType;
+    public ImageExportType _selectedExportType = ImageExportType.Png;
     [ObservableProperty]
-    public int _quality;
+    public int _quality = 100;
 
-    public List<string> DropdownItems { get; }
+    public List<string> DropdownItems { get; } =
+    [
+        "BMP (alpha, uncompressed, lossless)",
+        "PNG (alpha, compressed, lossless)",
+        "JPG (no alpha, compressed, lossy)",
+        "TGA (alpha, compressed, lossless)"
+    ];
 
     public string Title => "Texture Batch Export";
     public int Width => 300;
-    public int Height => 130;
+    public int Height => 100;
     public event Action<ExportBatchOptionsResult?>? RequestClose;
-
-    public ExportBatchOptionsViewModel()
-    {
-        SelectedExportType = ImageExportType.Png;
-        Quality = 100;
-
-        DropdownItems =
-        [
-            "BMP (alpha, uncompressed, lossless)",
-            "PNG (alpha, compressed, lossless)",
-            "JPG (no alpha, compressed, lossy)",
-            "TGA (alpha, compressed, lossless)"
-        ];
-    }
 
     public void BtnOk_Click()
     {

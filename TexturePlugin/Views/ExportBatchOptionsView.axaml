@@ -3,20 +3,20 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:tex="using:TexturePlugin.ViewModels"
-             mc:Ignorable="d" d:DesignWidth="700" d:DesignHeight="350"
+             mc:Ignorable="d" d:DesignWidth="300" d:DesignHeight="100"
              x:Class="TexturePlugin.Views.ExportBatchOptionsView"
              x:DataType="tex:ExportBatchOptionsViewModel">
-  <Grid Margin="10,10,10,10">
-    <ComboBox VerticalAlignment="Top" Height="26"
+  <Grid Margin="10,10,10,10" RowDefinitions="Auto,Auto,*,Auto">
+    <ComboBox Height="26"
               SelectedIndex="{Binding SelectedExportType}"
-              ItemsSource="{Binding DropdownItems}" />
-    <ScrollBar Minimum="0" Maximum="100" Orientation="Horizontal"
-                Value="{Binding Quality}"/>
-    <Grid VerticalAlignment="Bottom">
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="*"></ColumnDefinition>
-        <ColumnDefinition Width="*"></ColumnDefinition>
-      </Grid.ColumnDefinitions>
+              ItemsSource="{Binding DropdownItems}" Grid.Row="0" />
+    <Grid ColumnDefinitions="*,Auto" Grid.Row="1">
+      <Slider Minimum="0" Maximum="100" Orientation="Horizontal"
+              TickFrequency="10" IsSnapToTickEnabled="True"
+              Value="{Binding Quality}" Grid.Column="0" />
+      <Label Content="{Binding Quality, StringFormat={}{0}%}" Grid.Column="1" />
+    </Grid>
+    <Grid ColumnDefinitions="*,*" VerticalAlignment="Bottom" Grid.Row="3">
       <Button Grid.Column="0" Command="{Binding BtnOk_Click}">Ok</Button>
       <Button Grid.Column="1" Command="{Binding BtnCancel_Click}">Cancel</Button>
     </Grid>
