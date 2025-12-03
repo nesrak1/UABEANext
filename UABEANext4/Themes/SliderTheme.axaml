@@ -1,0 +1,19 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <Design.PreviewWith>
+    <Border Padding="20">
+      <Slider Width="100" />
+    </Border>
+  </Design.PreviewWith>
+
+  <Style Selector="Slider:horizontal /template/ Thumb#thumb, Slider:vertical /template/ Thumb#thumb">
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Grid>
+          <Rectangle Width="10" Height="18"
+                     Fill="{DynamicResource ThemeAccentBrush}" />
+        </Grid>
+      </ControlTemplate>
+    </Setter>
+  </Style>
+</Styles>
