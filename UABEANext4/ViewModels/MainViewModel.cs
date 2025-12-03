@@ -680,13 +680,6 @@ public partial class MainViewModel : ViewModelBase
             .Where(i => i is not null) as IEnumerable<WorkspaceItem>;
         dialogService.Show(new AssetInfoViewModel(Workspace, wsItems));
         }
-        else
-        {
-            foreach (var item in WorkspaceItem.GetAssetsFileWorkspaceItems(Workspace.RootItems))
-            {
-                items.Add(item);
-            }
-        }
 
     public void ShowSearchBytesDialog()
     {
