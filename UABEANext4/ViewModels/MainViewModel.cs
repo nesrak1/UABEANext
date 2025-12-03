@@ -296,24 +296,6 @@ public partial class MainViewModel : ViewModelBase
         await OpenFiles(fileNames);
     }
 
-    public async void FileOpenFolder()
-    {
-        var storageProvider = StorageService.GetStorageProvider();
-        if (storageProvider is null)
-        {
-            return;
-        }
-
-        var result = await storageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
-        {
-            Title = "Open a folder",
-            AllowMultiple = true
-        });
-
-        var folderNames = FileDialogUtils.GetOpenFolderDialogFolders(result);
-        await OpenFiles(folderNames);
-    }
-
     private async Task DoSaveOverwrite(IEnumerable<WorkspaceItem> items)
     {
         Workspace.ModifyMutex.WaitOne();
