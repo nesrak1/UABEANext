@@ -711,9 +711,21 @@ public partial class AssetDocumentViewModel : Document
         if (dialogRes == MessageBoxResult.No)
             return;
 
+        var modifiedFileInsts = new HashSet<AssetsFileInstance>();
         foreach (var selectedItem in SelectedItems)
         {
-            selectedItem.FileInstance.file.Metadata.RemoveAssetInfo(selectedItem);
+            var assetFileInst = selectedItem.FileInstance;
+            assetFileInst.file.Metadata.RemoveAssetInfo(selectedItem);
+            modifiedFileInsts.Add(assetFileInst);
+        }
+
+        foreach (var modifiedFileInst in modifiedFileInsts)
+        {
+            var wsItem = Workspace.FindWorkspaceItemByInstance(modifiedFileInst);
+            if (wsItem is not null)
+            {
+                Workspace.Dirty(wsItem);
+            }
         }
     }
 
