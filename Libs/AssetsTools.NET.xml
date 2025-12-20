@@ -218,6 +218,12 @@
             Use a dictionary to look up asset infos rather than a simple sequential search
             </summary>
         </member>
+        <member name="F:AssetsTools.NET.Extra.BundleFileInstance.originalCompression">
+            <summary>
+            Original compression type. If this bundle is decompressed, you might
+            use this value to compress it back to its original compression type.
+            </summary>
+        </member>
         <member name="F:AssetsTools.NET.Extra.BundleFileInstance.loadedAssetsFiles">
             <summary>
             List of loaded assets files for this bundle.
@@ -1460,6 +1466,26 @@
             <param name="refMan">The ref type manager to use, if reading a MonoBehaviour using a ref type.</param>
             <returns>The deserialized base field.</returns>
         </member>
+        <member name="M:AssetsTools.NET.AssetTypeTemplateField.ReadPrimitiveType(AssetsTools.NET.AssetsFileReader,AssetsTools.NET.AssetTypeValueField,AssetsTools.NET.AssetValueType,AssetsTools.NET.RefTypeManager)">
+            <summary>
+            Deserialize a single primtive field and its children.
+            This method only works for strings, numbers, and ManagedReferencesRegistry.
+            </summary>
+            <param name="reader">The reader to use.</param>
+            <param name="valueField">The empty base value field to use.</param>
+            <param name="type">The value type of the template field.</param>
+            <param name="refMan">The ref type manager to use, if reading a MonoBehaviour using a ref type.</param>
+            <returns>The deserialized base field.</returns>
+        </member>
+        <member name="M:AssetsTools.NET.AssetTypeTemplateField.ReadManagedReferencesRegistryType(AssetsTools.NET.AssetsFileReader,AssetsTools.NET.AssetTypeValueField,AssetsTools.NET.RefTypeManager)">
+            <summary>
+            Deserialize a ManagedReferencesRegistry field.
+            </summary>
+            <param name="reader">The reader to use.</param>
+            <param name="valueField">The empty base value field to use.</param>
+            <param name="refMan">The ref type manager to use, if reading a MonoBehaviour using a ref type.</param>
+            <returns>The deserialized base field.</returns>
+        </member>
         <member name="M:AssetsTools.NET.AssetTypeTemplateField.Clone">
             <summary>
             Perform a deep clone of the <see cref="T:AssetsTools.NET.AssetTypeTemplateField"/>.
@@ -1522,6 +1548,29 @@
             Perform a deep clone of the <see cref="T:AssetsTools.NET.AssetTypeValueField"/>.
             </summary>
             <returns>The cloned field.</returns>
+        </member>
+        <member name="M:AssetsTools.NET.AssetTypeValueIterator.#ctor(AssetsTools.NET.AssetTypeTemplateField,AssetsTools.NET.AssetsFileReader,AssetsTools.NET.RefTypeManager)">
+            <summary>
+            Create an AssetTypeValueIterator, which allows walking an asset's field tree without
+            allocating unnecessary values. If <paramref name="reader"/> is locked behind a lock, you
+            should manually take the lock while using the iterator. The current iterating position
+            is not remembered by this iterator. Instead, the reader's position is relied on.
+            </summary>
+            <param name="templateField">The template base field to use.</param>
+            <param name="reader">The reader to use, set the correct position.</param>
+            <param name="refMan">The ref type manager to use, if reading a MonoBehaviour using a ref type.</param>
+        </member>
+        <member name="M:AssetsTools.NET.AssetTypeValueIterator.#ctor(AssetsTools.NET.AssetTypeTemplateField,AssetsTools.NET.AssetsFileReader,System.Int64,AssetsTools.NET.RefTypeManager)">
+            <summary>
+            Create an AssetTypeValueIterator, which allows walking an asset's field tree without
+            allocating unnecessary values. If <paramref name="reader"/> is locked behind a lock, you
+            should manually take the lock while using the iterator. The current iterating position
+            is not remembered by this iterator. Instead, the reader's position is relied on.
+            </summary>
+            <param name="templateField">The template base field to use.</param>
+            <param name="reader">The reader to use.</param>
+            <param name="position">The position to start reading from.</param>
+            <param name="refMan">The ref type manager to use, if reading a MonoBehaviour using a ref type.</param>
         </member>
         <member name="M:AssetsTools.NET.RefTypeManager.Clear">
             <summary>

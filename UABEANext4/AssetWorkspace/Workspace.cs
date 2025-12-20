@@ -17,6 +17,7 @@ public partial class Workspace : ObservableObject
 {
     public AssetsManager Manager { get; } = new AssetsManager();
     public PluginLoader Plugins { get; } = new PluginLoader();
+    public AssetNamer Namer { get; }
 
     public Mutex ModifyMutex { get; } = new Mutex();
 
@@ -55,6 +56,8 @@ public partial class Workspace : ObservableObject
         Manager.UseRefTypeManagerCache = true;
         Manager.UseTemplateFieldCache = true;
         Manager.UseQuickLookup = true;
+
+        Namer = new AssetNamer(this);
     }
 
     public WorkspaceItem? LoadAnyFile(Stream stream, int loadOrder = -1, string path = "")
@@ -148,11 +151,10 @@ public partial class Workspace : ObservableObject
             foreach (var info in fileInst.file.AssetInfos)
             {
                 var asset = new AssetInst(fileInst, info);
-                lock (asset.FileInstance.LockReader)
-                {
-                    AssetNameUtils.GetDisplayNameFast(this, asset, true, out string? assetName, out string _);
-                    asset.AssetName = assetName;
-                }
+
+                Namer.GetDisplayName(asset, true, out string? assetName, out string _);
+                asset.AssetName = assetName;
+
                 tmp.Add(asset);
             }
             assetInsts.AddRange(tmp);
