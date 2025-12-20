@@ -191,9 +191,18 @@ public partial class MainViewModel : ViewModelBase
     #endregion
 
     #region Menu items
-    public async Task OpenFiles(IEnumerable<string?> enumerable)
+    public async Task OpenFiles(IEnumerable<string?> paths)
     {
-        int totalCount = enumerable.Count();
+        var filePaths = new List<string>();
+        foreach (var path in paths)
+        {
+            if (File.Exists(path))
+                filePaths.Add(path);
+            if (Directory.Exists(path))
+                filePaths.AddRange(Directory.GetFiles(path, "*", SearchOption.AllDirectories));
+        }
+
+        int totalCount = filePaths.Count;
         if (totalCount == 0)
         {
             return;
@@ -211,7 +220,7 @@ public partial class MainViewModel : ViewModelBase
             Workspace.ProgressValue = 0;
             int startLoadOrder = Workspace.NextLoadIndex;
             int currentCount = 0;
-            Parallel.ForEach(enumerable, options, (fileName, state, index) =>
+            Parallel.ForEach(filePaths, options, (fileName, state, index) =>
             {
                 if (fileName is not null)
                 {
@@ -294,6 +303,24 @@ public partial class MainViewModel : ViewModelBase
 
         var fileNames = FileDialogUtils.GetOpenFileDialogFiles(result);
         await OpenFiles(fileNames);
+    }
+
+    public async void FileOpenFolder()
+    {
+        var storageProvider = StorageService.GetStorageProvider();
+        if (storageProvider is null)
+        {
+            return;
+        }
+
+        var result = await storageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
+        {
+            Title = "Open a folder",
+            AllowMultiple = true
+        });
+
+        var folderNames = FileDialogUtils.GetOpenFolderDialogFolders(result);
+        await OpenFiles(folderNames);
     }
 
     private async Task DoSaveOverwrite(IEnumerable<WorkspaceItem> items)
@@ -679,7 +706,7 @@ public partial class MainViewModel : ViewModelBase
             .Select(Workspace.FindWorkspaceItemByInstance)
             .Where(i => i is not null) as IEnumerable<WorkspaceItem>;
         dialogService.Show(new AssetInfoViewModel(Workspace, wsItems));
-        }
+    }
 
     public void ShowSearchBytesDialog()
     {

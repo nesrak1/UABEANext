@@ -8,8 +8,6 @@
              x:DataType="vm:MainViewModel"
              RenderOptions.BitmapInterpolationMode="MediumQuality">
   <Design.DataContext>
-    <!-- This only sets the DataContext for the previewer in an IDE,
-         to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
     <vm:MainViewModel />
   </Design.DataContext>
   <Grid RowDefinitions="Auto,*,22" Margin="4">
@@ -18,6 +16,9 @@
         <MenuItem
           Header="Open" Command="{Binding FileOpen}"
           HotKey="Ctrl+O" InputGesture="Ctrl+O" />
+        <MenuItem
+          Header="Open Folder" Command="{Binding FileOpenFolder}"
+          HotKey="Ctrl+Shift+O" InputGesture="Ctrl+Shift+O" />
         <MenuItem
           Header="Save Selected" Command="{Binding FileSave}"
           HotKey="Ctrl+S" InputGesture="Ctrl+S" />

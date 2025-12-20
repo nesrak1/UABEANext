@@ -185,8 +185,8 @@ public class AssetDataTreeView : TreeView
         baseItem.ItemsSource = new AvaloniaList<TreeViewItem>() { arrayIndexTreeItem };
         ListItems.Add(baseItem);
 
-        SetTreeItemEvents(baseItem, asset.FileInstance, asset.PathId, baseField);
         baseItem.IsExpanded = true;
+        SetTreeItemEvents(baseItem, asset.FileInstance, asset.PathId, baseField);
     }
 
     public void ExpandAllChildren(TreeViewItem treeItem)
