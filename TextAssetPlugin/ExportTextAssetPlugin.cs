@@ -62,7 +62,7 @@ public class ExportTextAssetPlugin : IUavPluginOption
             var byteData = textBaseField["m_Script"].AsByteArray;
 
             var assetName = PathUtils.ReplaceInvalidPathChars(name);
-            var filePath = AssetNameUtils.GetAssetFileName(asset, assetName, ".txt");
+            var filePath = Path.Combine(dir, AssetNameUtils.GetAssetFileName(asset, assetName, ".txt"));
 
             File.WriteAllBytes(filePath, byteData);
         }
