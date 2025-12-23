@@ -47,8 +47,7 @@
             <Border Grid.Row="1"
                     Background="Transparent"
                     BorderBrush="{TemplateBinding BorderBrush}"
-                    BorderThickness="{Binding RelativeSource={RelativeSource TemplatedParent},
-                                                                        Path=BorderThickness}"
+                    BorderThickness="{TemplateBinding BorderThickness}"
                     UseLayoutRounding="True">
               <ContentPresenter Margin="{TemplateBinding Padding}"
                                 Content="{TemplateBinding Content}"

@@ -20,7 +20,7 @@
           <Border Background="Transparent">
             <RadioButton Content="{TemplateBinding ContentPresenter.Content}"
                          VerticalAlignment="Center"
-                         IsChecked="{Binding Path=IsSelected,RelativeSource={RelativeSource TemplatedParent},Mode=TwoWay}"
+                         IsChecked="{TemplateBinding IsSelected, Mode=TwoWay}"
                          ToolTip.Tip="{TemplateBinding Tag}"/>
           </Border>
         </ControlTemplate>
