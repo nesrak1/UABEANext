@@ -11,8 +11,8 @@ public class AssetNamer
     private readonly Workspace _workspace;
 
     // cache for optimization
-    private ConcurrentDictionary<AssetsFileInstance, NameReadOptimization> _gameObjectNro = [];
-    private ConcurrentDictionary<AssetsFileInstance, NameReadOptimization> _monoBehaviourNro = [];
+    private readonly ConcurrentDictionary<AssetsFileInstance, NameReadOptimization> _gameObjectNro = [];
+    private readonly ConcurrentDictionary<AssetsFileInstance, NameReadOptimization> _monoBehaviourNro = [];
 
     public AssetNamer(Workspace workspace)
     {
@@ -23,12 +23,14 @@ public class AssetNamer
     {
         assetName = null;
 
+        var manager = _workspace.Manager; 
         var fileInst = asset.FileInstance;
-        var tempBaseField = _workspace.Manager.GetTemplateBaseField(fileInst, asset);
+        
+        var tempBaseField = manager.GetTemplateBaseField(fileInst, asset);
         if (tempBaseField == null)
         {
             var maybeClassId = (AssetClassID)asset.TypeId;
-            typeName = Enum.GetName(maybeClassId)! ?? $"Type ID 0x{asset.TypeId:x}";
+            typeName = Enum.GetName(maybeClassId) ?? $"Type ID 0x{asset.TypeId:x}";
         }
         else
         {
@@ -52,10 +54,13 @@ public class AssetNamer
                 {
                     assetName = asset.FileInstance.file.Reader.ReadCountStringInt32();
                 }
-                return;
+                
+                if (assetName != string.Empty)
+                    return;
             }
 
-            NameReadOptimization nro = NameReadOptimization.Unchecked;
+            var nro = NameReadOptimization.Unchecked;
+            var refMan = manager.GetRefTypeManager(fileInst);
             if (asset.TypeId == (int)AssetClassID.GameObject)
             {
                 if (!_gameObjectNro.TryGetValue(fileInst, out nro))
@@ -77,12 +82,13 @@ public class AssetNamer
                         int componentSize = headerVer >= 17 ? 0x0c : 0x10;
                         reader.Position += size * componentSize;
                         reader.Position += 4;
-                        if (usePrefix)
-                            assetName = $"GameObject {reader.ReadCountStringInt32()}";
-                        else
-                            assetName = reader.ReadCountStringInt32();
+                        assetName = usePrefix
+                            ? $"GameObject {reader.ReadCountStringInt32()}"
+                            : reader.ReadCountStringInt32();
                     }
-                    return;
+                    
+                    if (assetName != string.Empty)
+                        return;
                 }
             }
             else if (asset.TypeId == (int)AssetClassID.MonoBehaviour)
@@ -104,14 +110,14 @@ public class AssetNamer
                     {
                         reader.Position += 0x1c;
                         assetName = reader.ReadCountStringInt32();
-                        if (assetName == "")
+                        if (assetName == string.Empty)
                         {
-                            assetName = GetMonoBehaviourNameFast(_workspace, asset);
-                            if (assetName == "")
-                                assetName = null;
+                            assetName = GetMonoBehaviourNameFast(manager, asset);
                         }
                     }
-                    return;
+                    
+                    if (assetName != string.Empty)
+                        return;
                 }
             }
             else if (asset.TypeId == (int)AssetClassID.Shader)
@@ -120,7 +126,7 @@ public class AssetNamer
 
                 lock (lockObj)
                 {
-                    var iterator = new AssetTypeValueIterator(tempBaseField, reader, _workspace.Manager.GetRefTypeManager(fileInst));
+                    var iterator = new AssetTypeValueIterator(tempBaseField, reader, refMan);
 
                     // skip first name
                     iterator.ReadNext();
@@ -136,7 +142,8 @@ public class AssetNamer
                         }
                     }
                 }
-                return;
+
+                nro = NameReadOptimization.UseOptimized;
             }
 
             if (nro == NameReadOptimization.Unchecked)
@@ -149,7 +156,7 @@ public class AssetNamer
 
                 lock (lockObj)
                 {
-                    var iterator = new AssetTypeValueIterator(tempBaseField, reader, _workspace.Manager.GetRefTypeManager(fileInst));
+                    var iterator = new AssetTypeValueIterator(tempBaseField, reader, refMan);
                     while (iterator.ReadNext())
                     {
                         if (iterator.TempField.Name == "m_Name" && iterator.TempField.Type == "string")
@@ -162,7 +169,7 @@ public class AssetNamer
                 }
             }
 
-            if (assetName == string.Empty)
+            if (string.IsNullOrEmpty(assetName))
             {
                 assetName = $"{asset.Type} #{asset.PathId}";
             }
@@ -189,7 +196,7 @@ public class AssetNamer
     }
 
     // not very fast but w/e at least it's stable
-    private static string GetMonoBehaviourNameFast(Workspace workspace, AssetInst asset)
+    private static string GetMonoBehaviourNameFast(AssetsManager manager, AssetInst asset)
     {
         // allow negative monobehaviours (old style) but not positive non-monobehaviours
         if (asset.Type != AssetClassID.MonoBehaviour && asset.TypeId >= 0)
@@ -206,7 +213,7 @@ public class AssetNamer
             var fileInst = asset.FileInstance;
 
             if (scriptPtr.FileId != 0)
-                fileInst = fileInst.GetDependency(workspace.Manager, scriptPtr.FileId - 1);
+                fileInst = fileInst.GetDependency(manager, scriptPtr.FileId - 1);
             if (fileInst == null)
                 return "MonoBehaviour";
 
@@ -331,7 +338,7 @@ public class AssetNamer
         return NameReadOptimization.UseOptimized;
     }
 
-    public enum NameReadOptimization
+    private enum NameReadOptimization
     {
         Unchecked,
         UseOptimized,
