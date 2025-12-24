@@ -86,6 +86,10 @@
     <Compile Update="Views\Tools\PreviewerToolView.axaml.cs">
       <DependentUpon>PreviewerToolView.axaml</DependentUpon>
     </Compile>
+    <Compile Update="Views\Dialogs\SettingsView.axaml.cs">
+      <DependentUpon>SettingsView.axaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
 
   <ItemGroup>

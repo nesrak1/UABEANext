@@ -721,4 +721,10 @@ public partial class MainViewModel : ViewModelBase
         var fileInsts = GetSelectedDocFileInsts();
         dialogService.Show(new AssetDataSearchViewModel(Workspace, fileInsts));
     }
+
+    public void ShowOptionsDialog()
+    {
+        var dialogService = Ioc.Default.GetRequiredService<IDialogService>();
+        dialogService.Show(new SettingsViewModel());
+    }
 }

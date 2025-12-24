@@ -97,7 +97,7 @@ public class ExportTextureOption : IUavPluginOption
                 }
 
                 string assetName = PathUtils.ReplaceInvalidPathChars(asset.AssetName ?? "Texture2D");
-                string filePath = AssetNameUtils.GetAssetFileName(asset, assetName, fileExtension);
+                string filePath = AssetNamer.GetAssetFileName(asset, assetName, fileExtension);
 
                 using FileStream outputStream = File.OpenWrite(Path.Combine(dir, filePath));
                 byte[] encTextureData = texFile.FillPictureData(asset.FileInstance);
@@ -119,7 +119,7 @@ public class ExportTextureOption : IUavPluginOption
                 }
 
                 string assetName = PathUtils.ReplaceInvalidPathChars(asset.AssetName ?? "Sprite");
-                string filePath = AssetNameUtils.GetAssetFileName(asset, assetName, fileExtension);
+                string filePath = AssetNamer.GetAssetFileName(asset, assetName, fileExtension);
 
                 // SKBitmap is RGBA32 but StbIws expects BGRA32. swap R and B.
                 TextureOperations.SwapRBComponents(decTextureData);
@@ -245,7 +245,7 @@ public class ExportTextureOption : IUavPluginOption
                 new("JPG file") { Patterns = ["*.jpg", "*.jpeg"] },
                 new("TGA file") { Patterns = ["*.tga"] },
             ],
-            SuggestedFileName = AssetNameUtils.GetAssetFileName(asset, assetName, string.Empty),
+            SuggestedFileName = AssetNamer.GetAssetFileName(asset, assetName, string.Empty),
             DefaultExtension = "png"
         });
     }

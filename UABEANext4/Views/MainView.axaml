@@ -46,8 +46,9 @@
         <MenuItem Header="Show container paths (slow)" ToggleType="CheckBox" IsChecked="{Binding LoadContainers, Mode=TwoWay}" />
       </MenuItem>
       <MenuItem Header="Tools">
-        <MenuItem Header="Asset Info" Command="{Binding ShowAssetInfoDialog}" IsEnabled="{Binding Workspace.RootItems.Count}"/>
-        <MenuItem Header="Search Bytes" Command="{Binding ShowSearchBytesDialog}" IsEnabled="{Binding Workspace.RootItems.Count}"/>
+        <MenuItem Header="Asset Info" Command="{Binding ShowAssetInfoDialog}" IsEnabled="{Binding Workspace.RootItems.Count}" />
+        <MenuItem Header="Search Bytes" Command="{Binding ShowSearchBytesDialog}" IsEnabled="{Binding Workspace.RootItems.Count}" />
+        <MenuItem Header="Options" Command="{Binding ShowOptionsDialog}" />
         <!--<MenuItem Header="Generate XRefs" Command="{Binding ToolsXrefs}" />-->
       </MenuItem>
     </Menu>

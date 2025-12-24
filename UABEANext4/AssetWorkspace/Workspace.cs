@@ -8,6 +8,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using UABEANext4.Logic.Configuration;
 using UABEANext4.Plugins;
 using UABEANext4.Util;
 
@@ -148,13 +149,12 @@ public partial class Workspace : ObservableObject
         {
             var assetInsts = new RangeObservableCollection<AssetFileInfo>();
             var tmp = new List<AssetFileInfo>();
+            var maxNameLen = ConfigurationManager.Settings.ListingNameLength;
             foreach (var info in fileInst.file.AssetInfos)
             {
                 var asset = new AssetInst(fileInst, info);
-
-                Namer.GetDisplayName(asset, true, out string? assetName, out string _);
-                asset.AssetName = assetName;
-
+                asset.AssetName = Namer.GetAssetName(asset, true, maxNameLen);
+                
                 tmp.Add(asset);
             }
             assetInsts.AddRange(tmp);
@@ -293,7 +293,12 @@ public partial class Workspace : ObservableObject
             _setMonoTempGeneratorsYet = true;
 
             string managedDir = Path.Combine(fileDir, "Managed");
-            if (Directory.Exists(managedDir))
+            FindCpp2IlFilesResult il2cppFiles = FindCpp2IlFiles.Find(fileDir);
+
+            bool managedExists = Directory.Exists(managedDir);
+            bool il2cppExists = il2cppFiles.success;
+            
+            if (managedExists && (!il2cppExists || ConfigurationManager.Settings.UseManagedOverIl2cpp))
             {
                 bool hasDll = Directory.GetFiles(managedDir, "*.dll").Length > 0;
                 if (hasDll)
@@ -303,8 +308,7 @@ public partial class Workspace : ObservableObject
                 }
             }
 
-            FindCpp2IlFilesResult il2cppFiles = FindCpp2IlFiles.Find(fileDir);
-            if (il2cppFiles.success && true/*ConfigurationManager.Settings.UseCpp2Il*/)
+            if (il2cppExists)
             {
                 Manager.MonoTempGenerator = new Cpp2IlTempGenerator(il2cppFiles.metaPath, il2cppFiles.asmPath);
                 return true;

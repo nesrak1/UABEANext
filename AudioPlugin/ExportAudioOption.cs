@@ -129,7 +129,7 @@ public class ExportAudioOption : IUavPluginOption
             {
                 new FilePickerFileType($"{extension.ToUpper()} file (*.{extension})") { Patterns = new List<string>() { "*." + extension } }
             },
-            SuggestedFileName = AssetNameUtils.GetAssetFileName(asset, assetName, string.Empty),
+            SuggestedFileName = AssetNamer.GetAssetFileName(asset, assetName, string.Empty),
             DefaultExtension = extension
         });
 

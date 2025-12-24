@@ -2,8 +2,10 @@
 using AssetsTools.NET.Extra;
 using System;
 using System.Collections.Concurrent;
+using System.IO;
 using System.Runtime.CompilerServices;
 using UABEANext4.AssetWorkspace;
+using UABEANext4.Logic.Configuration;
 
 namespace UABEANext4.Util;
 public class AssetNamer
@@ -19,10 +21,22 @@ public class AssetNamer
         _workspace = workspace;
     }
 
-    public void GetDisplayName(AssetInst asset, bool usePrefix, out string? assetName, out string typeName)
+    public string? GetAssetName(AssetInst asset, bool usePrefix, int maxLen)
+    {
+        GetDisplayName(asset, usePrefix, maxLen, out var assetName, out _);
+        return assetName;
+    }
+
+    public string GetAssetTypeName(AssetInst asset, bool usePrefix, int maxLen)
+    {
+        GetDisplayName(asset, usePrefix, maxLen, out _, out var typeName);
+        return typeName;
+    }
+
+    public void GetDisplayName(AssetInst asset, bool usePrefix, int maxLen, out string? assetName, out string typeName)
     {
         assetName = null;
-
+        
         var manager = _workspace.Manager; 
         var fileInst = asset.FileInstance;
         
@@ -37,26 +51,23 @@ public class AssetNamer
             typeName = tempBaseField.Type;
         }
 
-        if (tempBaseField == null || tempBaseField.Children.Count == 0)
-        {
-            // we'd hope this doesn't happen, but if it does, there's nothing else we can do
-            return;
-        }
-
-        if (tempBaseField.Children.Count > 0)
+        if (tempBaseField != null && tempBaseField.Children.Count > 0)
         {
             var firstChild = tempBaseField.Children[0];
             if (firstChild.Name == "m_Name" && firstChild.Type == "string" && asset.TypeId != (int)AssetClassID.Shader)
             {
-                GetLockObjAndReader(asset, usePrefix, out object lockObj, out AssetsFileReader reader);
+                GetLockObjAndReader(asset, out object lockObj, out AssetsFileReader reader);
 
                 lock (lockObj)
                 {
                     assetName = asset.FileInstance.file.Reader.ReadCountStringInt32();
                 }
-                
+
                 if (assetName != string.Empty)
+                {
+                    TrimAssetName(ref assetName, maxLen);
                     return;
+                }
             }
 
             var nro = NameReadOptimization.Unchecked;
@@ -74,7 +85,7 @@ public class AssetNamer
                 if (nro == NameReadOptimization.UseOptimized)
                 {
                     var headerVer = fileInst.file.Header.Version;
-                    GetLockObjAndReader(asset, usePrefix, out object lockObj, out AssetsFileReader reader);
+                    GetLockObjAndReader(asset, out object lockObj, out AssetsFileReader reader);
 
                     lock (lockObj)
                     {
@@ -86,9 +97,12 @@ public class AssetNamer
                             ? $"GameObject {reader.ReadCountStringInt32()}"
                             : reader.ReadCountStringInt32();
                     }
-                    
+
                     if (assetName != string.Empty)
+                    {
+                        TrimAssetName(ref assetName, maxLen);
                         return;
+                    }
                 }
             }
             else if (asset.TypeId == (int)AssetClassID.MonoBehaviour)
@@ -103,26 +117,28 @@ public class AssetNamer
 
                 if (nro == NameReadOptimization.UseOptimized)
                 {
-                    var headerVer = fileInst.file.Header.Version;
-                    GetLockObjAndReader(asset, usePrefix, out object lockObj, out AssetsFileReader reader);
+                    GetLockObjAndReader(asset, out object lockObj, out AssetsFileReader reader);
 
                     lock (lockObj)
                     {
                         reader.Position += 0x1c;
                         assetName = reader.ReadCountStringInt32();
-                        if (assetName == string.Empty)
-                        {
-                            assetName = GetMonoBehaviourNameFast(manager, asset);
-                        }
                     }
                     
+                    if (assetName == string.Empty)
+                    {
+                        assetName = GetMonoBehaviourNameFast(asset);
+                    }
                     if (assetName != string.Empty)
+                    {
+                        TrimAssetName(ref assetName, maxLen);
                         return;
+                    }
                 }
             }
             else if (asset.TypeId == (int)AssetClassID.Shader)
             {
-                GetLockObjAndReader(asset, usePrefix, out object lockObj, out AssetsFileReader reader);
+                GetLockObjAndReader(asset, out object lockObj, out AssetsFileReader reader);
 
                 lock (lockObj)
                 {
@@ -152,7 +168,7 @@ public class AssetNamer
             }
             else if (nro == NameReadOptimization.UseIterator)
             {
-                GetLockObjAndReader(asset, usePrefix, out object lockObj, out AssetsFileReader reader);
+                GetLockObjAndReader(asset, out object lockObj, out AssetsFileReader reader);
 
                 lock (lockObj)
                 {
@@ -168,36 +184,21 @@ public class AssetNamer
                     }
                 }
             }
+        }
 
-            if (string.IsNullOrEmpty(assetName))
-            {
-                assetName = $"{asset.Type} #{asset.PathId}";
-            }
+        if (string.IsNullOrEmpty(assetName))
+        {
+            assetName = $"{asset.Type} #{asset.PathId}";
         }
-    }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void GetLockObjAndReader(AssetInst asset, bool usePrefix, out object lockObj, out AssetsFileReader reader)
-    {
-        var fileInst = asset.FileInstance;
-        if (asset.IsReplacerPreviewable)
-        {
-            var stream = asset.Replacer.GetPreviewStream();
-            lockObj = stream;
-            reader = new AssetsFileReader(stream);
-            reader.Position = 0;
-        }
-        else
-        {
-            lockObj = fileInst.LockReader;
-            reader = asset.FileInstance.file.Reader;
-            reader.Position = asset.AbsoluteByteStart;
-        }
+        TrimAssetName(ref assetName, maxLen);
     }
 
     // not very fast but w/e at least it's stable
-    private static string GetMonoBehaviourNameFast(AssetsManager manager, AssetInst asset)
+    public string GetMonoBehaviourNameFast(AssetInst asset)
     {
+        var manager = _workspace.Manager;
+        
         // allow negative monobehaviours (old style) but not positive non-monobehaviours
         if (asset.Type != AssetClassID.MonoBehaviour && asset.TypeId >= 0)
             return string.Empty;
@@ -221,6 +222,7 @@ public class AssetNamer
             if (info == null)
                 return "MonoBehaviour";
 
+            // AssetNamer might double lock this, but that's okay
             lock (fileInst.LockReader)
             {
                 var reader = fileInst.file.Reader;
@@ -231,6 +233,44 @@ public class AssetNamer
         catch
         {
             return string.Empty;
+        }
+    }
+
+    public static string GetFallbackName(AssetInst asset, string? name)
+    {
+        return name ?? $"{asset.Type} #{asset.PathId}";
+    }
+
+    public static string GetAssetFileName(Workspace workspace, AssetInst asset, string ext, int maxNameLen)
+    {
+        var assetName = workspace.Namer.GetAssetName(asset, false, maxNameLen);
+        assetName = AssetNamer.GetFallbackName(asset, assetName);
+        assetName = PathUtils.ReplaceInvalidPathChars(assetName);
+        return $"{assetName}-{Path.GetFileName(asset.FileInstance.path)}-{asset.PathId}{ext}";
+    }
+
+    public static string GetAssetFileName(AssetInst asset, string assetNameOverride, string ext)
+    {
+        string assetName = PathUtils.ReplaceInvalidPathChars(assetNameOverride);
+        return $"{assetName}-{Path.GetFileName(asset.FileInstance.path)}-{asset.PathId}{ext}";
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static void GetLockObjAndReader(AssetInst asset, out object lockObj, out AssetsFileReader reader)
+    {
+        var fileInst = asset.FileInstance;
+        if (asset.IsReplacerPreviewable)
+        {
+            var stream = asset.Replacer.GetPreviewStream();
+            lockObj = stream;
+            reader = new AssetsFileReader(stream);
+            reader.Position = 0;
+        }
+        else
+        {
+            lockObj = fileInst.LockReader;
+            reader = asset.FileInstance.file.Reader;
+            reader.Position = asset.AbsoluteByteStart;
         }
     }
 
@@ -336,6 +376,14 @@ public class AssetNamer
             return NameReadOptimization.UseIterator;
 
         return NameReadOptimization.UseOptimized;
+    }
+
+    private static void TrimAssetName(ref string name, int maxLen)
+    {
+        if (name.Length > maxLen)
+        {
+            name = name[..maxLen];
+        }
     }
 
     private enum NameReadOptimization

@@ -1,0 +1,50 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:dlg="using:UABEANext4.ViewModels.Dialogs"
+             xmlns:cnf="using:UABEANext4.Logic.Configuration"
+             mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="400"
+             x:Class="UABEANext4.Views.Dialogs.SettingsView"
+             x:DataType="dlg:SettingsViewModel">
+    <UserControl.DataTemplates>
+      <DataTemplate DataType="{x:Type cnf:ConfigurationBooleanItem}">
+        <StackPanel Margin="10" ToolTip.Tip="{Binding Description}">
+          <TextBlock Text="{Binding Title}" FontWeight="Bold" />
+          <CheckBox IsChecked="{Binding Value}" Content="Enabled" />
+        </StackPanel>
+      </DataTemplate>
+      
+      <DataTemplate DataType="{x:Type cnf:ConfigurationIntegerItem}">
+        <StackPanel Margin="10" ToolTip.Tip="{Binding Description}">
+          <TextBlock Text="{Binding Title}" FontWeight="Bold" />
+          <NumericUpDown Value="{Binding Value, UpdateSourceTrigger=PropertyChanged}"
+                         Minimum="{Binding RangeMin}"
+                         Maximum="{Binding RangeMax}"
+                         FormatString="0" />
+        </StackPanel>
+      </DataTemplate>
+
+      <!-- <DataTemplate DataType="{x:Type cnf:ConfigurationStringItem}"> -->
+      <!--   <StackPanel Margin="10" ToolTip.Tip="{Binding Description}"> -->
+      <!--     <TextBlock Text="{Binding Title}" FontWeight="Bold" /> -->
+      <!--     <TextBox Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}" /> -->
+      <!--   </StackPanel> -->
+      <!-- </DataTemplate> -->
+
+      <DataTemplate DataType="{x:Type cnf:ConfigurationEnumItem}">
+        <StackPanel Margin="10" ToolTip.Tip="{Binding Description}">
+          <TextBlock Text="{Binding Title}" FontWeight="Bold" />
+          <ComboBox ItemsSource="{Binding EnumValues}"
+                    SelectedValue="{Binding Value, UpdateSourceTrigger=PropertyChanged}" />
+        </StackPanel>
+      </DataTemplate>
+    </UserControl.DataTemplates>
+    
+    <Grid Margin="10,10,10,10" RowDefinitions="*,Auto">
+      <ScrollViewer Grid.Row="0">
+        <ItemsControl ItemsSource="{Binding ConfigItems}" />
+      </ScrollViewer>
+      <TextBlock Grid.Row="1">All changes in this dialog save immediately.</TextBlock>
+    </Grid>
+</UserControl>

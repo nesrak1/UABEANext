@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using UABEANext4.AssetWorkspace;
 using UABEANext4.Interfaces;
+using UABEANext4.Logic.Configuration;
 using UABEANext4.Util;
 
 namespace UABEANext4.ViewModels.Dialogs;
@@ -52,10 +53,12 @@ public partial class BatchImportViewModel : ViewModelBase, IDialogAware<List<Imp
             filesInDir = Directory.GetFiles(directory).ToList();
 
         List<ImportBatchDataGridItem> gridItems = new();
+        int maxNameLen = ConfigurationManager.Settings.ExportNameLength;
+        
         foreach (var asset in selection)
         {
-            AssetNameUtils.GetDisplayNameFast(workspace, asset, true, out var assetName, out var _);
-            assetName = AssetNameUtils.GetFallbackName(asset, assetName);
+            var assetName = workspace.Namer.GetAssetName(asset, true, maxNameLen);
+            assetName = AssetNamer.GetFallbackName(asset, assetName);
 
             var gridItem = new ImportBatchDataGridItem(
                 new ImportBatchInfo(

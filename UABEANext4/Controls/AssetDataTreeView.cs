@@ -171,7 +171,7 @@ public class AssetDataTreeView : TreeView
             string monoName;
             lock (asset.FileInstance.LockReader)
             {
-                monoName = AssetNameUtils.GetMonoBehaviourNameFast(_workspace, asset);
+                monoName = _workspace.Namer.GetMonoBehaviourNameFast(asset);
             }
             if (monoName != null)
             {

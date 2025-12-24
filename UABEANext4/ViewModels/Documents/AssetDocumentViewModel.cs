@@ -20,6 +20,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using UABEANext4.AssetWorkspace;
 using UABEANext4.Logic;
+using UABEANext4.Logic.Configuration;
 using UABEANext4.Logic.ImportExport;
 using UABEANext4.Plugins;
 using UABEANext4.Services;
@@ -519,6 +520,7 @@ public partial class AssetDocumentViewModel : Document
             return;
         }
 
+        var maxNameLen = ConfigurationManager.Settings.ExportNameLength;
         var filesToWrite = new List<(AssetInst, string)>();
         if (SelectedItems.Count > 1)
         {
@@ -556,14 +558,15 @@ public partial class AssetDocumentViewModel : Document
             var folder = folders[0];
             foreach (var asset in SelectedItems)
             {
-                var exportFileName = Path.Combine(folder, AssetNameUtils.GetAssetFileName(Workspace, asset, exportExt));
-                filesToWrite.Add((asset, exportFileName));
+                var exportFileName = AssetNamer.GetAssetFileName(Workspace, asset, exportExt, maxNameLen);
+                var exportFilePath = Path.Combine(folder, exportFileName);
+                filesToWrite.Add((asset, exportFilePath));
             }
         }
         else if (SelectedItems.Count == 1)
         {
             var asset = SelectedItems.First();
-            var exportFileName = AssetNameUtils.GetAssetFileName(Workspace, asset, string.Empty);
+            var exportFileName = AssetNamer.GetAssetFileName(Workspace, asset, string.Empty, maxNameLen);
 
             var result = await storageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
             {

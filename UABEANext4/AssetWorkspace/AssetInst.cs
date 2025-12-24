@@ -1,6 +1,7 @@
 ﻿using AssetsTools.NET;
 using AssetsTools.NET.Extra;
 using System.ComponentModel;
+using UABEANext4.Logic.Configuration;
 using UABEANext4.Util;
 
 namespace UABEANext4.AssetWorkspace;
@@ -22,7 +23,7 @@ public class AssetInst : AssetFileInfo, INotifyPropertyChanged
     public uint ByteSizeModified => Replacer != null && Replacer.HasPreview()
         ? (uint)Replacer.GetPreviewStream().Length
         : ByteSize;
-    public string DisplayName => AssetNameUtils.GetFallbackName(this, AssetName);
+    public string DisplayName => AssetNamer.GetFallbackName(this, AssetName);
     public string BundleName => FileInstance.parentBundle != null ? FileInstance.parentBundle.name : "";
 
     public AssetInst(AssetsFileInstance parentFile, AssetFileInfo origInfo)
@@ -49,8 +50,10 @@ public class AssetInst : AssetFileInfo, INotifyPropertyChanged
     public void UpdateAssetDataAndRow(Workspace workspace, byte[] data)
     {
         SetNewData(data);
-        AssetNameUtils.GetDisplayNameFast(workspace, this, true, out string? assetName, out string _);
-        AssetName = assetName;
+        
+        var maxNameLen = ConfigurationManager.Settings.ListingNameLength;
+        AssetName = workspace.Namer.GetAssetName(this, true, maxNameLen);
+        
         Update(nameof(DisplayName));
         Update(nameof(ByteSizeModified));
         Update(nameof(ModifiedString));

@@ -5,6 +5,7 @@ using Avalonia.Markup.Xaml;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using UABEANext4.Logic.Configuration;
 using UABEANext4.Services;
 using UABEANext4.ViewModels;
 using UABEANext4.Views;
@@ -42,6 +43,11 @@ public partial class App : Application
 
         var provider = ConfigureServices(mainWindow);
         Ioc.Default.ConfigureServices(provider);
+
+        // do literally anything with configman so
+        // it loads and runs the constructor
+        if (!ConfigurationManager.IsInitialized)
+            throw new Exception("Expected config man to initialize");
 
         base.OnFrameworkInitializationCompleted();
     }

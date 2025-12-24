@@ -65,7 +65,7 @@ public class ExportFontOption : IUavPluginOption
             var extension = isOtf ? ".otf" : ".ttf";
 
             var assetName = PathUtils.ReplaceInvalidPathChars(name);
-            var filePath = Path.Combine(dir, AssetNameUtils.GetAssetFileName(asset, assetName, extension));
+            var filePath = Path.Combine(dir, AssetNamer.GetAssetFileName(asset, assetName, extension));
 
             File.WriteAllBytes(filePath, byteData);
         }
@@ -104,7 +104,7 @@ public class ExportFontOption : IUavPluginOption
             {
                 new FilePickerFileType($"{extension.ToUpper()} file (*.{extension})") { Patterns = new List<string>() { "*." + extension } },
             },
-            SuggestedFileName = AssetNameUtils.GetAssetFileName(asset, assetName, string.Empty),
+            SuggestedFileName = AssetNamer.GetAssetFileName(asset, assetName, string.Empty),
             DefaultExtension = extension
         });
 
