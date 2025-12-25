@@ -249,8 +249,17 @@ public partial class Workspace
                                 await MessageBoxUtil.ShowDialog("Error saving", "Reopened file appears to be corrupt");
                                 continue;
                             }
-                            var afile = ((AssetsFileInstance)afileObj.Object).file;
-                            childInst.file = afile;
+
+                            var newFileInst = (AssetsFileInstance)afileObj.Object;
+                            
+                            var newFile = newFileInst.file;
+                            childInst.file = newFile;
+                            foreach (var asset in newFile.AssetInfos)
+                            {
+                                asset.Replacer = null;
+                            }
+                            UnsavedItems.Remove(item);
+                            FixupAssetsFile(newFileInst);
                         }
                         Manager.FileLookup[AssetsManager.GetFileLookupKey(child.Name)] = childInst;
                     }

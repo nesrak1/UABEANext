@@ -279,12 +279,12 @@ public partial class AssetDocumentViewModel : Document
         Items = items;
         FileInsts = fileInsts;
 
-        CollectionView = new DataGridCollectionView(Items);
-        CollectionView.Filter = SetDataGridFilter(SearchText);
-
         _filterTypes = null;
         _filterTypesFiltered = [];
         _typeRefLookup = [];
+
+        CollectionView = new DataGridCollectionView(Items);
+        CollectionView.Filter = SetDataGridFilter(SearchText);
     }
 
     private void LoadContainersIntoInfos(AssetsFileInstance fileInst, IList<AssetFileInfo> fileInfos)

@@ -10,7 +10,6 @@
       "AssetsTools.NET.Cpp2IL/1.0.0": {
         "dependencies": {
           "AssetsTools.NET": "1.0.0",
-          "NETStandard.Library": "2.0.3",
           "Samboy063.LibCpp2IL": "2022.1.0-pre-release.19"
         },
         "runtime": {
@@ -35,12 +34,6 @@
             "assemblyVersion": "1.0.0.0",
             "fileVersion": "4.700.20.56604"
           }
-        }
-      },
-      "Microsoft.NETCore.Platforms/1.1.0": {},
-      "NETStandard.Library/2.0.3": {
-        "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.1.0"
         }
       },
       "Samboy063.LibCpp2IL/2022.1.0-pre-release.19": {
@@ -97,7 +90,7 @@
         "runtime": {
           "lib/netstandard2.0/System.Runtime.CompilerServices.Unsafe.dll": {
             "assemblyVersion": "4.0.4.1",
-            "fileVersion": "4.6.28619.1"
+            "fileVersion": "4.0.0.0"
           }
         }
       },
@@ -130,20 +123,6 @@
       "sha512": "sha512-MalY0Y/uM/LjXtHfX/26l2VtN4LDNZ2OE3aumNOHDLsT4fNYy2hiHXI4CXCqKpNUNm7iJ2brrc4J89UdaL56FA==",
       "path": "microsoft.bcl.hashcode/1.1.1",
       "hashPath": "microsoft.bcl.hashcode.1.1.1.nupkg.sha512"
-    },
-    "Microsoft.NETCore.Platforms/1.1.0": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-kz0PEW2lhqygehI/d6XsPCQzD7ff7gUJaVGPVETX611eadGsA3A877GdSlU0LRVMCTH/+P3o2iDTak+S08V2+A==",
-      "path": "microsoft.netcore.platforms/1.1.0",
-      "hashPath": "microsoft.netcore.platforms.1.1.0.nupkg.sha512"
-    },
-    "NETStandard.Library/2.0.3": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-st47PosZSHrjECdjeIzZQbzivYBJFv6P2nv4cj2ypdI204DO+vZ7l5raGMiX4eXMJ53RfOIg+/s4DHVZ54Nu2A==",
-      "path": "netstandard.library/2.0.3",
-      "hashPath": "netstandard.library.2.0.3.nupkg.sha512"
     },
     "Samboy063.LibCpp2IL/2022.1.0-pre-release.19": {
       "type": "package",
