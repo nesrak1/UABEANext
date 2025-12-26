@@ -19,12 +19,15 @@
     <Grid.Resources>
       <uac:AssetTypeIconConverter x:Key="TypeTreeNodeConverter" />
     </Grid.Resources>
-    <TabControl Grid.Row="0">
-		  <TabControl.Styles>
-			  <Style Selector="TabItem">
-				  <Setter Property="Foreground" Value="{DynamicResource TextControlForeground}"/>
-			  </Style>
-		  </TabControl.Styles>
+     <TabControl Grid.Row="0">
+			 <TabControl.Styles>
+				 <Style Selector="TabItem">
+					 <Setter Property="Foreground" Value="{DynamicResource TextControlForeground}"/>
+				 </Style>
+				 <Style Selector="TabItem:selected">
+					 <Setter Property="Foreground" Value="{DynamicResource TextControlForeground}"/>
+				 </Style>
+			 </TabControl.Styles>
       <TabItem Header="General Info">
         <ScrollViewer>
           <StackPanel Orientation="Vertical" Spacing="10">
