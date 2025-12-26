@@ -27,7 +27,7 @@
     <Setter Property="FontSize" Value="12" />
     <Setter Property="Height" Value="30" />
     <Setter Property="Background" Value="{DynamicResource ThemeBackgroundBrush}" />
-    <Setter Property="Foreground" Value="#F0F0F0" />
+	<Setter Property="Foreground" Value="{DynamicResource DockThemeForegroundBrush}"/>
     <Setter Property="VerticalContentAlignment" Value="Center" />
     <Setter Property="Margin" Value="0 0 0 0" />
     <Setter Property="Padding" Value="10 0" />
@@ -39,12 +39,12 @@
   </Style>
 
   <Style Selector="TabItem:focus">
-    <Setter Property="Foreground" Value="#33AEEA" />
+	<Setter Property="Foreground" Value="{DynamicResource DockThemeForegroundBrush}"/>
   </Style>
 
   <Style Selector="TabItem:selected">
-    <Setter Property="Foreground" Value="#F0F0F0" /> 
-    <Setter Property="Background" Value="{DynamicResource TabViewSelectedBackgroundBrush}" />
+	<Setter Property="Foreground" Value="{DynamicResource DockThemeForegroundBrush}" /> 
+    <Setter Property="Background" Value="{DynamicResource TabViewSelectedBackgroundBrush}"/>
     <Setter Property="Margin" Value="0 0 0 0" />
     <Setter Property="Padding" Value="10 0" />
   </Style>
