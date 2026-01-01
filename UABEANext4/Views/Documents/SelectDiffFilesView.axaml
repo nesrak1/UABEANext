@@ -1,0 +1,29 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:UABEANext4.ViewModels.Dialogs"
+             xmlns:uac="using:UABEANext4.Converters"
+             mc:Ignorable="d" d:DesignWidth="450" d:DesignHeight="250"
+             x:Class="UABEANext4.Views.Dialogs.SelectDiffFilesView"
+             x:DataType="vm:SelectDiffFilesViewModel">
+  <UserControl.Resources>
+    <uac:AssetsFileInstanceNameConverter x:Key="AssetsFileInstanceNameConverter" />
+  </UserControl.Resources>
+  <Grid Margin="10" RowDefinitions="Auto,Auto,Auto,Auto,*,Auto">
+    <TextBlock Grid.Row="0" Text="Select Base File (Left):" Margin="0,0,0,5" FontWeight="Bold"/>
+    <ComboBox Grid.Row="1" ItemsSource="{Binding AvailableFiles}" 
+              SelectedItem="{Binding SelectedLeft}" HorizontalAlignment="Stretch"
+              DisplayMemberBinding="{Binding Path=., Converter={StaticResource AssetsFileInstanceNameConverter}}"/>
+
+    <TextBlock Grid.Row="2" Text="Select Target File (Right):" Margin="0,15,0,5" FontWeight="Bold"/>
+    <ComboBox Grid.Row="3" ItemsSource="{Binding AvailableFiles}" 
+              SelectedItem="{Binding SelectedRight}" HorizontalAlignment="Stretch"
+              DisplayMemberBinding="{Binding Path=., Converter={StaticResource AssetsFileInstanceNameConverter}}"/>
+
+    <StackPanel Grid.Row="5" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10" Margin="0,10,0,0">
+      <Button Command="{Binding BtnCompare_Click}" IsDefault="True">Compare</Button>
+      <Button Command="{Binding BtnCancel_Click}" IsCancel="True">Cancel</Button>
+    </StackPanel>
+  </Grid>
+</UserControl>
