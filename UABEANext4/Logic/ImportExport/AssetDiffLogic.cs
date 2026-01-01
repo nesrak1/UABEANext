@@ -11,9 +11,9 @@ namespace UABEANext4.Logic.ImportExport;
 public enum DiffStatus
 {
     Same,
-    Modified, // PathID совпадает, но данные разные
-    LeftOnly, // Есть только в левом файле
-    RightOnly // Есть только в правом файле
+    Modified,
+    LeftOnly,
+    RightOnly
 }
 
 public class DiffAssetItem
@@ -62,7 +62,6 @@ public static class AssetDiffLogic
 
                 var item = new DiffAssetItem { PathId = pathId };
 
-                // Обернем в AssetInst для удобства отображения
                 if (hasLeft) item.LeftAsset = workspace.GetAssetInst(left, 0, pathId);
                 if (hasRight) item.RightAsset = workspace.GetAssetInst(right, 0, pathId);
 
@@ -73,13 +72,8 @@ public static class AssetDiffLogic
                         item.Status = DiffStatus.Modified;
                         results.Add(item);
                     }
-                    else
-                    {
-                        item.Status = DiffStatus.Same;
-                        // Мы не добавляем Same в список, так как задача "показывать только отличающиеся"
-                        // Но если нужно будет показать все, раскомментируйте:
-                        // results.Add(item);
-                    }
+                    // Одинаковые файлы пропускаем (раскомментируйте, если нужны)
+                    // else { item.Status = DiffStatus.Same; results.Add(item); }
                 }
                 else if (hasLeft)
                 {
@@ -100,12 +94,9 @@ public static class AssetDiffLogic
 
     private static bool IsModified(AssetFileInfo left, AssetFileInfo right, AssetsFileInstance leftFile, AssetsFileInstance rightFile)
     {
-        // 1. Простая проверка по размеру
         if (left.ByteSize != right.ByteSize) return true;
         if (left.TypeId != right.TypeId) return true;
 
-        // 2. Глубокая проверка байтов (только если размеры совпали)
-        // Это может быть медленно для больших файлов, можно сделать опциональным
         var leftReader = leftFile.file.Reader;
         var rightReader = rightFile.file.Reader;
 
@@ -116,7 +107,6 @@ public static class AssetDiffLogic
                 leftReader.Position = left.GetAbsoluteByteOffset(leftFile.file);
                 rightReader.Position = right.GetAbsoluteByteOffset(rightFile.file);
 
-                // Сравниваем блоками
                 byte[] bufferL = new byte[4096];
                 byte[] bufferR = new byte[4096];
                 long remaining = left.ByteSize;
@@ -135,7 +125,6 @@ public static class AssetDiffLogic
                 }
             }
         }
-
         return false;
     }
 }
