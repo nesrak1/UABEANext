@@ -7,42 +7,37 @@
              x:Class="UABEANext4.Views.Documents.AssetDiffDocumentView"
              x:DataType="vm:AssetDiffDocumentViewModel">
   <Grid ColumnDefinitions="*, 5, *">
-    <!-- Left Column: Differences List -->
     <DataGrid Grid.Column="0" ItemsSource="{Binding DiffItems}" 
               SelectedItem="{Binding SelectedDiffItem}"
               AutoGenerateColumns="False" IsReadOnly="True"
-              CanUserResizeColumns="True">
+              CanUserResizeColumns="True" GridLinesVisibility="All">
       <DataGrid.Columns>
         <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="80"/>
         <DataGridTextColumn Header="Path ID" Binding="{Binding PathId}" Width="80"/>
         <DataGridTextColumn Header="Type" Binding="{Binding Type}" Width="100"/>
         <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="*"/>
-        <DataGridTextColumn Header="Size Diff" Binding="{Binding SizeDiff}" Width="100"/>
+        <DataGridTextColumn Header="Size Diff" Binding="{Binding SizeDiff}" Width="120"/>
       </DataGrid.Columns>
     </DataGrid>
 
-    <GridSplitter Grid.Column="1" Background="Gray" ResizeDirection="Columns"/>
+    <GridSplitter Grid.Column="1" Background="#CCCCCC" ResizeDirection="Columns"/>
 
-    <!-- Right Column: Comparison Preview -->
-    <Grid Grid.Column="2" RowDefinitions="Auto, *">
-      <TextBlock Grid.Row="0" Text="Preview Comparison" FontWeight="Bold" Margin="5"/>
+    <Grid Grid.Column="2" RowDefinitions="30, *" Margin="5">
+      <TextBlock Grid.Row="0" Text="Preview Comparison" FontWeight="Bold" VerticalAlignment="Center"/>
       
-      <!-- Text/Generic Info -->
-      <TextBlock Grid.Row="1" Text="{Binding PreviewText}" 
-                 IsVisible="{Binding !IsImagePreviewVisible}" 
-                 VerticalAlignment="Center" HorizontalAlignment="Center" TextAlignment="Center"/>
+      <Border Grid.Row="1" BorderBrush="Gray" BorderThickness="1" IsVisible="{Binding !IsImagePreviewVisible}">
+          <TextBlock Text="{Binding PreviewText}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+      </Border>
 
-      <!-- Texture Comparison (Side by Side) -->
       <Grid Grid.Row="1" ColumnDefinitions="*, *" IsVisible="{Binding IsImagePreviewVisible}">
-        <Grid Grid.Column="0" RowDefinitions="*, Auto">
-          <Border BorderBrush="Black" BorderThickness="1" Margin="2">
+        <Grid Grid.Column="0" RowDefinitions="*, Auto" Margin="0,0,2,0">
+          <Border BorderBrush="Black" BorderThickness="1" Background="#303030">
             <Image Source="{Binding LeftPreviewImage}" Stretch="Uniform"/>
           </Border>
           <TextBlock Grid.Row="1" Text="Left (Old)" HorizontalAlignment="Center"/>
         </Grid>
-        
-        <Grid Grid.Column="1" RowDefinitions="*, Auto">
-          <Border BorderBrush="Black" BorderThickness="1" Margin="2">
+        <Grid Grid.Column="1" RowDefinitions="*, Auto" Margin="2,0,0,0">
+          <Border BorderBrush="Black" BorderThickness="1" Background="#303030">
             <Image Source="{Binding RightPreviewImage}" Stretch="Uniform"/>
           </Border>
           <TextBlock Grid.Row="1" Text="Right (New)" HorizontalAlignment="Center"/>
