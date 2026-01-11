@@ -28,6 +28,7 @@ using UABEANext4.Util;
 using UABEANext4.ViewModels.Dialogs;
 
 namespace UABEANext4.ViewModels.Documents;
+
 public partial class AssetDocumentViewModel : Document
 {
     const string TOOL_TITLE = "Asset Document";
@@ -216,7 +217,12 @@ public partial class AssetDocumentViewModel : Document
     private bool DoesTypeFilterPass(AssetInst assetInst, TypeFilterTypeEntry baseTypeEntry)
     {
         var scriptIndex = assetInst.GetScriptIndex(assetInst.FileInstance.file);
+
         baseTypeEntry.TypeId = assetInst.TypeId;
+        if (baseTypeEntry.TypeId < 0)
+        {
+            baseTypeEntry.TypeId = (int)AssetClassID.MonoBehaviour;
+        }
 
         if (scriptIndex != ushort.MaxValue)
         {

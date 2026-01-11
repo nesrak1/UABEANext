@@ -11,6 +11,7 @@
   <Grid>
     <Grid.Resources>
       <uac:AssetTypeIconConverter x:Key="AssetTypeIconConverter" />
+      <uac:AssetClassIDConverter x:Key="AssetClassIDConverter" />
     </Grid.Resources>
     <Grid.RowDefinitions>
       <RowDefinition Height="25"/>
@@ -127,7 +128,7 @@
         </DataGridTemplateColumn>
         
         <DataGridTextColumn Header="Name" Width="150" Binding="{Binding DisplayName}" x:DataType="ws:AssetInst"/>
-        <DataGridTextColumn Header="Type" Width="120" Binding="{Binding Type}" x:DataType="ws:AssetInst"/>
+        <DataGridTextColumn Header="Type" Width="120" Binding="{Binding Type, Converter={StaticResource AssetClassIDConverter}}" x:DataType="ws:AssetInst"/>
         <DataGridTextColumn Header="Container" Width="100" Binding="{Binding DisplayContainer}" x:DataType="ws:AssetInst" IsVisible="{Binding $parent[UserControl].((docs:AssetDocumentViewModel)DataContext).LoadContainers}"/>
         <DataGridTextColumn Header="Bundle Name" Width="120" Binding="{Binding BundleName}" x:DataType="ws:AssetInst" IsVisible="False"/>
         <DataGridTextColumn Header="File Name" Width="120" Binding="{Binding FileName}" x:DataType="ws:AssetInst"/>

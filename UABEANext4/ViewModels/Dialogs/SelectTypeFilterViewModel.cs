@@ -8,9 +8,9 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using UABEANext4.AssetWorkspace;
 using UABEANext4.Interfaces;
-using UABEANext4.Util;
 
 namespace UABEANext4.ViewModels.Dialogs;
+
 public partial class SelectTypeFilterViewModel : ViewModelBase, IDialogAware<IEnumerable<TypeFilterTypeEntry>?>
 {
     [ObservableProperty]
@@ -73,7 +73,7 @@ public partial class SelectTypeFilterViewModel : ViewModelBase, IDialogAware<IEn
         {
             var typeId = asset.TypeId;
             // if a non-script or a script with no script binding, treat as regular type
-            if (typeId != 0x72)
+            if (typeId != (int)AssetClassID.MonoBehaviour && typeId >= 0)
             {
                 uniqueTypeIds.Add(typeId);
             }
@@ -141,7 +141,7 @@ public partial class SelectTypeFilterViewModel : ViewModelBase, IDialogAware<IEn
     {
         if (string.IsNullOrEmpty(assetPtr.FilePath))
             return null;
-        
+
         AssetTypeValueField msBaseField;
         try
         {

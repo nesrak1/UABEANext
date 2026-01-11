@@ -2,46 +2,46 @@ using Avalonia;
 using Avalonia.Styling;
 using CommunityToolkit.Mvvm.ComponentModel;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using UABEANext4.Util;
 
 namespace UABEANext4.Logic.Configuration;
+
 public partial class ConfigurationValues : ObservableObject
 {
     [ObservableProperty]
-    [property:ConfigTitle("Theme Type")]
-    [property:ConfigDesc("The theme to use.")]
+    [property: ConfigTitle("Theme Type")]
+    [property: ConfigDesc("The theme to use.")]
     private ConfigurationThemeType _themeType = ConfigurationThemeType.Auto;
 
     [ObservableProperty]
-    [property:ConfigTitle("Use Managed over IL2CPP")]
-    [property:ConfigDesc("Use the Managed folder if it exists, rather than use CPP2IL.")]
+    [property: ConfigTitle("Use Managed over IL2CPP")]
+    [property: ConfigDesc("Use the Managed folder if it exists, rather than use CPP2IL.")]
     private bool _useManagedOverIl2cpp = false;
-    
+
     [ObservableProperty]
-    [property:ConfigTitle("Listing Filename Length Limit")]
-    [property:ConfigDesc("Maximum length for the asset name when generating asset list.")]
-    [property:ConfigRange(0, int.MaxValue)]
+    [property: ConfigTitle("Listing Filename Length Limit")]
+    [property: ConfigDesc("Maximum length for the asset name when generating asset list.")]
+    [property: ConfigRange(0, int.MaxValue)]
     private int _listingNameLength = 300;
-    
+
     [ObservableProperty]
-    [property:ConfigTitle("Export Filename Length Limit")]
-    [property:ConfigDesc("Maximum length for the asset name when exporting assets.")]
-    [property:ConfigRange(0, int.MaxValue)]
+    [property: ConfigTitle("Export Filename Length Limit")]
+    [property: ConfigDesc("Maximum length for the asset name when exporting assets.")]
+    [property: ConfigRange(0, int.MaxValue)]
     private int _exportNameLength = 150;
-    
+
     private readonly Action<int> _saveDebounceFunc = DebounceUtils.Debounce(
         (int _) => ConfigurationManager.SaveConfig(), 500);
 
     protected override void OnPropertyChanged(PropertyChangedEventArgs e)
     {
         base.OnPropertyChanged(e);
-        
+
         // special case: theme updates immediately
-        if (e.PropertyName == nameof(ThemeType))
+        if (e.PropertyName == nameof(ThemeType) && Application.Current is not null)
         {
-            Application.Current?.RequestedThemeVariant = ThemeType switch
+            Application.Current.RequestedThemeVariant = ThemeType switch
             {
                 ConfigurationThemeType.Auto => ThemeVariant.Default,
                 ConfigurationThemeType.Light => ThemeVariant.Light,

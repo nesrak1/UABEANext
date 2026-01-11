@@ -106,7 +106,7 @@
               <ColumnDefinition Width="5" />
               <ColumnDefinition />
             </Grid.ColumnDefinitions>
-            <TreeView Grid.Column="0" ItemsSource="{Binding TypeTreeInfo.TypeTreeNodes}">
+            <TreeView Grid.Column="0" ItemsSource="{Binding TypeTreeInfo.TypeTreeNodes}" SelectedItem="{Binding TypeTreeInfo.SelectedNode}">
               <TreeView.ItemTemplate>
                 <TreeDataTemplate DataType="{x:Type info:TypeTreeUINode}" ItemsSource="{Binding Children}">
                   <TextBlock Inlines="{Binding Display}" />

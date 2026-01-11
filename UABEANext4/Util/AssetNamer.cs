@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 using UABEANext4.AssetWorkspace;
 
 namespace UABEANext4.Util;
+
 public class AssetNamer
 {
     private readonly Workspace _workspace;
@@ -35,8 +36,8 @@ public class AssetNamer
     public void GetDisplayName(AssetInst asset, bool usePrefix, int maxLen, out string? assetName, out string typeName)
     {
         assetName = null;
-        
-        var manager = _workspace.Manager; 
+
+        var manager = _workspace.Manager;
         var fileInst = asset.FileInstance;
 
         AssetTypeTemplateField? tempBaseField;
@@ -59,7 +60,7 @@ public class AssetNamer
                 tempBaseField = null;
             }
         }
-        
+
         if (tempBaseField == null)
         {
             var maybeClassId = (AssetClassID)asset.TypeId;
@@ -128,7 +129,7 @@ public class AssetNamer
                         }
                     }
                 }
-                else if (asset.TypeId == (int)AssetClassID.MonoBehaviour)
+                else if (asset.TypeId == (int)AssetClassID.MonoBehaviour || asset.TypeId < 0)
                 {
                     if (!_monoBehaviourNro.TryGetValue(fileInst, out nro))
                         _monoBehaviourNro[fileInst] = nro = NameReadOptimization.Unchecked;
@@ -147,7 +148,7 @@ public class AssetNamer
                             reader.Position = pos + 0x1c;
                             assetName = reader.ReadCountStringInt32();
                         }
-                        
+
                         if (assetName == string.Empty)
                         {
                             assetName = GetMonoBehaviourNameFast(asset);
@@ -228,7 +229,7 @@ public class AssetNamer
     public string GetMonoBehaviourNameFast(AssetInst asset)
     {
         var manager = _workspace.Manager;
-        
+
         // allow negative monobehaviours (old style) but not positive non-monobehaviours
         if (asset.Type != AssetClassID.MonoBehaviour && asset.TypeId >= 0)
             return string.Empty;
