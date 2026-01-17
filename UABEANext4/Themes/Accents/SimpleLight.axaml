@@ -32,6 +32,8 @@
     <SolidColorBrush x:Key="TypeTextValue" Color="#5B2DA8" />
     <SolidColorBrush x:Key="TypeTextPlain" Color="#000000" />
     <SolidColorBrush x:Key="TypeTextTheme" Color="#FFFFFF" />
-
+    <SolidColorBrush x:Key="CaptionButtonHoverBg" Color="#E5E5E5" />
+    <SolidColorBrush x:Key="CaptionButtonForeground" Color="#000000" />
+    <SolidColorBrush x:Key="CaptionButtonCloseHoverBg" Color="#FB7373" />
 </ResourceDictionary>
 

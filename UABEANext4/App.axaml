@@ -38,5 +38,18 @@
         <sys:Double x:Key="ScrollBarThumbThickness">14</sys:Double>
       </Style.Resources>
     </Style>
+
+    <Style Selector="CaptionButtons Button">
+        <Setter Property="Foreground" Value="{DynamicResource CaptionButtonForeground}" />
+    </Style>
+    <Style Selector="CaptionButtons Button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource CaptionButtonHoverBg}" />
+    </Style>
+    <Style Selector="CaptionButtons Button#PART_CloseButton:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource CaptionButtonCloseHoverBg}" />
+    </Style>
+    <Style Selector="CaptionButtons Button:pointerover">
+        <Setter Property="Foreground" Value="{DynamicResource CaptionButtonForeground}" />
+    </Style>
   </Application.Styles>
 </Application>
