@@ -4,52 +4,42 @@
              xmlns:local="using:UABEANext4"
              x:Class="UABEANext4.App"
              RequestedThemeVariant="Default">
-  <Application.DataTemplates>
-    <local:ViewLocator/>
-  </Application.DataTemplates>
-  <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
+    <Application.DataTemplates>
+        <local:ViewLocator/>
+    </Application.DataTemplates>
+    <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
 
-  <Application.Styles>
-    <SimpleTheme />
-    <StyleInclude Source="avares://UABEANext4/Themes/DockSimpleThemeEdit.axaml" />
-    <StyleInclude Source="avares://UABEANext4/Themes/HeaderedContentControlTheme.axaml" />
-    <StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Simple.xaml"/>
-    <StyleInclude Source="avares://UABEANext4/Themes/TabTheme.axaml" />
-    <StyleInclude Source="avares://UABEANext4/Themes/SliderTheme.axaml" />
-    <StyleInclude Source="avares://UABEANext4/Themes/DataValidationStyle.axaml" />
-    <StyleInclude Source="avares://UABEANext4/Themes/RadioButtonListBox.axaml" />
-    <!--<StyleInclude Source="avares://UABEANext4/Themes/ImprovedTabStyles.axaml"/>-->
-    <StyleInclude Source="avares://AvaloniaEdit/Themes/Simple/AvaloniaEdit.xaml" />
+    <Application.Styles>
+        <SimpleTheme />
+        <StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Simple.xaml"/>
+        <StyleInclude Source="avares://AvaloniaEdit/Themes/Simple/AvaloniaEdit.xaml" />
+        <StyleInclude Source="avares://UABEANext4/Themes/DockSimpleThemeEdit.axaml" />
+        <StyleInclude Source="avares://UABEANext4/Themes/HeaderedContentControlStyle.axaml" />
+        <StyleInclude Source="avares://UABEANext4/Themes/TabStyle.axaml" />
+        <StyleInclude Source="avares://UABEANext4/Themes/SliderStyle.axaml" />
+        <StyleInclude Source="avares://UABEANext4/Themes/DataValidationStyle.axaml" />
+        <StyleInclude Source="avares://UABEANext4/Themes/RadioButtonListBoxStyle.axaml" />
+        <StyleInclude Source="avares://UABEANext4/Themes/ScrollBarStyle.axaml"/>
+        <StyleInclude Source="avares://UABEANext4/Themes/DataGridStyle.axaml"/>
+        <StyleInclude Source="avares://UABEANext4/Themes/ButtonStyle.axaml"/>
+        <StyleInclude Source="avares://UABEANext4/Themes/ListBoxItemStyle.axaml"/>
+        <StyleInclude Source="avares://UABEANext4/Themes/ComboBoxStyle.axaml"/>
+        <StyleInclude Source="avares://UABEANext4/Themes/TreeViewItemStyle.axaml"/>
+        <StyleInclude Source="avares://UABEANext4/Themes/TextBoxStyle.axaml"/>
+        <StyleInclude Source="avares://UABEANext4/Themes/NumericUpDownStyle.axaml"/>
 
-    <Style Selector="Button">
-      <Setter Property="BorderBrush" Value="#555555" />
-    </Style>
-    <Style Selector="Button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-      <Setter Property="BorderBrush" Value="#0097fb" />
-    </Style>
-    <Style Selector="Button:pressed /template/ ContentPresenter#PART_ContentPresenter">
-      <Setter Property="Background" Value="#0097fb" />
-    </Style>
-    <Style Selector="ToolChromeControl /template/ TextBlock#PART_Title">
-      <Setter Property="Margin" Value="0,2,8,2" />
-    </Style>
-    <Style>
-      <Style.Resources>
-        <sys:Double x:Key="ScrollBarThumbThickness">14</sys:Double>
-      </Style.Resources>
-    </Style>
+        <Style Selector="CaptionButtons Button">
+            <Setter Property="Foreground" Value="{DynamicResource CaptionButtonForeground}" />
+        </Style>
+        <Style Selector="CaptionButtons Button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource CaptionButtonHoverBg}" />
+        </Style>
+        <Style Selector="CaptionButtons Button#PART_CloseButton:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource CaptionButtonCloseHoverBg}" />
+        </Style>
+        <Style Selector="CaptionButtons Button:pointerover">
+            <Setter Property="Foreground" Value="{DynamicResource CaptionButtonForeground}" />
+        </Style>
 
-    <Style Selector="CaptionButtons Button">
-        <Setter Property="Foreground" Value="{DynamicResource CaptionButtonForeground}" />
-    </Style>
-    <Style Selector="CaptionButtons Button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-        <Setter Property="Background" Value="{DynamicResource CaptionButtonHoverBg}" />
-    </Style>
-    <Style Selector="CaptionButtons Button#PART_CloseButton:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-        <Setter Property="Background" Value="{DynamicResource CaptionButtonCloseHoverBg}" />
-    </Style>
-    <Style Selector="CaptionButtons Button:pointerover">
-        <Setter Property="Foreground" Value="{DynamicResource CaptionButtonForeground}" />
-    </Style>
-  </Application.Styles>
+    </Application.Styles>
 </Application>

@@ -2,32 +2,31 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:uaw="using:UABEANext4.AssetWorkspace"
-             xmlns:mesh="using:UABEANext4.Controls.MeshPreviewer"
              xmlns:tools="using:UABEANext4.ViewModels.Tools"
              xmlns:toolsv="using:UABEANext4.Views.Tools"
-             xmlns:avedit="clr-namespace:AvaloniaEdit;assembly=AvaloniaEdit"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="450"
              x:Class="UABEANext4.Views.Tools.PreviewerToolView"
-             x:DataType="tools:PreviewerToolViewModel">
-  <UserControl.DataTemplates>
-    <toolsv:PreviewerTemplateSelector>
-      <DataTemplate x:Key="Image" DataType="tools:PreviewerToolPreviewType">
-        <Image Source="{Binding $parent[UserControl].((tools:PreviewerToolViewModel)DataContext).ActiveImage}" Margin="0,0,0,0" Stretch="Uniform" StretchDirection="DownOnly">
-          <Image.RenderTransform>
-            <ScaleTransform ScaleY="-1" />
-          </Image.RenderTransform>
-        </Image>
-      </DataTemplate>
-      <DataTemplate x:Key="Text" DataType="tools:PreviewerToolPreviewType">
-        <avedit:TextEditor FontFamily="Cascadia Code,Consolas,Monospace,Courier,DejaVu Sans Mono,Roboto Mono,Menlo" Document="{Binding $parent[UserControl].((tools:PreviewerToolViewModel)DataContext).ActiveDocument}" WordWrap="True" IsReadOnly="True" />
-      </DataTemplate>
-      <DataTemplate x:Key="Mesh" DataType="tools:PreviewerToolPreviewType">
-        <mesh:MeshPreviewerControl ActiveMesh="{Binding $parent[UserControl].((tools:PreviewerToolViewModel)DataContext).ActiveMesh}" />
-      </DataTemplate>
-    </toolsv:PreviewerTemplateSelector>
-  </UserControl.DataTemplates>
-  <Grid>
-    <ContentControl Content="{Binding ActivePreviewType}" Name="contentControl" />
-  </Grid>
+             x:DataType="tools:PreviewerToolViewModel"
+             Background="{DynamicResource DockThemeListBackgroundBrush}">
+
+    <UserControl.DataTemplates>
+        <toolsv:PreviewerTemplateSelector>
+
+            <DataTemplate x:Key="Image" DataType="tools:PreviewerToolPreviewType">
+                <toolsv:ImagePreviewView DataContext="{Binding $parent[UserControl].DataContext}" />
+            </DataTemplate>
+
+            <DataTemplate x:Key="Text" DataType="tools:PreviewerToolPreviewType">
+                <toolsv:TextPreviewView DataContext="{Binding $parent[UserControl].DataContext}" />
+            </DataTemplate>
+
+            <DataTemplate x:Key="Mesh" DataType="tools:PreviewerToolPreviewType">
+                <toolsv:MeshPreviewView DataContext="{Binding $parent[UserControl].DataContext}" />
+            </DataTemplate>
+        </toolsv:PreviewerTemplateSelector>
+    </UserControl.DataTemplates>
+
+    <Grid>
+        <ContentControl Content="{Binding ActivePreviewType}" />
+    </Grid>
 </UserControl>

@@ -111,7 +111,7 @@ public class MeshPreviewer : IUavPluginPreviewer
         }
     }
 
-    public Bitmap? ExecuteImage(Workspace workspace, IUavPluginFunctions funcs, AssetInst selection, out string? error)
+    public (Bitmap?, int) ExecuteImage(Workspace workspace, IUavPluginFunctions funcs, AssetInst selection, out string? error)
         => throw new InvalidOperationException();
 
     public string? ExecuteText(Workspace workspace, IUavPluginFunctions funcs, AssetInst selection, out string? error)

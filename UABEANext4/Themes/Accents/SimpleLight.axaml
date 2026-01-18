@@ -5,7 +5,7 @@
     <SolidColorBrush x:Key="DockApplicationAccentBrushLow">#007ACC</SolidColorBrush>
     <SolidColorBrush x:Key="DockApplicationAccentBrushMed">#0E97DD</SolidColorBrush>
     <SolidColorBrush x:Key="DockApplicationAccentBrushHigh">#1C97EA</SolidColorBrush>
-    <SolidColorBrush x:Key="DockApplicationAccentForegroundBrush">#000000</SolidColorBrush>
+    <SolidColorBrush x:Key="DockApplicationAccentForegroundBrush">#FFFFFF</SolidColorBrush>
     <SolidColorBrush x:Key="DockApplicationAccentBrushIndicator">#123456</SolidColorBrush>
 
     <SolidColorBrush x:Key="DockThemeBorderLowBrush" Color="#CCCEDB" />
@@ -35,5 +35,14 @@
     <SolidColorBrush x:Key="CaptionButtonHoverBg" Color="#E5E5E5" />
     <SolidColorBrush x:Key="CaptionButtonForeground" Color="#000000" />
     <SolidColorBrush x:Key="CaptionButtonCloseHoverBg" Color="#FB7373" />
+
+    <SolidColorBrush x:Key="TabItemPointerOverBackground">#C9DEF5</SolidColorBrush>
+    <SolidColorBrush x:Key="TabItemHeaderForeground">#1E1E1E</SolidColorBrush>
+    <SolidColorBrush x:Key="TabItemHeaderSelectedForeground">#FFFFFF</SolidColorBrush>
+    <SolidColorBrush x:Key="TabControlHeaderBackground">#F5F5F5</SolidColorBrush>
+
+    <SolidColorBrush x:Key="ScrollBarThumbBackground">#C1C1C1</SolidColorBrush>
+    <SolidColorBrush x:Key="ScrollBarThumbHover">#ADADAD</SolidColorBrush>
+    <SolidColorBrush x:Key="ScrollBarThumbPressed">#ADADAD</SolidColorBrush>
 </ResourceDictionary>
 

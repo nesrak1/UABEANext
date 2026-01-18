@@ -2,124 +2,138 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             mc:Ignorable="d" d:DesignWidth="300" d:DesignHeight="360"
-             x:Class="TexturePlugin.Views.EditTextureView">
-  <Grid Margin="10,10,10,10" RowDefinitions="*,Auto">
-    <Grid ColumnDefinitions="*,*,Auto"
-          RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto"
-          Grid.Row="0">
-      <Grid.Styles>
-        <Style Selector="Label">
-          <Setter Property="VerticalContentAlignment" Value="Center" />
+             mc:Ignorable="d" d:DesignWidth="450" d:DesignHeight="500"
+             x:Class="TexturePlugin.Views.EditTextureView"
+             Background="{DynamicResource DockThemeBackgroundBrush}">
+
+    <UserControl.Styles>
+        <Style Selector="Button.reset">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Width" Value="24" />
+            <Setter Property="Height" Value="24" />
+            <Setter Property="Margin" Value="4,0,0,0" />
+            <Setter Property="Padding" Value="0" />
         </Style>
-      </Grid.Styles>
+        <Style Selector="Button.reset:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource CaptionButtonCloseHoverBg}" />
+        </Style>
+        <Style Selector="Button.reset:pointerover PathIcon">
+            <Setter Property="Foreground" Value="White" />
+        </Style>
+        <Style Selector="Button.reset PathIcon">
+            <Setter Property="Width" Value="10" />
+            <Setter Property="Height" Value="10" />
+            <Setter Property="Foreground" Value="{DynamicResource DockThemeForegroundBrush}" />
+            <Setter Property="Opacity" Value="0.6" />
+        </Style>
 
-      <Label Grid.Column="0" Grid.Row="0">Name</Label>
-      <Label Grid.Column="0" Grid.Row="1">Texture format</Label>
-      <Label Grid.Column="0" Grid.Row="2">Using mipmaps</Label>
-      <Label Grid.Column="0" Grid.Row="3">Is readable</Label>
-      <Label Grid.Column="0" Grid.Row="4">Filter mode</Label>
-      <Label Grid.Column="0" Grid.Row="5">Anisotropic filtering</Label>
-      <Label Grid.Column="0" Grid.Row="6">Mipmap bias</Label>
-      <Label Grid.Column="0" Grid.Row="7">Wrap mode (U)</Label>
-      <Label Grid.Column="0" Grid.Row="8">Wrap mode (V)</Label>
-      <Label Grid.Column="0" Grid.Row="9">Lightmap format</Label>
-      <Label Grid.Column="0" Grid.Row="10">Color space</Label>
-      <Label Grid.Column="0" Grid.Row="11">Texture</Label>
+        <Style Selector="Label">
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="Foreground" Value="{DynamicResource DockThemeForegroundBrush}" />
+        </Style>
 
-      <TextBox Grid.Column="1" Grid.Row="0"
-               Text="{Binding Name}"
-               Watermark="{Binding NameWatermark}" />
+        <Style Selector="TextBox, ComboBox">
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+            <Setter Property="MinHeight" Value="26" />
+        </Style>
 
-      <ComboBox Grid.Column="1" Grid.Row="1"
-                SelectedItem="{Binding TextureFormat}"
-                ItemsSource="{Binding TextureFormats}"
-                PlaceholderText="(Multiple values)" />
+        <Style Selector="CheckBox">
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+    </UserControl.Styles>
 
-      <CheckBox Grid.Column="1" Grid.Row="2"
-                IsChecked="{Binding UsingMips}"
-                IsThreeState="{Binding UsingMipsThreeOn}" />
+    <Grid Margin="12" RowDefinitions="*, Auto">
 
-      <CheckBox Grid.Column="1" Grid.Row="3"
-                IsChecked="{Binding IsReadable}"
-                IsThreeState="{Binding IsReadableThreeOn}" />
+        <ScrollViewer Grid.Row="0" Margin="0,0,0,10">
+            <Grid ColumnDefinitions="150, *, 30"
+                  RowDefinitions="32,32,32,32,32,32,32,32,32,32,32,32">
 
-      <ComboBox Grid.Column="1" Grid.Row="4"
-                SelectedItem="{Binding FilterMode}"
-                ItemsSource="{Binding FilterModes}"
-                PlaceholderText="(Multiple values)" />
+                <Label Grid.Row="0" Grid.Column="0">Name</Label>
+                <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding Name}" Watermark="{Binding NameWatermark}" />
+                <Button Grid.Row="0" Grid.Column="2" Classes="reset" Command="{Binding ResetToDefault}" CommandParameter="0">
+                    <PathIcon Data="{DynamicResource DockToolIconCloseGeometry}" />
+                </Button>
 
-      <TextBox Grid.Column="1" Grid.Row="5"
-               Text="{Binding FilteringString}"
-               Watermark="{Binding FilteringWatermark}" />
+                <Label Grid.Row="1" Grid.Column="0">Texture format</Label>
+                <ComboBox Grid.Row="1" Grid.Column="1" SelectedItem="{Binding TextureFormat}" ItemsSource="{Binding TextureFormats}" PlaceholderText="(Multiple values)" />
+                <Button Grid.Row="1" Grid.Column="2" Classes="reset" Command="{Binding ResetToDefault}" CommandParameter="1">
+                    <PathIcon Data="{DynamicResource DockToolIconCloseGeometry}" />
+                </Button>
 
-      <TextBox Grid.Column="1" Grid.Row="6"
-               Text="{Binding MipBiasString}"
-               Watermark="{Binding MipBiasWatermark}" />
+                <Label Grid.Row="2" Grid.Column="0">Using mipmaps</Label>
+                <CheckBox Grid.Row="2" Grid.Column="1" IsChecked="{Binding UsingMips}" IsThreeState="{Binding UsingMipsThreeOn}" />
+                <Button Grid.Row="2" Grid.Column="2" Classes="reset" Command="{Binding ResetToDefault}" CommandParameter="2">
+                    <PathIcon Data="{DynamicResource DockToolIconCloseGeometry}" />
+                </Button>
 
-      <ComboBox Grid.Column="1" Grid.Row="7"
-                SelectedItem="{Binding WrapModeU}"
-                ItemsSource="{Binding WrapModes}"
-                PlaceholderText="(Multiple values)" />
+                <Label Grid.Row="3" Grid.Column="0">Is readable</Label>
+                <CheckBox Grid.Row="3" Grid.Column="1" IsChecked="{Binding IsReadable}" IsThreeState="{Binding IsReadableThreeOn}" />
+                <Button Grid.Row="3" Grid.Column="2" Classes="reset" Command="{Binding ResetToDefault}" CommandParameter="3">
+                    <PathIcon Data="{DynamicResource DockToolIconCloseGeometry}" />
+                </Button>
 
-      <ComboBox Grid.Column="1" Grid.Row="8"
-                SelectedItem="{Binding WrapModeV}"
-                ItemsSource="{Binding WrapModes}"
-                PlaceholderText="(Multiple values)" />
+                <Label Grid.Row="4" Grid.Column="0">Filter mode</Label>
+                <ComboBox Grid.Row="4" Grid.Column="1" SelectedItem="{Binding FilterMode}" ItemsSource="{Binding FilterModes}" PlaceholderText="(Multiple values)" />
+                <Button Grid.Row="4" Grid.Column="2" Classes="reset" Command="{Binding ResetToDefault}" CommandParameter="4">
+                    <PathIcon Data="{DynamicResource DockToolIconCloseGeometry}" />
+                </Button>
 
-      <!-- get enum for this -->
-      <TextBox Grid.Column="1" Grid.Row="9"
-               Text="{Binding LightMapFormatString}"
-               Watermark="{Binding LightMapFormatWatermark}" />
+                <Label Grid.Row="5" Grid.Column="0">Anisotropic filtering</Label>
+                <TextBox Grid.Row="5" Grid.Column="1" Text="{Binding FilteringString}" Watermark="{Binding FilteringWatermark}" />
+                <Button Grid.Row="5" Grid.Column="2" Classes="reset" Command="{Binding ResetToDefault}" CommandParameter="5">
+                    <PathIcon Data="{DynamicResource DockToolIconCloseGeometry}" />
+                </Button>
 
-      <ComboBox Grid.Column="1" Grid.Row="10"
-                SelectedItem="{Binding ColorSpace}"
-                ItemsSource="{Binding ColorSpaces}"
-                PlaceholderText="(Multiple values)" />
+                <Label Grid.Row="6" Grid.Column="0">Mipmap bias</Label>
+                <TextBox Grid.Row="6" Grid.Column="1" Text="{Binding MipBiasString}" Watermark="{Binding MipBiasWatermark}" />
+                <Button Grid.Row="6" Grid.Column="2" Classes="reset" Command="{Binding ResetToDefault}" CommandParameter="6">
+                    <PathIcon Data="{DynamicResource DockToolIconCloseGeometry}" />
+                </Button>
 
-      <Button Grid.Column="1" Grid.Row="11" IsEnabled="{Binding IsSingleTexture}">Load</Button>
+                <Label Grid.Row="7" Grid.Column="0">Wrap mode (U)</Label>
+                <ComboBox Grid.Row="7" Grid.Column="1" SelectedItem="{Binding WrapModeU}" ItemsSource="{Binding WrapModes}" PlaceholderText="(Multiple values)" />
+                <Button Grid.Row="7" Grid.Column="2" Classes="reset" Command="{Binding ResetToDefault}" CommandParameter="7">
+                    <PathIcon Data="{DynamicResource DockToolIconCloseGeometry}" />
+                </Button>
 
-      <Button Grid.Column="2" Grid.Row="0" Command="{Binding ResetToDefault}" CommandParameter="0">
-        <PathIcon Width="14" Height="14" Data="{DynamicResource DockToolIconCloseGeometry}"/>
-      </Button>
-      <Button Grid.Column="2" Grid.Row="1" Command="{Binding ResetToDefault}" CommandParameter="1">
-        <PathIcon Width="14" Height="14" Data="{DynamicResource DockToolIconCloseGeometry}"/>
-      </Button>
-      <Button Grid.Column="2" Grid.Row="2" Command="{Binding ResetToDefault}" CommandParameter="2">
-        <PathIcon Width="14" Height="14" Data="{DynamicResource DockToolIconCloseGeometry}"/>
-      </Button>
-      <Button Grid.Column="2" Grid.Row="3" Command="{Binding ResetToDefault}" CommandParameter="3">
-        <PathIcon Width="14" Height="14" Data="{DynamicResource DockToolIconCloseGeometry}"/>
-      </Button>
-      <Button Grid.Column="2" Grid.Row="4" Command="{Binding ResetToDefault}" CommandParameter="4">
-        <PathIcon Width="14" Height="14" Data="{DynamicResource DockToolIconCloseGeometry}"/>
-      </Button>
-      <Button Grid.Column="2" Grid.Row="5" Command="{Binding ResetToDefault}" CommandParameter="5">
-        <PathIcon Width="14" Height="14" Data="{DynamicResource DockToolIconCloseGeometry}"/>
-      </Button>
-      <Button Grid.Column="2" Grid.Row="6" Command="{Binding ResetToDefault}" CommandParameter="6">
-        <PathIcon Width="14" Height="14" Data="{DynamicResource DockToolIconCloseGeometry}"/>
-      </Button>
-      <Button Grid.Column="2" Grid.Row="7" Command="{Binding ResetToDefault}" CommandParameter="7">
-        <PathIcon Width="14" Height="14" Data="{DynamicResource DockToolIconCloseGeometry}"/>
-      </Button>
-      <Button Grid.Column="2" Grid.Row="8" Command="{Binding ResetToDefault}" CommandParameter="8">
-        <PathIcon Width="14" Height="14" Data="{DynamicResource DockToolIconCloseGeometry}"/>
-      </Button>
-      <Button Grid.Column="2" Grid.Row="9" Command="{Binding ResetToDefault}" CommandParameter="9">
-        <PathIcon Width="14" Height="14" Data="{DynamicResource DockToolIconCloseGeometry}"/>
-      </Button>
-      <Button Grid.Column="2" Grid.Row="10" Command="{Binding ResetToDefault}" CommandParameter="10">
-        <PathIcon Width="14" Height="14" Data="{DynamicResource DockToolIconCloseGeometry}"/>
-      </Button>
-      <Button Grid.Column="2" Grid.Row="11" Command="{Binding ResetToDefault}" CommandParameter="11"
-              IsEnabled="{Binding IsSingleTexture}">
-        <PathIcon Width="14" Height="14" Data="{DynamicResource DockToolIconCloseGeometry}"/>
-      </Button>
+                <Label Grid.Row="8" Grid.Column="0">Wrap mode (V)</Label>
+                <ComboBox Grid.Row="8" Grid.Column="1" SelectedItem="{Binding WrapModeV}" ItemsSource="{Binding WrapModes}" PlaceholderText="(Multiple values)" />
+                <Button Grid.Row="8" Grid.Column="2" Classes="reset" Command="{Binding ResetToDefault}" CommandParameter="8">
+                    <PathIcon Data="{DynamicResource DockToolIconCloseGeometry}" />
+                </Button>
+
+                <Label Grid.Row="9" Grid.Column="0">Lightmap format</Label>
+                <TextBox Grid.Row="9" Grid.Column="1" Text="{Binding LightMapFormatString}" Watermark="{Binding LightMapFormatWatermark}" />
+                <Button Grid.Row="9" Grid.Column="2" Classes="reset" Command="{Binding ResetToDefault}" CommandParameter="9">
+                    <PathIcon Data="{DynamicResource DockToolIconCloseGeometry}" />
+                </Button>
+
+                <Label Grid.Row="10" Grid.Column="0">Color space</Label>
+                <ComboBox Grid.Row="10" Grid.Column="1" SelectedItem="{Binding ColorSpace}" ItemsSource="{Binding ColorSpaces}" PlaceholderText="(Multiple values)" />
+                <Button Grid.Row="10" Grid.Column="2" Classes="reset" Command="{Binding ResetToDefault}" CommandParameter="10">
+                    <PathIcon Data="{DynamicResource DockToolIconCloseGeometry}" />
+                </Button>
+
+                <Label Grid.Row="11" Grid.Column="0">Texture</Label>
+                <Button Grid.Row="11" Grid.Column="1" Content="Load texture..." IsEnabled="{Binding IsSingleTexture}" HorizontalAlignment="Stretch" Padding="5,0" Height="26" />
+                <Button Grid.Row="11" Grid.Column="2" Classes="reset" Command="{Binding ResetToDefault}" CommandParameter="11" IsEnabled="{Binding IsSingleTexture}">
+                    <PathIcon Data="{DynamicResource DockToolIconCloseGeometry}" />
+                </Button>
+
+            </Grid>
+        </ScrollViewer>
+
+        <StackPanel Grid.Row="1"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Right"
+                    Spacing="8"
+                    Margin="0,5,0,0">
+            <Button Content="Save" Command="{Binding SaveChanges}" Width="85" Height="30" IsDefault="True" />
+            <Button Content="Close" Command="{Binding Cancel}" Width="85" Height="30" IsCancel="True" />
+        </StackPanel>
+
     </Grid>
-    <Grid ColumnDefinitions="*,*" Grid.Row="1">
-      <Button Grid.Column="0" Command="{Binding SaveChanges}">Save</Button>
-      <Button Grid.Column="1" Command="{Binding Cancel}">Close</Button>
-    </Grid>
-  </Grid>
 </UserControl>

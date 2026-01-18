@@ -9,8 +9,10 @@ public partial class VersionSelectViewModel : ViewModelBase, IDialogAware<string
     public string _version = "0.0.0f0";
 
     public string Title => "Version Select";
-    public int Width => 300;
-    public int Height => 140;
+    public int Width => 400;
+    public int Height => 180;
+    public bool IsModal => true;
+
     public event Action<string?>? RequestClose;
 
     public void BtnOk_Click()

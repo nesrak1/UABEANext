@@ -18,8 +18,10 @@ public partial class EditDataViewModel : ViewModelBase, IDialogAware<byte[]?>
     private RefTypeManager _refMan;
 
     public string Title => "Edit Data";
-    public int Width => 350;
+    public int Width => 700;
     public int Height => 550;
+    public bool IsModal => false;
+
     public event Action<byte[]?>? RequestClose;
 
     [Obsolete("This constructor is for the designer only and should not be used directly.", true)]

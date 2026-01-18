@@ -3,18 +3,54 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:dlg="using:UABEANext4.ViewModels.Dialogs"
-             mc:Ignorable="d" d:DesignWidth="300" d:DesignHeight="140"
+             mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="180"
              x:Class="UABEANext4.Views.Dialogs.VersionSelectView"
-             x:DataType="dlg:VersionSelectViewModel">
-  <Grid Margin="10,10,10,10">
-    <Grid VerticalAlignment="Top" ColumnDefinitions="100,*" RowDefinitions="60,Auto">
-      <TextBlock Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" TextWrapping="WrapWithOverflow">This bundle has a double stripped version. Please provide the engine version for this file. Cancelling this dialog may cause some functionality to fail.</TextBlock>
-      <Label Grid.Column="0" Grid.Row="1">Engine Version</Label>
-      <TextBox Name="defaultBox" Grid.Column="1" Grid.Row="1">0.0.0f0</TextBox>
+             x:DataType="dlg:VersionSelectViewModel"
+             Background="{DynamicResource DockThemeBackgroundBrush}">
+
+    <Grid Margin="12" RowDefinitions="*, Auto">
+
+        <StackPanel Grid.Row="0" Spacing="12">
+
+            <TextBlock TextWrapping="Wrap"
+                       FontSize="12"
+                       Foreground="{DynamicResource DockThemeForegroundBrush}"
+                       Opacity="0.9">
+                This bundle has a double stripped version. Please provide the engine version for this file.
+                Cancelling this dialog may cause some functionality to fail.
+            </TextBlock>
+
+            <Grid ColumnDefinitions="120, *">
+                <Label Grid.Column="0"
+                       Content="Engine Version"
+                       VerticalAlignment="Center" />
+                <TextBox Grid.Column="1"
+                         Name="defaultBox"
+
+                         Watermark="e.g. 2019.4.0f1"
+                         VerticalContentAlignment="Center"
+                         Height="32" />
+            </Grid>
+        </StackPanel>
+
+        <StackPanel Grid.Row="1"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Right"
+                    Spacing="8"
+                    Margin="0,16,0,0">
+
+            <Button Command="{Binding BtnOk_Click}"
+                    Content="OK"
+                    Width="85"
+                    Height="28"
+                    IsDefault="True" />
+
+            <Button Command="{Binding BtnCancel_Click}"
+                    Content="Cancel"
+                    Width="85"
+                    Height="28"
+                    IsCancel="True" />
+        </StackPanel>
+
     </Grid>
-    <Grid VerticalAlignment="Bottom" ColumnDefinitions="*,*">
-      <Button Grid.Column="0" Command="{Binding BtnOk_Click}">Ok</Button>
-      <Button Grid.Column="1" Command="{Binding BtnCancel_Click}">Cancel</Button>
-    </Grid>
-  </Grid>
 </UserControl>

@@ -26,8 +26,10 @@ public partial class AddExternalViewModel : ViewModelBaseValidator, IDialogAware
     public bool HasGuid => ExternalType != AssetsFileExternalType.Normal;
 
     public string Title => "Edit External";
-    public int Width => 350;
-    public int Height => 170;
+    public int Width => 420;
+    public int Height => 200;
+    public bool IsModal => true;
+
     public event Action<AssetsFileExternal?>? RequestClose;
 
     public AddExternalViewModel(AssetsFileExternal? external)

@@ -1,0 +1,37 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Design.PreviewWith>
+        <Border Padding="20">
+            <!-- Add Controls for Previewer Here -->
+        </Border>
+    </Design.PreviewWith>
+
+    <Style Selector="TextBox">
+        <Setter Property="Background" Value="{DynamicResource DockThemeBackgroundBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource DockThemeBorderLowBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="MinHeight" Value="28" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+    </Style>
+
+    <Style Selector="TextBox:pointerover /template/ Border#border">
+        <Setter Property="BorderBrush" Value="{DynamicResource TabViewSelectedBackgroundBrush}" />
+        <Setter Property="Background" Value="{DynamicResource DockThemeBackgroundBrush}" />
+    </Style>
+
+    <Style Selector="TextBox:focus /template/ Border#border">
+        <Setter Property="BorderBrush" Value="{DynamicResource TabViewSelectedBackgroundBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Background" Value="{DynamicResource DockThemeBackgroundBrush}" />
+    </Style>
+
+    <Style Selector="TextBox:focus">
+        <Setter Property="Foreground" Value="{DynamicResource DockThemeForegroundBrush}" />
+    </Style>
+
+    <Style Selector="TextBox /template/ TextBlock#watermark">
+        <Setter Property="Opacity" Value="0.5" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+</Styles>

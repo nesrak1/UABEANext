@@ -28,8 +28,10 @@ public partial class AssetDataSearchViewModel : ViewModelBase, IDialogAware<stri
     private readonly List<AssetsFileInstance> _items;
 
     public string Title => "Search hex (WIP)";
-    public int Width => 350;
+    public int Width => 450;
     public int Height => 400;
+    public bool IsModal => false;
+
     public event Action<string?>? RequestClose;
 
     [Obsolete("This constructor is for the designer only and should not be used directly.", true)]

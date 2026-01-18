@@ -1,0 +1,69 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Design.PreviewWith>
+        <StackPanel Width="200" Height="100" Margin="30">
+            <ComboBox SelectedIndex="0" MaxDropDownHeight="100">
+                <ComboBoxItem>Text Item 1</ComboBoxItem>
+                <ComboBoxItem>Text Item 2</ComboBoxItem>
+                <ComboBoxItem>Text Item 3</ComboBoxItem>
+                <ComboBoxItem>Text Item 4</ComboBoxItem>
+                <ComboBoxItem>Text Item 5</ComboBoxItem>
+                <ComboBoxItem>Text Item 6</ComboBoxItem>
+                <ComboBoxItem>Text Item 7</ComboBoxItem>
+                <ComboBoxItem>Text Item 8</ComboBoxItem>
+                <ComboBoxItem>Text Item 9</ComboBoxItem>
+            </ComboBox>
+        </StackPanel>
+    </Design.PreviewWith>
+
+    <Style Selector="ComboBox">
+        <Setter Property="Background" Value="{DynamicResource DockThemeBackgroundBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource DockThemeBorderLowBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Padding" Value="8,4" />
+        <Setter Property="MinHeight" Value="28" />
+    </Style>
+
+    <Style Selector="ComboBox:pointerover /template/ Border#border">
+        <Setter Property="BorderBrush" Value="{DynamicResource TabViewSelectedBackgroundBrush}" />
+    </Style>
+
+    <Style Selector="ComboBox:focus /template/ Border#border">
+        <Setter Property="BorderBrush" Value="{DynamicResource TabViewSelectedBackgroundBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+    </Style>
+
+    <Style Selector="ComboBox /template/ ToggleButton#toggle">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+    </Style>
+
+    <Style Selector="ComboBox /template/ ToggleButton#toggle:checked /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="Transparent" />
+    </Style>
+
+    <Style Selector="ComboBox /template/ ToggleButton#toggle:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource CaptionButtonHoverBg}" />
+    </Style>
+
+    <Style Selector="ComboBox /template/ ToggleButton#toggle Path">
+        <Setter Property="Fill" Value="{DynamicResource DockThemeForegroundBrush}" />
+        <Setter Property="Opacity" Value="0.6" />
+    </Style>
+
+    <Style Selector="ComboBoxItem">
+        <Setter Property="Padding" Value="8,4" />
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+        <Setter Property="Background" Value="Transparent" />
+    </Style>
+
+    <Style Selector="ComboBoxItem:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource CaptionButtonHoverBg}" />
+    </Style>
+
+    <Style Selector="ComboBoxItem:selected /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource TabViewSelectedBackgroundBrush}" />
+        <Setter Property="TextBlock.Foreground" Value="White" />
+    </Style>
+
+</Styles>

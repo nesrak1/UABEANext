@@ -1,0 +1,51 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Design.PreviewWith>
+        <Border Padding="20" Background="{DynamicResource DockThemeBackgroundBrush}">
+            <ListBox Classes="RadioButtonListBox" Width="150">
+                <ListBoxItem Tag="Tip 1">Plain search</ListBoxItem>
+                <ListBoxItem Tag="Tip 2">Regex search</ListBoxItem>
+                <ListBoxItem Tag="Tip 3">Meta search</ListBoxItem>
+            </ListBox>
+        </Border>
+    </Design.PreviewWith>
+
+    <Style Selector="ListBox.RadioButtonListBox">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Padding" Value="0"/>
+    </Style>
+
+    <Style Selector="ListBox.RadioButtonListBox ListBoxItem">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Padding" Value="0,2"/>
+        <Setter Property="HorizontalAlignment" Value="Stretch"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate>
+                    <Border Background="Transparent" Padding="{TemplateBinding Padding}">
+                        <RadioButton Content="{TemplateBinding Content}"
+                                     IsChecked="{TemplateBinding IsSelected, Mode=TwoWay}"
+                                     VerticalAlignment="Center"
+                                     HorizontalAlignment="Stretch"
+                                     FontSize="12"
+                                     Focusable="False"
+                                     ToolTip.Tip="{TemplateBinding Tag}"
+                                     Padding="8,0,0,0"/>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style Selector="ListBox.RadioButtonListBox ListBoxItem:pointerover /template/ Border">
+        <Setter Property="Background" Value="Transparent"/>
+    </Style>
+    <Style Selector="ListBox.RadioButtonListBox ListBoxItem:selected /template/ Border">
+        <Setter Property="Background" Value="Transparent"/>
+    </Style>
+    <Style Selector="ListBox.RadioButtonListBox ListBoxItem:selected:pointerover /template/ Border">
+        <Setter Property="Background" Value="Transparent"/>
+    </Style>
+
+</Styles>

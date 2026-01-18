@@ -15,15 +15,16 @@ public partial class PreviewerToolViewModel : Tool
     const string TOOL_TITLE = "Previewer";
 
     public Workspace Workspace { get; }
-
-    [ObservableProperty]
-    public Bitmap? _activeImage;
     [ObservableProperty]
     public TextDocument? _activeDocument;
     [ObservableProperty]
     public MeshObj? _activeMesh;
     [ObservableProperty]
     public PreviewerToolPreviewType _activePreviewType = PreviewerToolPreviewType.Text;
+
+    [ObservableProperty]
+    public ImagePreviewViewModel _imagePreview = new();
+
 
     // defer this to first preview since dialogs won't exist until after initial load
     private readonly Lazy<UavPluginFunctions> _uavPluginFuncs = new(() => new UavPluginFunctions());
@@ -36,7 +37,6 @@ public partial class PreviewerToolViewModel : Tool
         Id = TOOL_TITLE.Replace(" ", "");
         Title = TOOL_TITLE;
 
-        _activeImage = null;
         _activeDocument = new TextDocument();
         _activeMesh = new MeshObj();
     }
@@ -48,7 +48,6 @@ public partial class PreviewerToolViewModel : Tool
         Id = TOOL_TITLE.Replace(" ", "");
         Title = TOOL_TITLE;
 
-        _activeImage = null;
         _activeDocument = new TextDocument("No preview available.");
 
         WeakReferenceMessenger.Default.Register<AssetsSelectedMessage>(this, OnAssetsSelected);
@@ -96,12 +95,11 @@ public partial class PreviewerToolViewModel : Tool
             case UavPluginPreviewerType.Image:
             {
                 ActivePreviewType = PreviewerToolPreviewType.Image;
-                DisposeCurrentImage();
-
-                var image = prev.ExecuteImage(Workspace, _uavPluginFuncs.Value, asset, out string? error);
+                
+                var (image, format) = prev.ExecuteImage(Workspace, _uavPluginFuncs.Value, asset, out string? error);
                 if (image != null)
                 {
-                    ActiveImage = image;
+                    ImagePreview.UpdateImage(image, (AssetsTools.NET.Texture.TextureFormat?)format);
                 }
                 else
                 {
@@ -151,15 +149,6 @@ public partial class PreviewerToolViewModel : Tool
     {
         ActivePreviewType = PreviewerToolPreviewType.Text;
         ActiveDocument = new TextDocument(text);
-    }
-
-    private void DisposeCurrentImage()
-    {
-        if (ActiveImage != null)
-        {
-            ActiveImage.Dispose();
-            ActiveImage = null;
-        }
     }
 }
 

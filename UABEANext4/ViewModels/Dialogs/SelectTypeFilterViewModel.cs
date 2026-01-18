@@ -17,8 +17,11 @@ public partial class SelectTypeFilterViewModel : ViewModelBase, IDialogAware<IEn
     public ObservableCollection<TypeFilterTypeEntry> _filterTypes = [];
 
     public string Title => "Select Type Filter";
-    public int Width => 300;
+    public int Width => 400;
     public int Height => 500;
+
+    public bool IsModal => false;
+
     public event Action<IEnumerable<TypeFilterTypeEntry>?>? RequestClose;
 
     public SelectTypeFilterViewModel(List<TypeFilterTypeEntry> filterTypes)
