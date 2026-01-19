@@ -159,6 +159,9 @@ public partial class AssetDocumentViewModel : Document
 
                     if (ClassIdToString.TryGetValue(a.Type, out string? classIdName) && regex.IsMatch(classIdName))
                         return true;
+                    
+                    if (regex.IsMatch(a.PathId.ToString()))
+                        return true;
 
                     return false;
                 };
@@ -175,6 +178,9 @@ public partial class AssetDocumentViewModel : Document
                         return true;
 
                     if (ClassIdToString.TryGetValue(a.Type, out string? classIdName) && classIdName == searchText)
+                        return true;
+                    
+                    if (a.PathId.ToString().Contains(searchText, strCmp))
                         return true;
 
                     return false;
@@ -203,6 +209,9 @@ public partial class AssetDocumentViewModel : Document
 
                     if (!regex.IsMatch(a.DisplayName))
                         return false;
+                    
+                    if (!regex.IsMatch(a.PathId.ToString()))
+                        return false;
 
                     return DoesTypeFilterPass(a, baseTypeEntry);
                 };
@@ -216,6 +225,9 @@ public partial class AssetDocumentViewModel : Document
                         return false;
 
                     if (!a.DisplayName.Contains(searchText, strCmp))
+                        return false;
+                    
+                    if (!a.PathId.ToString().Contains(searchText, strCmp))
                         return false;
 
                     return DoesTypeFilterPass(a, baseTypeEntry);
