@@ -6,7 +6,7 @@
         </Border>
     </Design.PreviewWith>
     <Style Selector="ScrollBar /template/ Thumb#thumb">
-        <Setter Property="Background" Value="{DynamicResource ScrollBarThumbBackground}"/> <!-- Сірий у спокої -->
+        <Setter Property="Background" Value="{DynamicResource ScrollBarThumbBackground}"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate>
@@ -17,14 +17,12 @@
         </Setter>
     </Style>
 
-
     <Style Selector="ScrollBar /template/ Thumb#thumb:pointerover">
         <Setter Property="Background" Value="{DynamicResource ScrollBarThumbHover}"/>
     </Style>
 
-
     <Style Selector="ScrollBar /template/ Thumb#thumb:pressed">
-        <Setter Property="Background" Value="{DynamicResource ScrollBarThumbPressed}"/> <!-- Синій, як у VS -->
+        <Setter Property="Background" Value="{DynamicResource ScrollBarThumbPressed}"/>
     </Style>
 
 </Styles>
