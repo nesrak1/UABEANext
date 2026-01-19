@@ -1,9 +1,12 @@
 ﻿using AssetsTools.NET;
 using AssetsTools.NET.Extra;
+using Avalonia;
 using Avalonia.Collections;
+using Avalonia.Controls;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.DependencyInjection;
+using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Dock.Model.Mvvm.Controls;
 using DynamicData;
@@ -26,6 +29,7 @@ using UABEANext4.Plugins;
 using UABEANext4.Services;
 using UABEANext4.Util;
 using UABEANext4.ViewModels.Dialogs;
+using UABEANext4.ViewModels.Menu;
 
 namespace UABEANext4.ViewModels.Documents;
 
@@ -54,6 +58,9 @@ public partial class AssetDocumentViewModel : Document
     public bool _isSearchCaseSensitive = false;
     [ObservableProperty]
     public AssetTextSearchKind _searchKind = 0;
+
+    [ObservableProperty]
+    public ObservableCollection<MenuOptionViewModel> _contextMenuItems = [];
 
     public event Action? ShowPluginsContextMenuAction;
     public event Action<List<AssetInst>>? SetSelectedItemsAction;
@@ -803,44 +810,60 @@ public partial class AssetDocumentViewModel : Document
         }
     }
 
+    public void CreateContextMenu()
+    {
+        ContextMenuItems.Clear();
+        if (SelectedItems.Count == 0)
+            return;
+        var selected = SelectedItems;
+        var first = selected[0];
+
+        ContextMenuItems.Add(new MenuOptionViewModel("Edit Data",
+            new RelayCommand(EditDump), null, ApplicationExtensions.GetInconPath("action-view-info.png")));
+
+        ContextMenuItems.Add(new MenuOptionViewModel("-"));
+
+        var pluginsMenu = new MenuOptionViewModel("Plugins", null, null, ApplicationExtensions.GetInconPath("action-plugins.png"))
+        {
+            Items = new ObservableCollection<MenuOptionViewModel>()
+        };
+
+        var pluginTypes = UavPluginMode.Export | UavPluginMode.Import;
+        var pluginsList = Workspace.Plugins.GetOptionsThatSupport(Workspace, SelectedItems, pluginTypes);
+
+        if (pluginsList != null && pluginsList.Count > 0)
+        {
+            foreach (var plugin in pluginsList)
+            {
+                pluginsMenu.Items.Add(new MenuOptionViewModel(
+                    plugin.Option.Name,
+                    new RelayCommand(() => plugin.Option.Execute(Workspace, new UavPluginFunctions(), pluginTypes, SelectedItems))
+                ));
+            }
+        }
+        else
+        {
+            var disabledItem = new MenuOptionViewModel("No plugins available");
+            pluginsMenu.Items.Add(disabledItem);
+        }
+        ContextMenuItems.Add(pluginsMenu);
+        ContextMenuItems.Add(new MenuOptionViewModel("-"));
+ 
+        var copyMenu = new MenuOptionViewModel("Copy");
+        copyMenu.Items = new ObservableCollection<MenuOptionViewModel>
+        {
+            new MenuOptionViewModel("Name", new AsyncRelayCommand(() => ApplicationExtensions.CopyToClipboard(first.DisplayName))),
+            new MenuOptionViewModel("Path ID", new AsyncRelayCommand(() => ApplicationExtensions.CopyToClipboard(first.PathId.ToString())))
+        };
+        ContextMenuItems.Add(copyMenu);
+
+        ContextMenuItems.Add(new MenuOptionViewModel("Remove",
+            new RelayCommand(RemoveAsset), null, ApplicationExtensions.GetInconPath("action-remove-asset.png")));
+    }
+
     private async Task OnWorkspaceClosing(object recipient, WorkspaceClosingMessage message)
     {
         await Load([]);
-    }
-}
-
-// todo: move all classes to new namespace
-
-public class PluginItemInfo
-{
-    public string Name { get; }
-
-    private IUavPluginOption? _option;
-    private AssetDocumentViewModel _docViewModel;
-
-    public PluginItemInfo(string name, IUavPluginOption? option, AssetDocumentViewModel docViewModel)
-    {
-        Name = name;
-        _option = option;
-        _docViewModel = docViewModel;
-    }
-
-    public async Task Execute(object selectedItems)
-    {
-        if (_option != null)
-        {
-            var workspace = _docViewModel.Workspace;
-            var res = await _option.Execute(workspace, new UavPluginFunctions(), _option.Options, (List<AssetInst>)selectedItems);
-            if (res)
-            {
-                _docViewModel.ResendSelectedAssetsSelected();
-            }
-        }
-    }
-
-    public override string ToString()
-    {
-        return Name;
     }
 }
 

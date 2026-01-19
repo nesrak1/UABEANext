@@ -106,4 +106,12 @@ public partial class AssetDocumentView : UserControl
             }
         }
     }
+
+    private void MenuFlyout_Opening(object? sender, EventArgs e)
+    {
+        if (DataContext is AssetDocumentViewModel vm)
+        {
+            vm.CreateContextMenu();
+        }
+    }
 }
