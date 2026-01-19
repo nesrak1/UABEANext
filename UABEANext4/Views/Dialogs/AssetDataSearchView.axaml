@@ -4,11 +4,15 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:dlg="using:UABEANext4.ViewModels.Dialogs"
              mc:Ignorable="d" d:DesignWidth="450" d:DesignHeight="400"
+             xmlns:uac="using:UABEANext4.Converters"
              x:Class="UABEANext4.Views.Dialogs.AssetDataSearchView"
              x:DataType="dlg:AssetDataSearchViewModel"
              Background="{DynamicResource DockThemeBackgroundBrush}">
 
     <Grid Margin="12" RowDefinitions="Auto, *, Auto">
+        <Grid.Resources>
+            <uac:AssetClassIDConverter x:Key="AssetClassIDConverter" />
+        </Grid.Resources>
 
         <Grid Grid.Row="0" ColumnDefinitions="*, Auto" Margin="0,0,0,10">
             <TextBox Text="{Binding SearchText}"
@@ -30,20 +34,37 @@
             </ComboBox>
         </Grid>
 
-        <Border Grid.Row="1"
-                BorderBrush="{DynamicResource DockThemeBorderLowBrush}"
-                BorderThickness="1">
-            <ListBox ItemsSource="{Binding SearchResults}"
-                     Background="{DynamicResource DockThemeListBackgroundBrush}"
-                     ScrollViewer.VerticalScrollBarVisibility="Visible">
-                <ListBox.ItemTemplate>
-                    <DataTemplate>
+        <DataGrid Grid.Row="1"
+                  ItemsSource="{Binding SearchResults}"
+                  IsReadOnly="True"
+                  CanUserResizeColumns="True"
+                  CanUserSortColumns="True"
+                  HorizontalScrollBarVisibility="Auto"
+                  VerticalScrollBarVisibility="Auto"
+                  GridLinesVisibility="Horizontal"
+                  DoubleTapped="DataGrid_DoubleTapped"
+                  Background="{DynamicResource DockThemeListBackgroundBrush}"
+                  Name="ResultGrid">
+            <DataGrid.Columns>
 
-                        <TextBlock Text="{Binding}" FontSize="12" Padding="2"/>
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>
-        </Border>
+                <DataGridTextColumn Header="File"
+                                    Binding="{Binding FileName, Mode=OneTime}"
+                                    Width="150" />
+
+                <DataGridTextColumn Header="Asset Name"
+                                    Binding="{Binding AssetName, Mode=OneTime}"
+                                    Width="250"
+                                    MinWidth="250" />
+                <DataGridTextColumn Header="Type" Width="120" Binding="{Binding Type, Converter={StaticResource AssetClassIDConverter}}" />
+                <DataGridTextColumn Header="Path ID"
+                                    Binding="{Binding PathId, Mode=OneTime}"
+                                    Width="120" />
+
+                <DataGridTextColumn Header="Offset"
+                                    Binding="{Binding Offset, Mode=OneTime}"
+                                    Width="100" />
+            </DataGrid.Columns>
+        </DataGrid>
 
         <StackPanel Grid.Row="2"
                     Orientation="Horizontal"
