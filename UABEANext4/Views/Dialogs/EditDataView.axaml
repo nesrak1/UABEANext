@@ -15,15 +15,26 @@
                 BorderBrush="{DynamicResource DockThemeBorderLowBrush}"
                 BorderThickness="1"
                 Margin="0,0,0,10">
-            <avedit:TextEditor
-                Name="textEditor"
-                Document="{Binding Document}"
-                FontFamily="Cascadia Code,Consolas,Monospace,Courier,DejaVu Sans Mono,Roboto Mono,Menlo"
-                FontSize="13"
-                Background="{DynamicResource DockThemeListBackgroundBrush}"
-                Foreground="{DynamicResource DockThemeForegroundBrush}"
-                HorizontalScrollBarVisibility="Auto"
-                VerticalScrollBarVisibility="Visible" />
+            <Panel>
+                <avedit:TextEditor
+                    Name="textEditor"
+                    Document="{Binding Document}"
+                    ShowLineNumbers="True"
+                    IsEnabled="{Binding !IsBusy}"
+                    FontFamily="Cascadia Code,Consolas,Monospace,Courier,DejaVu Sans Mono,Roboto Mono,Menlo"
+                    FontSize="13"
+                    Background="{DynamicResource DockThemeListBackgroundBrush}"
+                    Foreground="{DynamicResource DockThemeForegroundBrush}"
+                    HorizontalScrollBarVisibility="Auto"
+                    VerticalScrollBarVisibility="Visible" />
+
+                <Border Background="#40000000" IsVisible="{Binding IsBusy}">
+                    <ProgressBar IsIndeterminate="True"
+                                 VerticalAlignment="Center"
+                                 HorizontalAlignment="Center"
+                                 Width="200" />
+                </Border>
+            </Panel>
         </Border>
 
         <StackPanel Grid.Row="1"
@@ -31,13 +42,14 @@
                     HorizontalAlignment="Right"
                     Spacing="8" Margin="0,0,10,10">
 
-            <Button Command="{Binding BtnOk_Click}"
+            <Button Command="{Binding BtnOk_ClickCommand}"
+                    IsEnabled="{Binding !IsBusy}"
                     Width="85"
                     Height="28"
                     IsDefault="True"
                     Content="OK" />
 
-            <Button Command="{Binding BtnCancel_Click}"
+            <Button Command="{Binding BtnCancel_ClickCommand}"
                     Width="85"
                     Height="28"
                     IsCancel="True"
