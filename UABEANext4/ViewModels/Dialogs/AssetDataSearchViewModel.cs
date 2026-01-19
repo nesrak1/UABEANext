@@ -84,125 +84,161 @@ public partial class AssetDataSearchViewModel : ViewModelBase, IDialogAware<stri
     public async Task BtnSearch_Click()
     {
         byte[]? searchBytes = GetSearchBytes();
-        if (searchBytes is null || IsBusy) return;
+        if (searchBytes is null || IsBusy)
+        {
+            await MessageBoxUtil.ShowDialog("Invalid input", "Input is invalid for this search kind.");
+            return;
+        }
 
+        _workspace.ModifyMutex.WaitOne();
         IsBusy = true;
         ProgressValue = 0;
         SearchResults.Clear();
 
-        await Task.Run(() =>
+        try
         {
-            var allFound = new List<SearchResultItem>();
-            int currentCount = 0;
-            int itemCount = _items.Count;
-
-            foreach (var fileInst in _items)
+            await Task.Run(() =>
             {
-                var assetInfos = fileInst.file.AssetInfos;
-                var dataOffset = fileInst.file.Header.DataOffset;
+                var allFound = new List<SearchResultItem>();
+                int currentCount = 0;
+                int itemCount = _items.Count;
 
-                Dispatcher.UIThread.Post(() => ProgressStatus = $"Searching in {fileInst.name}...");
-                _workspace.SetProgressThreadSafe(0f, "Searching...");
-
-                if (_selectedFilterEntries.Count > 0)
+                foreach (var fileInst in _items)
                 {
-                    foreach (var info in assetInfos)
+                    var assetInfos = fileInst.file.AssetInfos;
+                    var dataOffset = fileInst.file.Header.DataOffset;
+
+                    Dispatcher.UIThread.Post(() => ProgressStatus = $"Searching in {fileInst.name}...");
+
+                    var stream = fileInst.AssetsStream;
+                    lock (fileInst.LockReader)
                     {
-                        AssetTypeReference? sRef = null;
-                        if (info.TypeId == 0x72 || info.TypeId < 0)
+                        if (_selectedFilterEntries.Count > 0)
                         {
-                            ushort sIdx = info.GetScriptIndex(fileInst.file);
-                            if (sIdx != ushort.MaxValue)
+                            foreach (var info in assetInfos)
                             {
-                                var sPtr = fileInst.file.Metadata.ScriptTypes[sIdx];
-                                sPtr.SetFilePathFromFile(_workspace.Manager, fileInst);
-                                sRef = SelectTypeFilterViewModel.GetAssetsFileScriptInfo(_workspace.Manager, sPtr);
-                            }
-                        }
-
-                        var currentEntry = new TypeFilterTypeEntry { 
-                            TypeId = info.TypeId, 
-                            ScriptRef = sRef,
-                            DisplayText = ""
-                        };
-                        if (!_selectedFilterEntries.Contains(currentEntry))
-                            continue;
-
-                        byte[] assetData = new byte[info.ByteSize];
-                        lock (fileInst.LockReader)
-                        {
-                            fileInst.AssetsStream.Position = info.ByteOffset + dataOffset;
-                            fileInst.AssetsStream.Read(assetData, 0, (int)info.ByteSize);
-                        }
-
-                        int matchIdx = SearchLogic.IndexOfBytes(assetData, searchBytes);
-                        if (matchIdx != -1)
-                        {
-                            allFound.Add(new SearchResultItem
-                            {
-                                FileName = fileInst.name,
-                                AssetName = (info is AssetInst a) ? a.DisplayName : $"{info.TypeId} asset",
-                                PathId = info.PathId,
-                                Type = (AssetClassID)info.TypeId,
-                                Offset = $"0x{info.ByteOffset + dataOffset + matchIdx:X}",
-                                Asset = info as AssetInst
-                            });
-                        }
-                       /* if (allFound.Count >= 40000)
-                            break;*/
-                    }
-                }
-                else
-                {
-                    using (var stream = fileInst.AssetsStream)
-                    {
-                        var matches = SearchLogic.FindAllSubstringsInStream(stream, searchBytes);
-                        var enumerator = matches.GetEnumerator();
-                        while (enumerator.MoveNext())
-                        {
-                            long pos = enumerator.Current;
-                            long relativeOffset = pos - dataOffset;
-                            int searchIdx = assetInfos.BinarySearch(new AssetFileInfo {
-                                ByteOffset = relativeOffset },
-                                (i, j) => i.ByteOffset.CompareTo(j.ByteOffset));
-
-                            AssetFileInfo? info = null;
-                            if (searchIdx >= 0) 
-                                info = assetInfos[searchIdx];
-                            else if (~searchIdx - 1 >= 0)
-                                info = assetInfos[~searchIdx - 1];
-
-                            if (info != null && relativeOffset < (info.ByteOffset + info.ByteSize))
-                            {
-                                allFound.Add(new SearchResultItem
+                                AssetTypeReference? sRef = null;
+                                if (info.TypeId == 0x72 || info.TypeId < 0)
                                 {
-                                    FileName = fileInst.name,
-                                    AssetName = (info is AssetInst a) ? a.DisplayName : $"{info.TypeId} asset",
-                                    PathId = info.PathId,
-                                    Type = (AssetClassID)info.TypeId,
-                                    Offset = $"0x{pos:X}",
-                                    Asset = info as AssetInst
-                                });
-                                stream.Position = info.ByteOffset + info.ByteSize + dataOffset;
+                                    ushort sIdx = info.GetScriptIndex(fileInst.file);
+                                    if (sIdx != ushort.MaxValue)
+                                    {
+                                        var sPtr = fileInst.file.Metadata.ScriptTypes[sIdx];
+                                        sPtr.SetFilePathFromFile(_workspace.Manager, fileInst);
+                                        sRef = SelectTypeFilterViewModel.GetAssetsFileScriptInfo(_workspace.Manager, sPtr);
+                                    }
+                                }
+
+                                var currentEntry = new TypeFilterTypeEntry 
+                                { 
+                                    TypeId = info.TypeId,
+                                    ScriptRef = sRef, 
+                                    DisplayText = "" 
+                                };
+
+                                if (!_selectedFilterEntries.Contains(currentEntry))
+                                {
+                                    continue;
+                                }
+
+                                byte[] assetData = new byte[info.ByteSize];
+                                stream.Position = info.ByteOffset + dataOffset;
+                                stream.Read(assetData, 0, (int)info.ByteSize);
+
+                                int matchIdx = SearchLogic.IndexOfBytes(assetData, searchBytes);
+                                if (matchIdx != -1)
+                                {
+                                    allFound.Add(new SearchResultItem
+                                    {
+                                        FileName = fileInst.name,
+                                        AssetName = (info is AssetInst a) ? a.DisplayName : $"{info.TypeId} asset",
+                                        PathId = info.PathId,
+                                        Type = (AssetClassID)info.TypeId,
+                                        Offset = $"0x{info.ByteOffset + dataOffset + matchIdx:X}",
+                                        Asset = info as AssetInst
+                                    });
+                                }
+                                if (allFound.Count >= 40000)
+                                {
+                                    break;
+                                }
                             }
-                            if (allFound.Count >= 40000)
-                                break;
                         }
+                        else
+                        {
+                            var foundPathIds = new HashSet<long>();
+                            var matches = SearchLogic.FindAllSubstringsInStream(stream, searchBytes);
+                            var enumerator = matches.GetEnumerator();
+
+                            while (enumerator.MoveNext())
+                            {
+                                long pos = enumerator.Current;
+                                long relativeOffset = pos - dataOffset;
+
+                                int searchIdx = assetInfos.BinarySearch(new AssetFileInfo
+                                {
+                                    ByteOffset = relativeOffset 
+                                }, 
+                                (i, j) => i.ByteOffset.CompareTo(j.ByteOffset));
+                                AssetFileInfo? info = null;
+                                if (searchIdx >= 0)
+                                {
+                                    info = assetInfos[searchIdx];
+                                }
+                                else if (~searchIdx - 1 >= 0)
+                                {
+                                    info = assetInfos[~searchIdx - 1];
+                                }
+
+                                if (info != null && relativeOffset < (info.ByteOffset + info.ByteSize))
+                                {
+                                    if (foundPathIds.Add(info.PathId))
+                                    {
+                                        allFound.Add(new SearchResultItem
+                                        {
+                                            FileName = fileInst.name,
+                                            AssetName = (info is AssetInst a) ? a.DisplayName : $"{info.TypeId} asset",
+                                            PathId = info.PathId,
+                                            Type = (AssetClassID)info.TypeId,
+                                            Offset = $"0x{pos:X}",
+                                            Asset = info as AssetInst
+                                        });
+                                        stream.Position = info.ByteOffset + info.ByteSize + dataOffset;
+                                    }
+                                }
+                                if (allFound.Count >= 40000)
+                                {
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    currentCount++;
+                    ProgressValue = (double)currentCount / itemCount * 100;
+                    if (allFound.Count >= 40000)
+                    {
+                        break;
                     }
                 }
 
-                currentCount++;
-                ProgressValue = (double)currentCount / itemCount * 100;
-            }
-
-            Dispatcher.UIThread.Post(() =>
-            {
-                SearchResults = new ObservableCollection<SearchResultItem>(allFound);
-                ProgressStatus = $"Done. Found {allFound.Count} assets.";
-                _workspace.SetProgressThreadSafe(1f, ProgressStatus);
-                IsBusy = false;
+                Dispatcher.UIThread.Post(() =>
+                {
+                    SearchResults = new ObservableCollection<SearchResultItem>(allFound);
+                    ProgressStatus = $"Done. Found {allFound.Count} assets.";
+                    _workspace.SetProgressThreadSafe(1f, ProgressStatus);
+                });
             });
-        });
+        }
+        catch (Exception ex)
+        {
+            await MessageBoxUtil.ShowDialog("Search Error", ex.Message);
+        }
+        finally
+        {
+            IsBusy = false;
+            _workspace.ModifyMutex.ReleaseMutex();
+        }
     }
 
     public void BtnCancel_Click()
