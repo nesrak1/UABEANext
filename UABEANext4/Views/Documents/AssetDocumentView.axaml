@@ -162,7 +162,7 @@
                     <DataGridTextColumn Header="Type" Width="120" Binding="{Binding Type, Converter={StaticResource AssetClassIDConverter}}" x:DataType="ws:AssetInst"/>
                     <DataGridTextColumn Header="Container" Width="150" Binding="{Binding DisplayContainer}" x:DataType="ws:AssetInst" IsVisible="{Binding $parent[UserControl].((docs:AssetDocumentViewModel)DataContext).LoadContainers}"/>
                     <!--<DataGridTextColumn Header="File Name" Width="120" Binding="{Binding FileName}" x:DataType="ws:AssetInst"/>-->
-                    <DataGridTextColumn Header="Path ID" Width="100" Binding="{Binding PathId}" x:DataType="ws:AssetInst"/>
+                    <DataGridTextColumn Header="Path ID" Width="160" Binding="{Binding PathId}" x:DataType="ws:AssetInst"/>
                     <!--<DataGridTextColumn Header="Offset" Binding="{Binding ByteOffset}" x:DataType="ws:AssetInst"/>-->
                     <DataGridTextColumn Header="Size" Width="80" Binding="{Binding ByteSizeModified}" x:DataType="ws:AssetInst"/>
                     <DataGridTextColumn Header="Modified" Width="80" Binding="{Binding ModifiedString}" x:DataType="ws:AssetInst"/>

@@ -1,7 +1,9 @@
 ﻿using AssetsTools.NET;
 using AssetsTools.NET.Extra;
+using AssetsTools.NET.Texture.TextureDecoders.CrnUnity;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.DependencyInjection;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using DynamicData;
@@ -9,12 +11,14 @@ using System;
 using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UABEANext4.AssetWorkspace;
 using UABEANext4.Interfaces;
 using UABEANext4.Logic;
 using UABEANext4.Logic.Search;
+using UABEANext4.Services;
 using UABEANext4.Util;
 
 namespace UABEANext4.ViewModels.Dialogs;
@@ -26,6 +30,17 @@ public partial class AssetDataSearchViewModel : ViewModelBase, IDialogAware<stri
     public AssetDataSearchKind _searchKind = AssetDataSearchKind.Bytes;
     [ObservableProperty]
     public ObservableCollection<SearchResultItem> _searchResults = [];
+
+    private HashSet<TypeFilterTypeEntry> _selectedFilterEntries = [];
+    private List<TypeFilterTypeEntry>? _filterTypes = null;
+    [ObservableProperty]
+    private double _progressValue;
+
+    [ObservableProperty]
+    private string _progressStatus = "";
+
+    [ObservableProperty]
+    private bool _isBusy;
 
     private readonly Workspace _workspace;
     private readonly List<AssetsFileInstance> _items;
@@ -50,14 +65,31 @@ public partial class AssetDataSearchViewModel : ViewModelBase, IDialogAware<stri
         _items = items;
     }
 
+    [RelayCommand]
+    public async Task SetTypeFilter()
+    {
+        var dialogService = Ioc.Default.GetRequiredService<IDialogService>();
+        if (_filterTypes == null)
+        {
+            _filterTypes = SelectTypeFilterViewModel.MakeTypeFilterTypes(_workspace, _items);
+        }
+
+        var result = await dialogService.ShowDialog(new SelectTypeFilterViewModel(_filterTypes));
+        if (result != null)
+        {
+            _selectedFilterEntries = result.ToHashSet();
+
+        }
+    }
+
     public async Task BtnSearch_Click()
     {
         byte[]? searchBytes = GetSearchBytes();
-        if (searchBytes is null)
-            return;
+        if (searchBytes is null || IsBusy) return;
 
+        IsBusy = true;
+        ProgressValue = 0;
         SearchResults.Clear();
-        _workspace.SetProgressThreadSafe(0f, "Searching...");
 
         await Task.Run(() =>
         {
@@ -68,54 +100,108 @@ public partial class AssetDataSearchViewModel : ViewModelBase, IDialogAware<stri
             foreach (var fileInst in _items)
             {
                 var assetInfos = fileInst.file.AssetInfos;
-                var assetsCount = assetInfos.Count;
+                var dataOffset = fileInst.file.Header.DataOffset;
 
-                foreach (long pos in SearchLogic.FindAllSubstringsInStream(fileInst.AssetsStream, searchBytes))
+                Dispatcher.UIThread.Post(() => ProgressStatus = $"Searching in {fileInst.name}...");
+                _workspace.SetProgressThreadSafe(0f, "Searching...");
+
+                if (_selectedFilterEntries.Count > 0)
                 {
-                    long relativeOffset = pos - fileInst.file.Header.DataOffset;
-
-                    int searchIdx = assetInfos.BinarySearch(
-                        new AssetFileInfo { ByteOffset = relativeOffset },
-                        (i, j) => i.ByteOffset.CompareTo(j.ByteOffset)
-                    );
-
-                    AssetFileInfo? info = null;
-                    if (searchIdx >= 0)
+                    foreach (var info in assetInfos)
                     {
-                        info = assetInfos[searchIdx];
-                    }
-                    else if (~searchIdx - 1 >= 0)
-                    {
-                        info = assetInfos[~searchIdx - 1];
-                    }
-
-                    if (info != null)
-                    {
-                        allFound.Add(new SearchResultItem
+                        AssetTypeReference? sRef = null;
+                        if (info.TypeId == 0x72 || info.TypeId < 0)
                         {
-                            FileName = fileInst.name,
-                            AssetName = (info is AssetInst a) ? a.DisplayName : $"{info.TypeId} asset",
-                            PathId = info.PathId,
-                            Type = (AssetClassID)info.TypeId,
-                            Offset = $"0x{pos:X}",
-                            Asset = info as AssetInst
-                        });
-                    }
+                            ushort sIdx = info.GetScriptIndex(fileInst.file);
+                            if (sIdx != ushort.MaxValue)
+                            {
+                                var sPtr = fileInst.file.Metadata.ScriptTypes[sIdx];
+                                sPtr.SetFilePathFromFile(_workspace.Manager, fileInst);
+                                sRef = SelectTypeFilterViewModel.GetAssetsFileScriptInfo(_workspace.Manager, sPtr);
+                            }
+                        }
 
-                    // limit results to 40,000 for performance reasons
-                    if (allFound.Count > 40000)
-                        break;
+                        var currentEntry = new TypeFilterTypeEntry { 
+                            TypeId = info.TypeId, 
+                            ScriptRef = sRef,
+                            DisplayText = ""
+                        };
+                        if (!_selectedFilterEntries.Contains(currentEntry))
+                            continue;
+
+                        byte[] assetData = new byte[info.ByteSize];
+                        lock (fileInst.LockReader)
+                        {
+                            fileInst.AssetsStream.Position = info.ByteOffset + dataOffset;
+                            fileInst.AssetsStream.Read(assetData, 0, (int)info.ByteSize);
+                        }
+
+                        int matchIdx = SearchLogic.IndexOfBytes(assetData, searchBytes);
+                        if (matchIdx != -1)
+                        {
+                            allFound.Add(new SearchResultItem
+                            {
+                                FileName = fileInst.name,
+                                AssetName = (info is AssetInst a) ? a.DisplayName : $"{info.TypeId} asset",
+                                PathId = info.PathId,
+                                Type = (AssetClassID)info.TypeId,
+                                Offset = $"0x{info.ByteOffset + dataOffset + matchIdx:X}",
+                                Asset = info as AssetInst
+                            });
+                        }
+                       /* if (allFound.Count >= 40000)
+                            break;*/
+                    }
+                }
+                else
+                {
+                    using (var stream = fileInst.AssetsStream)
+                    {
+                        var matches = SearchLogic.FindAllSubstringsInStream(stream, searchBytes);
+                        var enumerator = matches.GetEnumerator();
+                        while (enumerator.MoveNext())
+                        {
+                            long pos = enumerator.Current;
+                            long relativeOffset = pos - dataOffset;
+                            int searchIdx = assetInfos.BinarySearch(new AssetFileInfo {
+                                ByteOffset = relativeOffset },
+                                (i, j) => i.ByteOffset.CompareTo(j.ByteOffset));
+
+                            AssetFileInfo? info = null;
+                            if (searchIdx >= 0) 
+                                info = assetInfos[searchIdx];
+                            else if (~searchIdx - 1 >= 0)
+                                info = assetInfos[~searchIdx - 1];
+
+                            if (info != null && relativeOffset < (info.ByteOffset + info.ByteSize))
+                            {
+                                allFound.Add(new SearchResultItem
+                                {
+                                    FileName = fileInst.name,
+                                    AssetName = (info is AssetInst a) ? a.DisplayName : $"{info.TypeId} asset",
+                                    PathId = info.PathId,
+                                    Type = (AssetClassID)info.TypeId,
+                                    Offset = $"0x{pos:X}",
+                                    Asset = info as AssetInst
+                                });
+                                stream.Position = info.ByteOffset + info.ByteSize + dataOffset;
+                            }
+                            if (allFound.Count >= 40000)
+                                break;
+                        }
+                    }
                 }
 
                 currentCount++;
-                _workspace.SetProgressThreadSafe((float)currentCount / itemCount, $"Searching {fileInst.name}...");
+                ProgressValue = (double)currentCount / itemCount * 100;
             }
 
             Dispatcher.UIThread.Post(() =>
             {
                 SearchResults = new ObservableCollection<SearchResultItem>(allFound);
-       
-                _workspace.SetProgressThreadSafe(1f, $"Found {allFound.Count} results");
+                ProgressStatus = $"Done. Found {allFound.Count} assets.";
+                _workspace.SetProgressThreadSafe(1f, ProgressStatus);
+                IsBusy = false;
             });
         });
     }

@@ -17,7 +17,7 @@ public partial class AssetDataSearchView : UserControl
         defaultBox.SelectAll();
     }
 
-    private void DataGrid_DoubleTapped(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    private void DataGrid_DoubleTapped(object? sender, Avalonia.Input.TappedEventArgs e)
     {
         if (sender is DataGrid dg && dg.SelectedItem is SearchResultItem item)
         {

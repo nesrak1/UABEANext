@@ -3,34 +3,38 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:dlg="using:UABEANext4.ViewModels.Dialogs"
-             mc:Ignorable="d" d:DesignWidth="450" d:DesignHeight="400"
+             mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="400"
              xmlns:uac="using:UABEANext4.Converters"
              x:Class="UABEANext4.Views.Dialogs.AssetDataSearchView"
              x:DataType="dlg:AssetDataSearchViewModel"
              Background="{DynamicResource DockThemeBackgroundBrush}">
 
-    <Grid Margin="12" RowDefinitions="Auto, *, Auto">
+    <Grid Margin="12" RowDefinitions="Auto, *, Auto, Auto">
         <Grid.Resources>
             <uac:AssetClassIDConverter x:Key="AssetClassIDConverter" />
         </Grid.Resources>
 
-        <Grid Grid.Row="0" ColumnDefinitions="*, Auto" Margin="0,0,0,10">
-            <TextBox Text="{Binding SearchText}"
-                     Name="defaultBox"
-                     Grid.Column="0"
-                     Watermark="Enter value to search..."
-                     VerticalContentAlignment="Center"
-                     Margin="0,0,8,0"/>
-
-            <ComboBox SelectedIndex="{Binding SearchKind}"
-                      Width="150"
-                      Grid.Column="1">
-                <ComboBoxItem Content="Bytes" />
-                <ComboBoxItem Content="Text" />
-                <ComboBoxItem Content="Signed 4-byte" />
-                <ComboBoxItem Content="Signed 8-byte" />
-                <ComboBoxItem Content="Unsigned 4-byte" />
-                <ComboBoxItem Content="Unsigned 8-byte" />
+        <Grid Grid.Row="0" ColumnDefinitions="*, Auto, Auto"
+              Margin="0,0,0,10"
+              IsEnabled="{Binding !IsBusy}">
+            <TextBox
+                Text="{Binding SearchText}"
+                Name="defaultBox"
+                Watermark="Enter value to search..."
+                VerticalContentAlignment="Center"
+                Margin="0,0,8,0"/>
+            <Button Grid.Column="1"
+                    Command="{Binding SetTypeFilterCommand}"
+                    Margin="0,0,8,0">
+                <StackPanel Orientation="Horizontal" Spacing="5">
+                    <Image Source="avares://UABEANext4/Assets/Icons/action-filter.png" Width="14" Height="14"/>
+                    <TextBlock Text="Types"/>
+                </StackPanel>
+            </Button>
+            <ComboBox SelectedIndex="{Binding SearchKind}" Width="130" Grid.Column="2">
+                <ComboBoxItem Content="Bytes" /><ComboBoxItem Content="Text" />
+                <ComboBoxItem Content="Signed 4-byte" /><ComboBoxItem Content="Signed 8-byte" />
+                <ComboBoxItem Content="Unsigned 4-byte" /><ComboBoxItem Content="Unsigned 8-byte" />
             </ComboBox>
         </Grid>
 
@@ -43,47 +47,48 @@
                   VerticalScrollBarVisibility="Auto"
                   GridLinesVisibility="Horizontal"
                   DoubleTapped="DataGrid_DoubleTapped"
-                  Background="{DynamicResource DockThemeListBackgroundBrush}"
-                  Name="ResultGrid">
+                  Background="{DynamicResource DockThemeListBackgroundBrush}">
             <DataGrid.Columns>
-
-                <DataGridTextColumn Header="File"
-                                    Binding="{Binding FileName, Mode=OneTime}"
-                                    Width="150" />
-
-                <DataGridTextColumn Header="Asset Name"
-                                    Binding="{Binding AssetName, Mode=OneTime}"
-                                    Width="250"
-                                    MinWidth="250" />
+                <DataGridTextColumn Header="File" Binding="{Binding FileName, Mode=OneTime}" Width="150" />
+                <DataGridTextColumn Header="Asset Name" Binding="{Binding AssetName, Mode=OneTime}" Width="200" MinWidth="150" />
                 <DataGridTextColumn Header="Type" Width="120" Binding="{Binding Type, Converter={StaticResource AssetClassIDConverter}}" />
-                <DataGridTextColumn Header="Path ID"
-                                    Binding="{Binding PathId, Mode=OneTime}"
-                                    Width="120" />
-
-                <DataGridTextColumn Header="Offset"
-                                    Binding="{Binding Offset, Mode=OneTime}"
-                                    Width="100" />
+                <DataGridTextColumn Header="Path ID" Binding="{Binding PathId, Mode=OneTime}" Width="160" />
+                <DataGridTextColumn Header="Offset" Binding="{Binding Offset, Mode=OneTime}" Width="100" />
             </DataGrid.Columns>
         </DataGrid>
 
-        <StackPanel Grid.Row="2"
+        <Grid Grid.Row="2"
+              RowDefinitions="Auto, Auto"
+              Margin="0,8,0,0"
+              IsVisible="{Binding IsBusy}">
+            <ProgressBar Value="{Binding ProgressValue}"
+                         Minimum="0" Maximum="100"
+                         Height="4"
+                         Margin="0,0,0,4"
+                         Foreground="{DynamicResource SystemAccentColor}" />
+            <TextBlock Grid.Row="1"
+                       Text="{Binding ProgressStatus}"
+                       FontSize="11"
+                       Foreground="{DynamicResource DockThemeForegroundBrush}"
+                       Opacity="0.7" />
+        </Grid>
+
+        <StackPanel Grid.Row="3"
                     Orientation="Horizontal"
                     HorizontalAlignment="Right"
                     Spacing="8"
                     Margin="0,12,0,0">
-
             <Button Command="{Binding BtnSearch_Click}"
+                    IsEnabled="{Binding !IsBusy}"
                     Content="Search"
                     Width="90"
                     Height="28"
                     IsDefault="True" />
-
             <Button Command="{Binding BtnCancel_Click}"
                     Content="Close"
                     Width="90"
                     Height="28"
                     IsCancel="True" />
         </StackPanel>
-
     </Grid>
 </UserControl>
