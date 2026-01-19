@@ -11,6 +11,10 @@
              x:Class="UABEANext4.Views.Documents.AssetDocumentView"
              x:DataType="docs:AssetDocumentViewModel"
              Background="{DynamicResource DockThemeBackgroundBrush}">
+    <Design.DataContext>
+        <docs:AssetDocumentViewModel IsBusy="False" />
+    </Design.DataContext>
+
     <UserControl.Styles>
         <Style Selector="Button.toolbar">
             <Setter Property="Background" Value="Transparent" />
@@ -33,7 +37,12 @@
             <uac:AssetClassIDConverter x:Key="AssetClassIDConverter" />
             <uac:BitmapAssetValueConverter x:Key="BitmapAssetValueConverter" />
         </Grid.Resources>
-        <Border Grid.Row="0" Background="{DynamicResource DockThemeBackgroundBrush}" BorderBrush="{DynamicResource DockThemeBorderLowBrush}" BorderThickness="0,0,0,1">
+
+        <Border Grid.Row="0"
+                IsEnabled="{Binding !IsBusy}"
+                Background="{DynamicResource DockThemeBackgroundBrush}"
+                BorderBrush="{DynamicResource DockThemeBorderLowBrush}"
+                BorderThickness="0,0,0,1">
             <WrapPanel Orientation="Horizontal" Margin="2">
                 <Button Classes="toolbar" Command="{Binding ViewScene}">
                     <StackPanel Orientation="Horizontal">
@@ -91,7 +100,7 @@
             </WrapPanel>
         </Border>
 
-        <Grid Grid.Row="1" ColumnDefinitions="*,Auto" Margin="4" Height="30">
+        <Grid Grid.Row="1" ColumnDefinitions="*,Auto" Margin="4" Height="30" IsEnabled="{Binding !IsBusy}">
             <TextBox Grid.Column="0" Text="{Binding SearchText}" Watermark="Asset name search" VerticalContentAlignment="Center" />
             <Button Grid.Column="1" Margin="4,0,0,0" Padding="10,0">
                 <StackPanel Orientation="Horizontal">
@@ -114,49 +123,71 @@
                 </Button.Flyout>
             </Button>
         </Grid>
-        <DataGrid
-            Grid.Row="2" AutoGenerateColumns="False" CanUserResizeColumns="True"
-            IsReadOnly="True" ItemsSource="{Binding CollectionView}"
-            SelectionChanged="DataGrid_SelectionChanged" Margin="0"
-            Name="dataGrid"
-            Background="Transparent"
-            RowBackground="Transparent"
-            GridLinesVisibility="Horizontal"
-            HorizontalGridLinesBrush="{DynamicResource DockThemeBorderLowBrush}">
-            <DataGrid.ContextFlyout>
-                <MenuFlyout ItemsSource="{Binding ContextMenuItems}" Opening="MenuFlyout_Opening">
-                    <MenuFlyout.ItemContainerTheme>
-                        <ControlTheme TargetType="MenuItem" BasedOn="{StaticResource {x:Type MenuItem}}" x:DataType="menu:MenuOptionViewModel">
-                            <Setter Property="Header" Value="{Binding Header}"/>
-                            <Setter Property="Command" Value="{Binding Command}"/>
-                            <Setter Property="CommandParameter" Value="{Binding CommandParameter}"/>
-                            <Setter Property="ItemsSource" Value="{Binding Items}"/>
-                            <Setter Property="Icon">
-                                <Template>
-                                    <Image Source="{Binding IconPath, Converter={StaticResource BitmapAssetValueConverter}}" Width="16" Height="16" />
-                                </Template>
-                            </Setter>
-                        </ControlTheme>
-                    </MenuFlyout.ItemContainerTheme>
-                </MenuFlyout>
-            </DataGrid.ContextFlyout>
-            <DataGrid.Columns>
-                <DataGridTemplateColumn Header=" " Width="35">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate x:DataType="ws:AssetInst">
-                            <Image Source="{Binding Type, Converter={StaticResource AssetTypeIconConverter}}" Width="16" Height="16" HorizontalAlignment="Center" />
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-                <DataGridTextColumn Header="Name" Width="200" Binding="{Binding DisplayName}" x:DataType="ws:AssetInst"/>
-                <DataGridTextColumn Header="Type" Width="120" Binding="{Binding Type, Converter={StaticResource AssetClassIDConverter}}" x:DataType="ws:AssetInst"/>
-                <DataGridTextColumn Header="Container" Width="150" Binding="{Binding DisplayContainer}" x:DataType="ws:AssetInst" IsVisible="{Binding $parent[UserControl].((docs:AssetDocumentViewModel)DataContext).LoadContainers}"/>
-                <!--<DataGridTextColumn Header="File Name" Width="120" Binding="{Binding FileName}" x:DataType="ws:AssetInst"/>-->
-                <DataGridTextColumn Header="Path ID" Width="100" Binding="{Binding PathId}" x:DataType="ws:AssetInst"/>
-                <!--<DataGridTextColumn Header="Offset" Binding="{Binding ByteOffset}" x:DataType="ws:AssetInst"/>-->
-                <DataGridTextColumn Header="Size" Width="80" Binding="{Binding ByteSizeModified}" x:DataType="ws:AssetInst"/>
-                <DataGridTextColumn Header="Modified" Width="80" Binding="{Binding ModifiedString}" x:DataType="ws:AssetInst"/>
-            </DataGrid.Columns>
-        </DataGrid>
+        <Panel Grid.Row="2">
+            <DataGrid
+                AutoGenerateColumns="False" CanUserResizeColumns="True"
+                IsReadOnly="True" ItemsSource="{Binding CollectionView}"
+                SelectionChanged="DataGrid_SelectionChanged" Margin="0"
+                Name="dataGrid"
+                Background="Transparent"
+                RowBackground="Transparent"
+                GridLinesVisibility="Horizontal"
+                HorizontalGridLinesBrush="{DynamicResource DockThemeBorderLowBrush}">
+                <DataGrid.ContextFlyout>
+                    <MenuFlyout ItemsSource="{Binding ContextMenuItems}" Opening="MenuFlyout_Opening">
+                        <MenuFlyout.ItemContainerTheme>
+                            <ControlTheme TargetType="MenuItem" BasedOn="{StaticResource {x:Type MenuItem}}" x:DataType="menu:MenuOptionViewModel">
+                                <Setter Property="Header" Value="{Binding Header}"/>
+                                <Setter Property="Command" Value="{Binding Command}"/>
+                                <Setter Property="CommandParameter" Value="{Binding CommandParameter}"/>
+                                <Setter Property="ItemsSource" Value="{Binding Items}"/>
+                                <Setter Property="Icon">
+                                    <Template>
+                                        <Image Source="{Binding IconPath, Converter={StaticResource BitmapAssetValueConverter}}" Width="16" Height="16" />
+                                    </Template>
+                                </Setter>
+                            </ControlTheme>
+                        </MenuFlyout.ItemContainerTheme>
+                    </MenuFlyout>
+                </DataGrid.ContextFlyout>
+                <DataGrid.Columns>
+                    <DataGridTemplateColumn Header=" " Width="35">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate x:DataType="ws:AssetInst">
+                                <Image Source="{Binding Type, Converter={StaticResource AssetTypeIconConverter}}" Width="16" Height="16" HorizontalAlignment="Center" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTextColumn Header="Name" Width="200" Binding="{Binding DisplayName}" x:DataType="ws:AssetInst"/>
+                    <DataGridTextColumn Header="Type" Width="120" Binding="{Binding Type, Converter={StaticResource AssetClassIDConverter}}" x:DataType="ws:AssetInst"/>
+                    <DataGridTextColumn Header="Container" Width="150" Binding="{Binding DisplayContainer}" x:DataType="ws:AssetInst" IsVisible="{Binding $parent[UserControl].((docs:AssetDocumentViewModel)DataContext).LoadContainers}"/>
+                    <!--<DataGridTextColumn Header="File Name" Width="120" Binding="{Binding FileName}" x:DataType="ws:AssetInst"/>-->
+                    <DataGridTextColumn Header="Path ID" Width="100" Binding="{Binding PathId}" x:DataType="ws:AssetInst"/>
+                    <!--<DataGridTextColumn Header="Offset" Binding="{Binding ByteOffset}" x:DataType="ws:AssetInst"/>-->
+                    <DataGridTextColumn Header="Size" Width="80" Binding="{Binding ByteSizeModified}" x:DataType="ws:AssetInst"/>
+                    <DataGridTextColumn Header="Modified" Width="80" Binding="{Binding ModifiedString}" x:DataType="ws:AssetInst"/>
+                </DataGrid.Columns>
+            </DataGrid>
+
+            <Panel IsVisible="{Binding IsBusy}" >
+                <Border Background="{DynamicResource DockThemeBackgroundBrush}"
+                        Opacity="0.8" />
+                <StackPanel VerticalAlignment="Center"
+                            HorizontalAlignment="Center"
+                            Spacing="15">
+
+                    <ProgressBar IsIndeterminate="True"
+                                 Width="250"
+                                 Height="4"
+                                 Foreground="{DynamicResource SystemAccentColor}" />
+
+                    <TextBlock Text="Processing assets..."
+                               FontSize="14"
+                               HorizontalAlignment="Center"
+                               Foreground="{DynamicResource DockThemeForegroundBrush}">
+                    </TextBlock>
+                </StackPanel>
+            </Panel>
+        </Panel>
     </Grid>
 </UserControl>

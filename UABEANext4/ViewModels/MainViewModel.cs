@@ -547,7 +547,7 @@ public partial class MainViewModel : ViewModelBase
             };
 
             _lastLoadedFiles = [mainFileInst];
-            await document.Load(_lastLoadedFiles);
+          //  await document.Load(_lastLoadedFiles);
         }
         else
         {
@@ -569,7 +569,7 @@ public partial class MainViewModel : ViewModelBase
             };
 
             _lastLoadedFiles = assetsFileItems!;
-            await document.Load(_lastLoadedFiles);
+          //  await document.Load(_lastLoadedFiles);
         }
 
         var files = _factory.GetDockable<IDocumentDock>("Files");
@@ -581,22 +581,25 @@ public partial class MainViewModel : ViewModelBase
                 _factory.AddDockable(files, document);
                 _factory.SwapDockable(files, oldDockable, document);
                 _factory.CloseDockable(oldDockable);
-                _factory.SetActiveDockable(document);
-                _factory.SetFocusedDockable(files, document);
-
-                if (oldDockable is Document oldDockableDocument)
-                    _factory.DocMan.Documents.Remove(oldDockableDocument);
+                if (oldDockable is Document oldDoc)
+                {
+                    _factory.DocMan.Documents.Remove(oldDoc);
+                }
             }
             else
             {
                 _factory.AddDockable(files, document);
-                _factory.SetActiveDockable(document);
-                _factory.SetFocusedDockable(files, document);
             }
 
+            _factory.SetActiveDockable(document);
+            _factory.SetFocusedDockable(files, document);
             _factory.DocMan.Documents.Add(document);
             _factory.DocMan.LastFocusedDocument = document;
         }
+
+        
+        _lastLoadedFiles = workspaceItems.Select(i => i.Object as AssetsFileInstance).Where(i => i != null).ToList()!;
+        await document.Load(_lastLoadedFiles);
 
         return document;
     }

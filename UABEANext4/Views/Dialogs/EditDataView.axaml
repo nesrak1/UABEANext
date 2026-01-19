@@ -28,7 +28,8 @@
                     HorizontalScrollBarVisibility="Auto"
                     VerticalScrollBarVisibility="Visible" />
 
-                <Border Background="#40000000" IsVisible="{Binding IsBusy}">
+                <Border Background="{DynamicResource DockThemeBackgroundBrush}"
+                        Opacity="0.8" IsVisible="{Binding IsBusy}">
                     <ProgressBar IsIndeterminate="True"
                                  VerticalAlignment="Center"
                                  HorizontalAlignment="Center"
