@@ -44,21 +44,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="AssetsTools.NET">
-      <HintPath>..\Libs\AssetsTools.NET.dll</HintPath>
-    </Reference>
-    <Reference Include="AssetsTools.NET.Cpp2IL">
-      <HintPath>..\Libs\AssetsTools.NET.Cpp2IL.dll</HintPath>
-    </Reference>
-    <Reference Include="AssetsTools.NET.MonoCecil">
-      <HintPath>..\Libs\AssetsTools.NET.MonoCecil.dll</HintPath>
-    </Reference>
-    <Reference Include="AssetsTools.NET.Texture">
-      <HintPath>..\Libs\AssetsTools.NET.Texture.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-
-  <ItemGroup>
     <Compile Update="Views\Dialogs\AddExternalView.axaml.cs">
       <DependentUpon>AddExternalView.axaml</DependentUpon>
     </Compile>
@@ -94,5 +79,12 @@
 
   <ItemGroup>
     <Folder Include="Plugins\DefaultPlugins\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Libraries\AssetsTools.NET\AssetsTools.NET.Cpp2IL\AssetsTools.NET.Cpp2IL.csproj" />
+    <ProjectReference Include="..\Libraries\AssetsTools.NET\AssetsTools.NET.MonoCecil\AssetsTools.NET.MonoCecil.csproj" />
+    <ProjectReference Include="..\Libraries\AssetsTools.NET\AssetsTools.NET.Texture\AssetsTools.NET.Texture.csproj" />
+    <ProjectReference Include="..\Libraries\AssetsTools.NET\AssetTools.NET\AssetsTools.NET.csproj" />
   </ItemGroup>
 </Project>
