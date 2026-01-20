@@ -12,26 +12,30 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v6
       with:
         fetch-depth: 0
+        submodules: recursive
 
     - name: Install .NET Core
-      uses: actions/setup-dotnet@v3
+      uses: actions/setup-dotnet@v5
       with:
         dotnet-version: 8.0.x
 
     - name: Setup MSBuild.exe
-      uses: microsoft/setup-msbuild@v1.1
+      uses: microsoft/setup-msbuild@v2
 
     - name: Build
       run: msbuild UABEANext4.sln /restore /p:Configuration=Release
     
     - name: Remove unused platforms
-      run: Get-ChildItem -Path "UABEANext4.Desktop\bin\Release\net8.0\runtimes" -Directory | Where-Object { $_.Name -notin @("win-x64", "win7-x64", "win") } | Remove-Item -Recurse -Force
-      
+      run: |
+        Get-ChildItem -Path "UABEANext4.Desktop\bin\Release\net8.0\runtimes" -Directory | 
+        Where-Object { $_.Name -notin @("win-x64", "win7-x64", "win") } | 
+        Remove-Item -Recurse -Force
+
     - name: Upload
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v6
       with:
         name: uabea-windows
         path: UABEANext4.Desktop/bin/Release/net8.0
