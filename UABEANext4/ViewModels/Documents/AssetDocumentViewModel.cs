@@ -124,10 +124,10 @@ public partial class AssetDocumentViewModel : Document
             ? StringComparison.Ordinal
             : StringComparison.OrdinalIgnoreCase;
 
-        Regex? regex;
+        Regex? searchRegex;
         try
         {
-            regex = SearchKind == AssetTextSearchKind.RegexSearch
+            searchRegex = SearchKind == AssetTextSearchKind.RegexSearch
                 ? new Regex(searchText, IsSearchCaseSensitive
                     ? RegexOptions.None
                     : RegexOptions.IgnoreCase)
@@ -136,7 +136,7 @@ public partial class AssetDocumentViewModel : Document
         catch
         {
             // skip invalid regex
-            regex = null;
+            searchRegex = null;
         }
 
         if (_filterTypesFiltered is null || _filterTypesFiltered.Count == 0)
@@ -146,7 +146,7 @@ public partial class AssetDocumentViewModel : Document
             if (string.IsNullOrEmpty(searchText))
                 return a => true;
 
-            if (regex is not null)
+            if (searchRegex is not null)
             {
                 // simple + regex
                 return o =>
@@ -154,13 +154,13 @@ public partial class AssetDocumentViewModel : Document
                     if (o is not AssetInst a)
                         return false;
 
-                    if (regex.IsMatch(a.DisplayName))
+                    if (searchRegex.IsMatch(a.DisplayName))
                         return true;
 
-                    if (ClassIdToString.TryGetValue(a.Type, out string? classIdName) && regex.IsMatch(classIdName))
+                    if (ClassIdToString.TryGetValue(a.Type, out string? classIdName) && searchRegex.IsMatch(classIdName))
                         return true;
                     
-                    if (regex.IsMatch(a.PathId.ToString()))
+                    if (searchRegex.IsMatch(a.PathId.ToString()))
                         return true;
 
                     return false;
@@ -199,7 +199,7 @@ public partial class AssetDocumentViewModel : Document
                 ScriptRef = null
             };
 
-            if (regex is not null)
+            if (searchRegex is not null)
             {
                 // type + regex
                 return o =>
@@ -207,11 +207,15 @@ public partial class AssetDocumentViewModel : Document
                     if (o is not AssetInst a)
                         return false;
 
-                    if (!regex.IsMatch(a.DisplayName))
-                        return false;
-                    
-                    if (!regex.IsMatch(a.PathId.ToString()))
-                        return false;
+                    // require a match on name / class id / path id first
+                    if (!searchRegex.IsMatch(a.DisplayName))
+                    {
+                        if (!(ClassIdToString.TryGetValue(a.Type, out string? classIdName) && searchRegex.IsMatch(classIdName))
+                            && !searchRegex.IsMatch(a.PathId.ToString()))
+                        {
+                            return false;
+                        }
+                    }
 
                     return DoesTypeFilterPass(a, baseTypeEntry);
                 };
@@ -224,11 +228,15 @@ public partial class AssetDocumentViewModel : Document
                     if (o is not AssetInst a)
                         return false;
 
+                    // require a match on name / class id / path id first
                     if (!a.DisplayName.Contains(searchText, strCmp))
-                        return false;
-                    
-                    if (!a.PathId.ToString().Contains(searchText, strCmp))
-                        return false;
+                    {
+                        if (!(ClassIdToString.TryGetValue(a.Type, out string? classIdName) && classIdName == searchText)
+                            && !a.PathId.ToString().Contains(searchText, strCmp))
+                        {
+                            return false;
+                        }
+                    }
 
                     return DoesTypeFilterPass(a, baseTypeEntry);
                 };
