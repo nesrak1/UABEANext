@@ -12,16 +12,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Libraries\AssetsTools.NET\AssetTools.NET\AssetsTools.NET.csproj" />
     <ProjectReference Include="..\UABEANext4\UABEANext4.csproj">
       <Private>false</Private>
       <ExcludeAssets>runtime</ExcludeAssets>
     </ProjectReference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="AssetsTools.NET">
-      <HintPath>..\Libs\AssetsTools.NET.dll</HintPath>
-    </Reference>
   </ItemGroup>
 
   <!-- there seems to be no flag for checking if building  -->
