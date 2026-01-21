@@ -1,12 +1,10 @@
 ﻿using AssetsTools.NET.Extra;
-using System.Text.Json.Serialization;
 using UABEANext4.AssetWorkspace;
 
 namespace UABEANext4.Logic.Search;
 
 public class SearchResultItem
 {
-    [JsonIgnore]
     public AssetInst? Asset { get; init; }
 
     public string FileName { get; init; } = string.Empty;

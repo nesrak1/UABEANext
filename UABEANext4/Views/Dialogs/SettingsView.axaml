@@ -43,9 +43,7 @@
     <Grid RowDefinitions="*, Auto" Margin="16">
 
         <ScrollViewer Grid.Row="0" HorizontalScrollBarVisibility="Disabled">
-            <ItemsControl ItemsSource="{Binding ConfigItems}" Padding="0,0,16,0">
-
-            </ItemsControl>
+            <ItemsControl ItemsSource="{Binding ConfigItems}"/>
         </ScrollViewer>
 
         <Border Grid.Row="1"

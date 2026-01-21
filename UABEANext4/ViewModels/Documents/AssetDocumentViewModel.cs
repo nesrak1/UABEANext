@@ -898,11 +898,11 @@ public partial class AssetDocumentViewModel : Document
         var first = selected[0];
 
         ContextMenuItems.Add(new MenuOptionViewModel("Edit Data",
-            new RelayCommand(EditDump), null, ApplicationExtensions.GetInconPath("action-view-info.png")));
+            new RelayCommand(EditDump), null, ApplicationExtensions.GetIconPath("action-view-info.png")));
 
         ContextMenuItems.Add(new MenuOptionViewModel("-"));
 
-        var pluginsMenu = new MenuOptionViewModel("Plugins", null, null, ApplicationExtensions.GetInconPath("action-plugins.png"))
+        var pluginsMenu = new MenuOptionViewModel("Plugins", null, null, ApplicationExtensions.GetIconPath("action-plugins.png"))
         {
             Items = new ObservableCollection<MenuOptionViewModel>()
         };
@@ -937,7 +937,7 @@ public partial class AssetDocumentViewModel : Document
         ContextMenuItems.Add(copyMenu);
 
         ContextMenuItems.Add(new MenuOptionViewModel("Remove",
-            new RelayCommand(RemoveAsset), null, ApplicationExtensions.GetInconPath("action-remove-asset.png")));
+            new RelayCommand(RemoveAsset), null, ApplicationExtensions.GetIconPath("action-remove-asset.png")));
     }
 
     private async Task OnWorkspaceClosing(object recipient, WorkspaceClosingMessage message)

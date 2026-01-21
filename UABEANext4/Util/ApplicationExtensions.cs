@@ -13,7 +13,7 @@ public static class ApplicationExtensions
         }
     }
 
-    public static string GetInconPath(string iconName)
+    public static string GetIconPath(string iconName)
     {
         return $"avares://UABEANext4/Assets/Icons/{iconName}";
     }
