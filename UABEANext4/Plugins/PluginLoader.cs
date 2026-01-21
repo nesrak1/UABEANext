@@ -12,67 +12,68 @@ public class PluginLoader
     private readonly List<IUavPluginPreviewer> _pluginPreviewers = [];
     private readonly HashSet<string> _loadedPaths = new(StringComparer.OrdinalIgnoreCase);
 
-    private readonly object _loadLock = new();
-
     public bool LoadPlugin(string path)
     {
-        lock (_loadLock)
+        try
         {
-            try
-            {
-                var fullPath = Path.GetFullPath(path);
+            var fullPath = Path.GetFullPath(path);
 
-                if (_loadedPaths.Contains(fullPath))
-                    return true;
+            if (_loadedPaths.Contains(fullPath))
+                return true;
 
-                if (!File.Exists(fullPath))
-                    return false;
-
-                var plugLoadCtx = new PluginLoadContext(fullPath);
-                var asm = plugLoadCtx.LoadAssemblyByPath(fullPath);
-
-                bool anyAdded = false;
-
-                foreach (Type type in asm.GetTypes())
-                {
-                    if (type.IsAbstract || type.IsInterface)
-                        continue;
-
-                    if (typeof(IUavPluginOption).IsAssignableFrom(type))
-                    {
-                        if (_pluginOptions.Any(o => o.GetType() == type)) 
-                            continue;
-
-                        if (Activator.CreateInstance(type) is IUavPluginOption plugInst)
-                        {
-                            _pluginOptions.Add(plugInst);
-                            anyAdded = true;
-                        }
-                    }
-                    else if (typeof(IUavPluginPreviewer).IsAssignableFrom(type))
-                    {
-                        if (_pluginPreviewers.Any(p => p.GetType() == type)) continue;
-
-                        if (Activator.CreateInstance(type) is IUavPluginPreviewer plugInst)
-                        {
-                            _pluginPreviewers.Add(plugInst);
-                            anyAdded = true;
-                        }
-                    }
-                }
-
-                if (anyAdded)
-                {
-                    _loadedPaths.Add(fullPath);
-                }
-
-                return anyAdded;
-            }
-            catch
-            {
+            if (!File.Exists(fullPath))
                 return false;
+
+            var plugLoadCtx = new PluginLoadContext(fullPath);
+            var asm = plugLoadCtx.LoadAssemblyByPath(fullPath);
+
+            bool anyAdded = false;
+
+            foreach (Type type in asm.GetTypes())
+            {
+                if (type.IsAbstract || type.IsInterface)
+                    continue;
+
+                if (typeof(IUavPluginOption).IsAssignableFrom(type))
+                {
+                    if (_pluginOptions.Any(o => o.GetType() == type))
+                    {
+                        continue;
+                    }
+
+                    if (Activator.CreateInstance(type) is IUavPluginOption plugInst)
+                    {
+                        _pluginOptions.Add(plugInst);
+                        anyAdded = true;
+                    }
+                }
+                else if (typeof(IUavPluginPreviewer).IsAssignableFrom(type))
+                {
+                    if (_pluginPreviewers.Any(p => p.GetType() == type))
+                    {
+                        continue;
+                    }
+
+                    if (Activator.CreateInstance(type) is IUavPluginPreviewer plugInst)
+                    {
+                        _pluginPreviewers.Add(plugInst);
+                        anyAdded = true;
+                    }
+                }
             }
+
+            if (anyAdded)
+            {
+                _loadedPaths.Add(fullPath);
+            }
+
+            return anyAdded;
         }
+        catch
+        {
+            return false;
+        }
+
     }
 
     public void LoadPluginsInDirectory(string directory)
