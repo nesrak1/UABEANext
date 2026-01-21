@@ -52,10 +52,9 @@ public partial class ImagePreviewView : UserControl
     {
         if (DataContext is PreviewerToolViewModel vm)
         {
-            var scroll = this.FindControl<ScrollViewer>("ImageScroll");
-            if (scroll != null)
+            if (ImageScroll != null)
             {
-                vm.ImagePreview.FitToSize(scroll.Bounds.Width, scroll.Bounds.Height);
+                vm.ImagePreview.FitToSize(ImageScroll.Bounds.Width, ImageScroll.Bounds.Height);
             }
         }
     }
