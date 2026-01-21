@@ -20,8 +20,10 @@ public partial class ExportBatchOptionsViewModel : ViewModelBase, IDialogAware<E
     ];
 
     public string Title => "Texture Batch Export";
-    public int Width => 300;
-    public int Height => 100;
+    public int Width => 400;
+    public int Height => 180;
+    public bool IsModal => false;
+
     public event Action<ExportBatchOptionsResult?>? RequestClose;
 
     public void BtnOk_Click()

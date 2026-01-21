@@ -3,22 +3,61 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:tex="using:TexturePlugin.ViewModels"
-             mc:Ignorable="d" d:DesignWidth="300" d:DesignHeight="100"
+             mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="180"
              x:Class="TexturePlugin.Views.ExportBatchOptionsView"
-             x:DataType="tex:ExportBatchOptionsViewModel">
-  <Grid Margin="10,10,10,10" RowDefinitions="Auto,Auto,*,Auto">
-    <ComboBox Height="26"
-              SelectedIndex="{Binding SelectedExportType}"
-              ItemsSource="{Binding DropdownItems}" Grid.Row="0" />
-    <Grid ColumnDefinitions="*,Auto" Grid.Row="1">
-      <Slider Minimum="0" Maximum="100" Orientation="Horizontal"
-              TickFrequency="10" IsSnapToTickEnabled="True"
-              Value="{Binding Quality}" Grid.Column="0" />
-      <Label Content="{Binding Quality, StringFormat={}{0}%}" Grid.Column="1" />
+             x:DataType="tex:ExportBatchOptionsViewModel"
+             Background="{DynamicResource DockThemeBackgroundBrush}">
+
+    <Grid Margin="12" RowDefinitions="*, Auto">
+
+        <StackPanel Grid.Row="0" Spacing="15">
+
+            <StackPanel Spacing="5">
+                <Label Content="Export Format:" FontSize="12" />
+                <ComboBox HorizontalAlignment="Stretch"
+                          Height="32"
+                          VerticalContentAlignment="Center"
+                          SelectedIndex="{Binding SelectedExportType}"
+                          ItemsSource="{Binding DropdownItems}" />
+            </StackPanel>
+
+            <StackPanel Spacing="5">
+                <Grid ColumnDefinitions="*, Auto">
+                    <Label Grid.Column="0" Content="Export Quality:" FontSize="12" />
+                    <TextBlock Grid.Column="1"
+                               Text="{Binding Quality, StringFormat={}{0}%}"
+                               VerticalAlignment="Bottom"
+                               FontSize="12"
+                               Opacity="0.8" />
+                </Grid>
+                <Slider Minimum="0"
+                        Maximum="100"
+                        Orientation="Horizontal"
+                        TickFrequency="10"
+                        IsSnapToTickEnabled="True"
+                        Value="{Binding Quality}" />
+            </StackPanel>
+
+        </StackPanel>
+
+        <StackPanel Grid.Row="1"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Right"
+                    Spacing="8"
+                    Margin="0,16,0,0">
+
+            <Button Command="{Binding BtnOk_Click}"
+                    Content="OK"
+                    Width="85"
+                    Height="28"
+                    IsDefault="True" />
+
+            <Button Command="{Binding BtnCancel_Click}"
+                    Content="Cancel"
+                    Width="85"
+                    Height="28"
+                    IsCancel="True" />
+        </StackPanel>
+
     </Grid>
-    <Grid ColumnDefinitions="*,*" VerticalAlignment="Bottom" Grid.Row="3">
-      <Button Grid.Column="0" Command="{Binding BtnOk_Click}">Ok</Button>
-      <Button Grid.Column="1" Command="{Binding BtnCancel_Click}">Cancel</Button>
-    </Grid>
-  </Grid>
 </UserControl>

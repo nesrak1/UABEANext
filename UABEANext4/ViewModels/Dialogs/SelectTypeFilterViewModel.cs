@@ -17,8 +17,11 @@ public partial class SelectTypeFilterViewModel : ViewModelBase, IDialogAware<IEn
     public ObservableCollection<TypeFilterTypeEntry> _filterTypes = [];
 
     public string Title => "Select Type Filter";
-    public int Width => 300;
+    public int Width => 400;
     public int Height => 500;
+
+    public bool IsModal => false;
+
     public event Action<IEnumerable<TypeFilterTypeEntry>?>? RequestClose;
 
     public SelectTypeFilterViewModel(List<TypeFilterTypeEntry> filterTypes)
@@ -136,8 +139,55 @@ public partial class SelectTypeFilterViewModel : ViewModelBase, IDialogAware<IEn
         return filterTypesSorted;
     }
 
+    public static List<TypeFilterTypeEntry> MakeTypeFilterTypes(Workspace workspace, IList<AssetsFileInstance> fileInsts)
+    {
+        var filterTypes = new List<TypeFilterTypeEntry>();
+        var uniqueTypeIds = new HashSet<int>();
+        var uniqueScriptPtrs = new HashSet<AssetPPtr>();
+
+        foreach (var fileInst in fileInsts)
+        {
+            foreach (var info in fileInst.file.Metadata.AssetInfos)
+            {
+                if (info.TypeId != 0x72 && info.TypeId >= 0)
+                {
+                    uniqueTypeIds.Add(info.TypeId);
+                }
+                else
+                {
+                    ushort scriptIndex = info.GetScriptIndex(fileInst.file);
+                    if (scriptIndex == ushort.MaxValue)
+                    {
+                        uniqueTypeIds.Add(info.TypeId);
+                    }
+                    else
+                    {
+                        uniqueTypeIds.Add(0x72);
+                        var scriptPtr = fileInst.file.Metadata.ScriptTypes[scriptIndex];
+                        scriptPtr.SetFilePathFromFile(workspace.Manager, fileInst);
+                        uniqueScriptPtrs.Add(scriptPtr);
+                    }
+                }
+            }
+        }
+
+        foreach (var id in uniqueTypeIds)
+        {
+            filterTypes.Add(TypeFilterTypeEntry.FromTypeId(id));
+        }
+        foreach (var ptr in uniqueScriptPtrs)
+        {
+            var scriptRef = GetAssetsFileScriptInfo(workspace.Manager, ptr);
+            if (scriptRef != null) 
+                filterTypes.Add(TypeFilterTypeEntry.FromTypeReference(scriptRef));
+        }
+
+        return filterTypes.OrderBy(a => a.ScriptRef is not null).ThenBy(a => a.DisplayText).ToList();
+
+    }
+
     // get script info from global assetpptr rather than script index
-    private static AssetTypeReference? GetAssetsFileScriptInfo(AssetsManager manager, AssetPPtr assetPtr)
+    public static AssetTypeReference? GetAssetsFileScriptInfo(AssetsManager manager, AssetPPtr assetPtr)
     {
         if (string.IsNullOrEmpty(assetPtr.FilePath))
             return null;

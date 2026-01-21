@@ -1,5 +1,6 @@
 ﻿using AssetsTools.NET.Extra;
 using AssetsTools.NET.Texture;
+using AssetsTools.NET.Texture.TextureDecoders.CrnUnity;
 using Avalonia.Media.Imaging;
 using TexturePlugin.Helpers;
 using UABEANext4.AssetWorkspace;
@@ -21,7 +22,7 @@ public class TexturePreviewer : IUavPluginPreviewer
         return previewType;
     }
 
-    public Bitmap? ExecuteImage(Workspace workspace, IUavPluginFunctions funcs, AssetInst selection, out string? error)
+    public (Bitmap?, int) ExecuteImage(Workspace workspace, IUavPluginFunctions funcs, AssetInst selection, out string? error)
     {
         try
         {
@@ -29,18 +30,18 @@ public class TexturePreviewer : IUavPluginPreviewer
             if (image != null)
             {
                 error = null;
-                return image;
+                return (image, (int)format);
             }
             else
             {
                 error = $"Texture failed to decode. The image format may not be supported or the texture is not valid. ({format})";
-                return null;
+                return (null, (int)format);
             }
         }
         catch (Exception ex)
         {
             error = $"Texture failed to decode due to an error. Exception:\n{ex}";
-            return null;
+            return (null, -1);
         }
     }
 

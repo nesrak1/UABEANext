@@ -1,0 +1,59 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Design.PreviewWith>
+        <Border Padding="20">
+            <!-- Add Controls for Previewer Here -->
+        </Border>
+    </Design.PreviewWith>
+    <Style Selector="DataGrid">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="RowBackground" Value="Transparent" />
+        <Setter Property="GridLinesVisibility" Value="All" />
+        <Setter Property="HorizontalGridLinesBrush" Value="{DynamicResource DockThemeBorderLowBrush}" />
+        <Setter Property="VerticalGridLinesBrush" Value="{DynamicResource DockThemeBorderLowBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource DockThemeBorderLowBrush}" />
+        <Setter Property="HeadersVisibility" Value="Column" />
+        <Setter Property="FontSize" Value="12" />
+    </Style>
+
+    <Style Selector="DataGridColumnHeader">
+        <Setter Property="Background" Value="{DynamicResource DockThemeBackgroundBrush}" />
+        <Setter Property="Foreground" Value="{DynamicResource DockThemeForegroundBrush}" />
+        <Setter Property="SeparatorBrush" Value="{DynamicResource DockThemeBorderLowBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource DockThemeBorderLowBrush}" />
+        <Setter Property="BorderThickness" Value="0,0,1,1" />
+        <Setter Property="Padding" Value="12,4" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+
+    <Style Selector="DataGridColumnHeader:pointerover /template/ Grid#PART_ColumnHeaderRoot">
+        <Setter Property="Background" Value="{DynamicResource CaptionButtonHoverBg}" />
+    </Style>
+
+    <Style Selector="DataGridRow">
+        <Setter Property="Background" Value="Transparent" />
+    </Style>
+
+    <Style Selector="DataGridRow:nth-child(2n)">
+        <Setter Property="Background" Value="Transparent" />
+    </Style>
+
+    <Style Selector="DataGridRow:selected /template/ Rectangle#BackgroundRectangle">
+        <Setter Property="Fill" Value="{DynamicResource TabViewSelectedBackgroundBrush}" />
+        <Setter Property="Opacity" Value="0.7" />
+    </Style>
+
+    <Style Selector="DataGridRow:selected">
+        <Setter Property="Foreground" Value="#FFFFFF" />
+    </Style>
+
+    <Style Selector="DataGridCell">
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Padding" Value="8,0" />
+    </Style>
+
+    <Style Selector="DataGridCell:focus /template/ Grid#FocusVisual">
+        <Setter Property="IsVisible" Value="False" />
+    </Style>
+
+</Styles>

@@ -91,8 +91,11 @@ public partial class EditTextureViewModel : ViewModelBaseValidator, IDialogAware
     public static ColorSpaceEnm[] ColorSpaces => Enum.GetValues<ColorSpaceEnm>();
 
     public string Title => "Texture Edit";
-    public int Width => 300;
-    public int Height => 360;
+    public int Width => 450;
+    public int Height => 500;
+
+    public bool IsModal => true;
+
     public event Action<EditTextureResult?>? RequestClose;
 
     private readonly List<(AssetInst, AssetTypeValueField, TextureFile)> _textures = [];

@@ -1,0 +1,46 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Design.PreviewWith>
+        <Border Padding="20">
+            <!-- Add Controls for Previewer Here -->
+        </Border>
+    </Design.PreviewWith>
+
+    <Style Selector="TreeViewItem /template/ Border#SelectionBorder:pointerover">
+        <Setter Property="Background" Value="{DynamicResource CaptionButtonHoverBg}" />
+    </Style>
+
+    <Style Selector="TreeViewItem:selected /template/ Border#SelectionBorder">
+        <Setter Property="Background" Value="{DynamicResource TabViewSelectedBackgroundBrush}" />
+    </Style>
+
+    <Style Selector="TreeViewItem:selected /template/ ContentPresenter#PART_HeaderPresenter TextBlock">
+        <Setter Property="Foreground" Value="White" />
+    </Style>
+
+    <Style Selector="TreeViewItem:selected /template/ ContentPresenter#PART_HeaderPresenter">
+        <Setter Property="TextBlock.Foreground" Value="White" />
+    </Style>
+
+    <Style Selector="TreeViewItem:selected /template/ Border#SelectionBorder:pointerover">
+        <Setter Property="Background" Value="{DynamicResource TabViewSelectedBackgroundBrush}" />
+    </Style>
+    <Style Selector="TreeViewItem:selected:not(:focus-within) /template/ Border#SelectionBorder">
+        <Setter Property="Background" Value="{DynamicResource DockThemeBorderLowBrush}" />
+    </Style>
+
+    <Style Selector="TreeViewItem:selected:not(:focus-within) /template/ ContentPresenter#PART_HeaderPresenter TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource DockThemeForegroundBrush}" />
+    </Style>
+
+    <Style Selector="TreeViewItem /template/ ToggleButton#PART_ExpandCollapseChevron Path">
+        <Setter Property="Fill" Value="{DynamicResource DockThemeForegroundBrush}" />
+        <Setter Property="Opacity" Value="0.6" />
+    </Style>
+
+    <Style Selector="TreeViewItem:selected /template/ ToggleButton#PART_ExpandCollapseChevron Path">
+        <Setter Property="Fill" Value="White" />
+        <Setter Property="Opacity" Value="1" />
+    </Style>
+
+</Styles>

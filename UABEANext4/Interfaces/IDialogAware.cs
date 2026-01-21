@@ -7,6 +7,8 @@ public interface IDialogAware
     public string Title { get; }
     public int Width { get; }
     public int Height { get; }
+    public bool IsModal { get; }
+
 }
 
 public interface IDialogAware<TResult> : IDialogAware

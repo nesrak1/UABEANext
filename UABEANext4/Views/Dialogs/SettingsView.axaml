@@ -4,47 +4,69 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:dlg="using:UABEANext4.ViewModels.Dialogs"
              xmlns:cnf="using:UABEANext4.Logic.Configuration"
-             mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="400"
+             mc:Ignorable="d" d:DesignWidth="350" d:DesignHeight="550"
              x:Class="UABEANext4.Views.Dialogs.SettingsView"
-             x:DataType="dlg:SettingsViewModel">
+             x:DataType="dlg:SettingsViewModel"
+             Background="{DynamicResource DockThemeBackgroundBrush}">
+
     <UserControl.DataTemplates>
-      <DataTemplate DataType="{x:Type cnf:ConfigurationBooleanItem}">
-        <StackPanel Margin="10" ToolTip.Tip="{Binding Description}">
-          <TextBlock Text="{Binding Title}" FontWeight="Bold" />
-          <CheckBox IsChecked="{Binding Value}" Content="Enabled" />
-        </StackPanel>
-      </DataTemplate>
-      
-      <DataTemplate DataType="{x:Type cnf:ConfigurationIntegerItem}">
-        <StackPanel Margin="10" ToolTip.Tip="{Binding Description}">
-          <TextBlock Text="{Binding Title}" FontWeight="Bold" />
-          <NumericUpDown Value="{Binding Value, UpdateSourceTrigger=PropertyChanged}"
-                         Minimum="{Binding RangeMin}"
-                         Maximum="{Binding RangeMax}"
-                         FormatString="0" />
-        </StackPanel>
-      </DataTemplate>
+        <DataTemplate DataType="{x:Type cnf:ConfigurationBooleanItem}">
+            <StackPanel Margin="0,0,0,16" ToolTip.Tip="{Binding Description}">
+                <TextBlock Text="{Binding Title}" FontWeight="SemiBold" Margin="0,0,0,4" FontSize="13" />
+                <CheckBox IsChecked="{Binding Value}" Content="Enabled" Margin="4,0,0,0" />
+            </StackPanel>
+        </DataTemplate>
 
-      <!-- <DataTemplate DataType="{x:Type cnf:ConfigurationStringItem}"> -->
-      <!--   <StackPanel Margin="10" ToolTip.Tip="{Binding Description}"> -->
-      <!--     <TextBlock Text="{Binding Title}" FontWeight="Bold" /> -->
-      <!--     <TextBox Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}" /> -->
-      <!--   </StackPanel> -->
-      <!-- </DataTemplate> -->
+        <DataTemplate DataType="{x:Type cnf:ConfigurationIntegerItem}">
+            <StackPanel Margin="0,0,0,16" ToolTip.Tip="{Binding Description}">
+                <TextBlock Text="{Binding Title}" FontWeight="SemiBold" Margin="0,0,0,4" FontSize="13" />
+                <NumericUpDown Value="{Binding Value}"
+                               Minimum="{Binding RangeMin}"
+                               Maximum="{Binding RangeMax}"
+                               FormatString="0"
+                               HorizontalAlignment="Stretch"
+                               Height="30" />
+            </StackPanel>
+        </DataTemplate>
 
-      <DataTemplate DataType="{x:Type cnf:ConfigurationEnumItem}">
-        <StackPanel Margin="10" ToolTip.Tip="{Binding Description}">
-          <TextBlock Text="{Binding Title}" FontWeight="Bold" />
-          <ComboBox ItemsSource="{Binding EnumValues}"
-                    SelectedValue="{Binding Value, UpdateSourceTrigger=PropertyChanged}" />
-        </StackPanel>
-      </DataTemplate>
+        <DataTemplate DataType="{x:Type cnf:ConfigurationEnumItem}">
+            <StackPanel Margin="0,0,0,16" ToolTip.Tip="{Binding Description}">
+                <TextBlock Text="{Binding Title}" FontWeight="SemiBold" Margin="0,0,0,4" FontSize="13" />
+                <ComboBox ItemsSource="{Binding EnumValues}"
+                          SelectedValue="{Binding Value}"
+                          HorizontalAlignment="Stretch"
+                          Height="30" />
+            </StackPanel>
+        </DataTemplate>
     </UserControl.DataTemplates>
-    
-    <Grid Margin="10,10,10,10" RowDefinitions="*,Auto">
-      <ScrollViewer Grid.Row="0">
-        <ItemsControl ItemsSource="{Binding ConfigItems}" />
-      </ScrollViewer>
-      <TextBlock Grid.Row="1">All changes in this dialog save immediately.</TextBlock>
+
+    <Grid RowDefinitions="*, Auto" Margin="16">
+
+        <ScrollViewer Grid.Row="0" HorizontalScrollBarVisibility="Disabled">
+            <ItemsControl ItemsSource="{Binding ConfigItems}"/>
+        </ScrollViewer>
+
+        <Border Grid.Row="1"
+                BorderBrush="{DynamicResource DockThemeBorderLowBrush}"
+                BorderThickness="0,1,0,0"
+                Padding="0,12,0,0"
+                Margin="0,8,0,0">
+            <StackPanel Orientation="Horizontal" Spacing="8">
+
+                <Path Data="M11,9H13V7H11V9M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M11,17H13V11H11V17Z"
+                      Fill="{DynamicResource DockThemeForegroundBrush}"
+                      Stretch="Uniform"
+                      Width="14"
+                      Height="14"
+                      Opacity="0.6"
+                      VerticalAlignment="Center" />
+                <TextBlock Text="All changes in this dialog save immediately."
+                           FontSize="12"
+                           FontStyle="Italic"
+                           Opacity="0.6"
+                           VerticalAlignment="Center" />
+            </StackPanel>
+        </Border>
+
     </Grid>
 </UserControl>

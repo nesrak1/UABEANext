@@ -33,5 +33,17 @@
     <SolidColorBrush x:Key="TypeTextPlain" Color="#DEDEDE" />
     <SolidColorBrush x:Key="TypeTextTheme" Color="#000000" />
 
+    <SolidColorBrush x:Key="CaptionButtonHoverBg" Color="#444444"/>
+    <SolidColorBrush x:Key="CaptionButtonForeground" Color="#F0F0F0"/>
+    <SolidColorBrush x:Key="CaptionButtonCloseHoverBg" Color="#E81123"/>
+
+    <SolidColorBrush x:Key="TabItemPointerOverBackground">#3E3E40</SolidColorBrush>
+    <SolidColorBrush x:Key="TabItemHeaderForeground">#D0D0D0</SolidColorBrush>
+    <SolidColorBrush x:Key="TabItemHeaderSelectedForeground">#FFFFFF</SolidColorBrush>
+    <SolidColorBrush x:Key="TabControlHeaderBackground">#2D2D30</SolidColorBrush>
+
+    <SolidColorBrush x:Key="ScrollBarThumbBackground">#686868</SolidColorBrush>
+    <SolidColorBrush x:Key="ScrollBarThumbHover">#999999</SolidColorBrush>
+    <SolidColorBrush x:Key="ScrollBarThumbPressed">#999999</SolidColorBrush>
 </ResourceDictionary>
 

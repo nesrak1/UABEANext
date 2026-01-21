@@ -41,7 +41,7 @@
                               FontFamily="{TemplateBinding FontFamily}"
                               FontSize="{TemplateBinding FontSize}"
                               FontWeight="{TemplateBinding FontWeight}"
-                              Foreground="#F5F5F5"
+                              Foreground="{DynamicResource DockApplicationAccentForegroundBrush}"
                               UseLayoutRounding="False" />
             </Border>
             <Border Grid.Row="1"

@@ -21,6 +21,7 @@ public partial class SettingsViewModel : ViewModelBase, IDialogAware
     public string Title => "Settings";
     public int Width => 350;
     public int Height => 550;
+    public bool IsModal => true;
 
     public SettingsViewModel()
     {

@@ -39,8 +39,10 @@ public partial class AddAssetViewModel : ViewModelBaseValidator, IDialogAware<Ad
     public bool _isScript = false;
 
     public string Title => "Add Asset";
-    public int Width => 300;
-    public int Height => 170;
+    public int Width => 420;
+    public int Height => 200;
+    public bool IsModal => true;
+
     public event Action<AddAssetResult?>? RequestClose;
 
     public AddAssetViewModel(Workspace workspace, List<AssetsFileInstance> fileInsts)
