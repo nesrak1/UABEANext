@@ -11,20 +11,16 @@
              Background="{DynamicResource DockThemeBackgroundBrush}">
 
     <Grid>
-        <StackPanel VerticalAlignment="Center"
-                    HorizontalAlignment="Center"
-                    Spacing="10"
-                    Margin="40">
-
-            <TextBlock TextAlignment="Center"
-                       TextWrapping="Wrap"
-                       FontSize="14"
-                       MaxWidth="400"
-                       Foreground="{DynamicResource DockThemeForegroundBrush}"
-                       Opacity="0.5">
-                Open an assets file or bundle file and select it in the Workspace Explorer to load it here.
-            </TextBlock>
-
-        </StackPanel>
+        <TextBlock
+            VerticalAlignment="Center"
+            HorizontalAlignment="Center"
+            TextAlignment="Center"
+            TextWrapping="Wrap"
+            FontSize="14"
+            MaxWidth="400"
+            Foreground="{DynamicResource DockThemeForegroundBrush}"
+            Opacity="0.5">
+            Open an assets file or bundle file and select it in the Workspace Explorer to load it here.
+        </TextBlock>
     </Grid>
 </UserControl>
