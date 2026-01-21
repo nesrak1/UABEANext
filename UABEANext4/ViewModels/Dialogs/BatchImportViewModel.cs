@@ -28,7 +28,7 @@ public partial class BatchImportViewModel : ViewModelBase, IDialogAware<List<Imp
     public string Title => "Batch Import";
     public int Width => 700;
     public int Height => 350;
-    public bool IsModal => true;
+    public bool IsModal => false;
 
     public event Action<List<ImportBatchInfo>?>? RequestClose;
 
