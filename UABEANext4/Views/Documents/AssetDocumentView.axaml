@@ -169,7 +169,7 @@
                     <DataGridTextColumn Header="Path ID" MinWidth ="130" Width="160" Binding="{Binding PathId}" x:DataType="ws:AssetInst"/>
                     <!--<DataGridTextColumn Header="Offset" Binding="{Binding ByteOffset}" x:DataType="ws:AssetInst"/>-->
                     <DataGridTextColumn Header="Size" MinWidth ="80" Width="80" Binding="{Binding ByteSizeModified}" x:DataType="ws:AssetInst"/>
-                    <DataGridTextColumn Header="Modified" MinWidth="80" Width="*" Binding="{Binding ModifiedString}" x:DataType="ws:AssetInst"/>
+                    <DataGridTextColumn Header="Modified" MinWidth="80" Width="80" Binding="{Binding ModifiedString}" x:DataType="ws:AssetInst"/>
                 </DataGrid.Columns>
             </DataGrid>
 
