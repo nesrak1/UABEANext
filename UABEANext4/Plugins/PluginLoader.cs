@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using UABEANext4.AssetWorkspace;
 using UABEANext4.Util;
 
@@ -9,50 +10,80 @@ public class PluginLoader
 {
     private readonly List<IUavPluginOption> _pluginOptions = [];
     private readonly List<IUavPluginPreviewer> _pluginPreviewers = [];
+    private readonly HashSet<string> _loadedPaths = new(StringComparer.OrdinalIgnoreCase);
 
     public bool LoadPlugin(string path)
     {
         try
         {
             var fullPath = Path.GetFullPath(path);
+
+            if (_loadedPaths.Contains(fullPath))
+                return true;
+
+            if (!File.Exists(fullPath))
+                return false;
+
             var plugLoadCtx = new PluginLoadContext(fullPath);
             var asm = plugLoadCtx.LoadAssemblyByPath(fullPath);
+
+            bool anyAdded = false;
+
             foreach (Type type in asm.GetTypes())
             {
+                if (type.IsAbstract || type.IsInterface)
+                    continue;
+
                 if (typeof(IUavPluginOption).IsAssignableFrom(type))
                 {
-                    object? typeInst = Activator.CreateInstance(type);
-                    if (typeInst == null)
-                        return false;
+                    if (_pluginOptions.Any(o => o.GetType() == type))
+                    {
+                        continue;
+                    }
 
-                    if (typeInst is not IUavPluginOption plugInst)
-                        return false;
-
-                    _pluginOptions.Add(plugInst);
+                    if (Activator.CreateInstance(type) is IUavPluginOption plugInst)
+                    {
+                        _pluginOptions.Add(plugInst);
+                        anyAdded = true;
+                    }
                 }
                 else if (typeof(IUavPluginPreviewer).IsAssignableFrom(type))
                 {
-                    object? typeInst = Activator.CreateInstance(type);
-                    if (typeInst == null)
-                        return false;
+                    if (_pluginPreviewers.Any(p => p.GetType() == type))
+                    {
+                        continue;
+                    }
 
-                    if (typeInst is not IUavPluginPreviewer plugInst)
-                        return false;
-
-                    _pluginPreviewers.Add(plugInst);
+                    if (Activator.CreateInstance(type) is IUavPluginPreviewer plugInst)
+                    {
+                        _pluginPreviewers.Add(plugInst);
+                        anyAdded = true;
+                    }
                 }
             }
+
+            if (anyAdded)
+            {
+                _loadedPaths.Add(fullPath);
+            }
+
+            return anyAdded;
         }
         catch
         {
             return false;
         }
-        return false;
+
     }
 
     public void LoadPluginsInDirectory(string directory)
     {
-        Directory.CreateDirectory(directory);
+        if (!Directory.Exists(directory))
+        {
+            Directory.CreateDirectory(directory);
+            return;
+        }
+
         foreach (string file in Directory.EnumerateFiles(directory, "*.dll"))
         {
             LoadPlugin(file);

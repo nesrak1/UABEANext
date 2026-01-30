@@ -1,0 +1,60 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:tools="using:UABEANext4.ViewModels.Tools"
+             d:DesignWidth="400" d:DesignHeight="450"
+             x:Class="UABEANext4.Views.Tools.ImagePreviewView"
+             x:DataType="tools:PreviewerToolViewModel">
+
+    <Grid RowDefinitions="*, Auto">
+        <ScrollViewer Grid.Row="0"
+                      Name="ImageScroll"
+                      HorizontalScrollBarVisibility="Auto"
+                      VerticalScrollBarVisibility="Auto">
+
+            <Panel Background="{Binding ImagePreview.PreviewBackground}"
+                   VerticalAlignment="Stretch"
+                   HorizontalAlignment="Stretch">
+
+                <Image Source="{Binding ImagePreview.Image}"
+                       Width="{Binding ImagePreview.DisplayWidth}"
+                       Height="{Binding ImagePreview.DisplayHeight}"
+                       VerticalAlignment="Center"
+                       HorizontalAlignment="Center"
+                       RenderTransformOrigin="50%,50%">
+                    <Image.RenderTransform>
+                        <ScaleTransform ScaleY="{Binding ImagePreview.RenderScaleY}" />
+                    </Image.RenderTransform>
+                </Image>
+            </Panel>
+        </ScrollViewer>
+
+        <Border Grid.Row="1" Background="{DynamicResource DockThemeBackgroundBrush}"
+                BorderBrush="{DynamicResource DockThemeBorderLowBrush}" BorderThickness="0,1,0,0" Padding="6,2">
+            <Grid ColumnDefinitions="*, Auto">
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="15">
+                    <TextBlock Text="{Binding ImagePreview.ImageInfo}" FontSize="11" VerticalAlignment="Center" Opacity="0.7"/>
+
+                    <TextBlock Text="{Binding ImagePreview.ZoomLevel, StringFormat={}{0:P0}}"
+                               FontSize="11" VerticalAlignment="Center" Opacity="0.7"/>
+                    <TextBlock Text="{Binding ImagePreview.TextureFormat}" FontSize="11" VerticalAlignment="Center" Opacity="0.7"/>
+
+                </StackPanel>
+
+                <Button Grid.Column="1"
+                        Classes="toolbar"
+                        Command="{Binding ImagePreview.CycleBackgroundCommand}"
+                        ToolTip.Tip="Cycle background color (Alpha, Checker, Black, White, Gray)">
+                    <StackPanel Orientation="Horizontal" Spacing="4">
+                        <TextBlock Text="BG:" FontSize="11" VerticalAlignment="Center" Opacity="0.6"/>
+                        <TextBlock Text="{Binding ImagePreview.CurrentBgLabel}"
+                                   FontSize="11"
+                                   FontWeight="Bold"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

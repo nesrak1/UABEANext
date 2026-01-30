@@ -7,55 +7,55 @@
              x:Class="UABEANext4.Views.MainView"
              x:DataType="vm:MainViewModel"
              RenderOptions.BitmapInterpolationMode="MediumQuality">
-  <Design.DataContext>
-    <vm:MainViewModel />
-  </Design.DataContext>
-  <Grid RowDefinitions="Auto,*,22" Margin="4">
-    <Menu Grid.Row="0" Padding="0,6">
-      <MenuItem Header="File">
-        <MenuItem
-          Header="Open" Command="{Binding FileOpen}"
-          HotKey="Ctrl+O" InputGesture="Ctrl+O" />
-        <MenuItem
-          Header="Open Folder" Command="{Binding FileOpenFolder}"
-          HotKey="Ctrl+Shift+O" InputGesture="Ctrl+Shift+O" />
-        <MenuItem
-          Header="Save Selected" Command="{Binding FileSave}"
-          HotKey="Ctrl+S" InputGesture="Ctrl+S" />
-        <MenuItem
-          Header="Save Selected As..." Command="{Binding FileSaveAs}"
-          HotKey="Ctrl+Shift+S" InputGesture="Ctrl+Shift+S" />
-        <MenuItem
-          Header="Save All" Command="{Binding FileSaveAll}"
-          HotKey="Ctrl+Alt+S" InputGesture="Ctrl+Alt+S" />
-        <!--<MenuItem
-          Header="Save All As..." Command="{Binding FileSaveAllAs}"
-          HotKey="Ctrl+Shift+L" InputGesture="Ctrl+Shift+L" />-->
-        <MenuItem
-          Header="Close All" Command="{Binding FileCloseAll}"
-          HotKey="Ctrl+Shift+W" InputGesture="Ctrl+Shift+W" />
-      </MenuItem>
-      <MenuItem Header="View">
-        <MenuItem Header="Duplicate Tab" Command="{Binding ViewDuplicateTab}" />
-        <MenuItem Header="-" />
-        <MenuItem Header="Workspace Explorer" ToggleType="CheckBox" IsChecked="{Binding DockWorkspaceExplorerVisible, Mode=TwoWay}" />
-        <MenuItem Header="Hierarchy" ToggleType="CheckBox" IsChecked="{Binding DockHierarchyVisible, Mode=TwoWay}" />
-        <MenuItem Header="Inspector" ToggleType="CheckBox" IsChecked="{Binding DockInspectorVisible, Mode=TwoWay}" />
-        <MenuItem Header="Previewer" ToggleType="CheckBox" IsChecked="{Binding DockPreviewerVisible, Mode=TwoWay}" />
-        <MenuItem Header="-" />
-        <MenuItem Header="Show container paths (slow)" ToggleType="CheckBox" IsChecked="{Binding LoadContainers, Mode=TwoWay}" />
-      </MenuItem>
-      <MenuItem Header="Tools">
-        <MenuItem Header="Asset Info" Command="{Binding ShowAssetInfoDialog}" IsEnabled="{Binding Workspace.RootItems.Count}" />
-        <MenuItem Header="Search Bytes" Command="{Binding ShowSearchBytesDialog}" IsEnabled="{Binding Workspace.RootItems.Count}" />
-        <MenuItem Header="Options" Command="{Binding ShowOptionsDialog}" />
-        <!--<MenuItem Header="Generate XRefs" Command="{Binding ToolsXrefs}" />-->
-      </MenuItem>
-    </Menu>
-    <DockControl Layout="{Binding Layout}" Margin="4" Grid.Row="1" Name="dockControl" />
-    <Grid ColumnDefinitions="1*,4,2*" Margin="4,0,0,4" Grid.Row="2">
-      <ProgressBar Value="{Binding Workspace.ProgressValue}" Minimum="0" Maximum="1" Grid.Column="0" />
-      <Label Content="{Binding Workspace.ProgressText}" Grid.Column="2" Padding="0" />
+    <Design.DataContext>
+        <vm:MainViewModel />
+    </Design.DataContext>
+    <Grid RowDefinitions="Auto,*,22" Margin="4">
+        <Menu Grid.Row="0" Padding="0,6">
+            <MenuItem Header="File">
+                <MenuItem
+                    Header="Open" Command="{Binding FileOpen}"
+                    HotKey="Ctrl+O" InputGesture="Ctrl+O" />
+                <MenuItem
+                    Header="Open Folder" Command="{Binding FileOpenFolder}"
+                    HotKey="Ctrl+Shift+O" InputGesture="Ctrl+Shift+O" />
+                <MenuItem
+                    Header="Save Selected" Command="{Binding FileSave}"
+                    HotKey="Ctrl+S" InputGesture="Ctrl+S" IsEnabled="{Binding Workspace.RootItems.Count}" />
+                <MenuItem
+                    Header="Save Selected As..." Command="{Binding FileSaveAs}"
+                    HotKey="Ctrl+Shift+S" InputGesture="Ctrl+Shift+S" IsEnabled="{Binding Workspace.RootItems.Count}" />
+                <MenuItem
+                    Header="Save All" Command="{Binding FileSaveAll}"
+                    HotKey="Ctrl+Alt+S" InputGesture="Ctrl+Alt+S" IsEnabled="{Binding Workspace.RootItems.Count}" />
+                <!--<MenuItem
+                Header="Save All As..." Command="{Binding FileSaveAllAs}"
+                HotKey="Ctrl+Shift+L" InputGesture="Ctrl+Shift+L" />-->
+                <MenuItem
+                    Header="Close All" Command="{Binding FileCloseAll}"
+                    HotKey="Ctrl+Shift+W" InputGesture="Ctrl+Shift+W" IsEnabled="{Binding Workspace.RootItems.Count}" />
+            </MenuItem>
+            <MenuItem Header="View">
+                <MenuItem Header="Duplicate Tab" Command="{Binding ViewDuplicateTab}" />
+                <MenuItem Header="-" />
+                <MenuItem Header="Workspace Explorer" ToggleType="CheckBox" IsChecked="{Binding DockWorkspaceExplorerVisible, Mode=TwoWay}" />
+                <MenuItem Header="Hierarchy" ToggleType="CheckBox" IsChecked="{Binding DockHierarchyVisible, Mode=TwoWay}" />
+                <MenuItem Header="Inspector" ToggleType="CheckBox" IsChecked="{Binding DockInspectorVisible, Mode=TwoWay}" />
+                <MenuItem Header="Previewer" ToggleType="CheckBox" IsChecked="{Binding DockPreviewerVisible, Mode=TwoWay}" />
+                <MenuItem Header="-" />
+                <MenuItem Header="Show container paths (slow)" ToggleType="CheckBox" IsChecked="{Binding LoadContainers, Mode=TwoWay}" />
+            </MenuItem>
+            <MenuItem Header="Tools">
+                <MenuItem Header="Asset Info" Command="{Binding ShowAssetInfoDialog}" IsEnabled="{Binding Workspace.RootItems.Count}" />
+                <MenuItem Header="Search Bytes" Command="{Binding ShowSearchBytesDialog}" IsEnabled="{Binding Workspace.RootItems.Count}" />
+                <MenuItem Header="Options" Command="{Binding ShowOptionsDialog}" />
+                <!--<MenuItem Header="Generate XRefs" Command="{Binding ToolsXrefs}" />-->
+            </MenuItem>
+        </Menu>
+        <DockControl Layout="{Binding Layout}" Margin="4" Grid.Row="1" Name="dockControl" />
+        <Grid ColumnDefinitions="1*,4,2*" Margin="4,0,0,4" Grid.Row="2">
+            <ProgressBar Value="{Binding Workspace.ProgressValue}" Minimum="0" Maximum="1" Grid.Column="0" />
+            <Label Content="{Binding Workspace.ProgressText}" Grid.Column="2" Padding="0" />
+        </Grid>
     </Grid>
-  </Grid>
 </UserControl>

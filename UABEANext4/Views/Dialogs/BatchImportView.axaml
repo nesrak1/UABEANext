@@ -5,30 +5,56 @@
              xmlns:dlg="using:UABEANext4.ViewModels.Dialogs"
              mc:Ignorable="d" d:DesignWidth="700" d:DesignHeight="350"
              x:Class="UABEANext4.Views.Dialogs.BatchImportView"
-             x:DataType="dlg:BatchImportViewModel">
-  <Grid Margin="10,10,10,10">
-    <Grid.ColumnDefinitions>
-      <ColumnDefinition Width="0.6*"></ColumnDefinition>
-      <ColumnDefinition Width="5"></ColumnDefinition>
-      <ColumnDefinition Width="0.4*"></ColumnDefinition>
-    </Grid.ColumnDefinitions>
-    <Border Margin="0,0,0,30" BorderBrush="Black" BorderThickness="1" Grid.Column="0">
-      <DataGrid AutoGenerateColumns="True" CanUserResizeColumns="True" IsReadOnly="True"
-                ItemsSource="{Binding DataGridItems}"
-                SelectedItem="{Binding DataGridSelectedItem}" />
-    </Border>
-    <GridSplitter Grid.Column="1" />
-    <Grid Grid.Column="2">
-      <ListBox Margin="0,0,0,30" ItemsSource="{Binding MatchingFilesItems}"
-               SelectedIndex="{Binding MatchingFilesSelectedIndex}" />
-      <Grid Margin="0,0,0,0" VerticalAlignment="Bottom">
-        <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="*" />
-          <ColumnDefinition Width="*" />
-        </Grid.ColumnDefinitions>
-        <Button Grid.Column="0" Command="{Binding BtnOk_Click}">Ok</Button>
-        <Button Grid.Column="1" Command="{Binding BtnCancel_Click}">Cancel</Button>
-      </Grid>
+             x:DataType="dlg:BatchImportViewModel"
+             Background="{DynamicResource DockThemeBackgroundBrush}">
+
+    <Grid Margin="12" RowDefinitions="*, Auto">
+
+        <Grid Grid.Row="0" ColumnDefinitions="0.6*, 4, 0.4*">
+
+            <Border Grid.Column="0"
+                    BorderBrush="{DynamicResource DockThemeBorderLowBrush}"
+                    BorderThickness="1">
+                <DataGrid AutoGenerateColumns="True"
+                          CanUserResizeColumns="True"
+                          IsReadOnly="True"
+                          ItemsSource="{Binding DataGridItems}"
+                          SelectedItem="{Binding DataGridSelectedItem}"
+                          Background="{DynamicResource DockThemeListBackgroundBrush}" />
+            </Border>
+
+            <GridSplitter Grid.Column="1"
+                          Background="Transparent"
+                          Width="4"
+                          HorizontalAlignment="Stretch" />
+
+            <Border Grid.Column="2"
+                    BorderBrush="{DynamicResource DockThemeBorderLowBrush}"
+                    BorderThickness="1">
+                <ListBox ItemsSource="{Binding MatchingFilesItems}"
+                         SelectedIndex="{Binding MatchingFilesSelectedIndex}"
+                         Background="{DynamicResource DockThemeListBackgroundBrush}" />
+            </Border>
+        </Grid>
+
+        <StackPanel Grid.Row="1"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Right"
+                    Spacing="8"
+                    Margin="0,12,0,0">
+
+            <Button Command="{Binding BtnOk_Click}"
+                    Content="OK"
+                    Width="90"
+                    Height="28"
+                    IsDefault="True" />
+
+            <Button Command="{Binding BtnCancel_Click}"
+                    Content="Cancel"
+                    Width="90"
+                    Height="28"
+                    IsCancel="True" />
+        </StackPanel>
+
     </Grid>
-  </Grid>
 </UserControl>
