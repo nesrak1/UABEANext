@@ -1,0 +1,56 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Design.PreviewWith>
+        <Border Padding="20">
+            <!-- Add Controls for Previewer Here -->
+        </Border>
+    </Design.PreviewWith>
+
+    <Style Selector="NumericUpDown">
+        <Setter Property="Background" Value="{DynamicResource DockThemeBackgroundBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource DockThemeBorderLowBrush}" />
+        <Setter Property="Foreground" Value="{DynamicResource DockThemeForegroundBrush}" />
+        <Setter Property="MinHeight" Value="28" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+    </Style>
+
+    <Style Selector="NumericUpDown /template/ TextBox#PART_TextBox">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Foreground" Value="{DynamicResource DockThemeForegroundBrush}" />
+        <Setter Property="BorderThickness" Value="0" />
+    </Style>
+
+    <Style Selector="NumericUpDown /template/ TextBox#PART_TextBox /template/ Border#border">
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Background" Value="Transparent" />
+    </Style>
+    <Style Selector="NumericUpDown /template/ TextBox#PART_TextBox:focus /template/ Border#border">
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Background" Value="Transparent" />
+    </Style>
+
+    <Style Selector="NumericUpDown:pointerover /template/ ButtonSpinner#PART_Spinner /template/ Border,
+           NumericUpDown:focus-within /template/ ButtonSpinner#PART_Spinner /template/ Border">
+        <Setter Property="BorderBrush" Value="{DynamicResource TabViewSelectedBackgroundBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+    </Style>
+
+    <Style Selector="NumericUpDown:pointerover /template/ ButtonSpinner#PART_Spinner,
+           NumericUpDown:focus-within /template/ ButtonSpinner#PART_Spinner">
+        <Setter Property="BorderBrush" Value="{DynamicResource TabViewSelectedBackgroundBrush}" />
+    </Style>
+
+    <Style Selector="NumericUpDown /template/ ButtonSpinner#PART_Spinner Path">
+        <Setter Property="Fill" Value="{DynamicResource DockThemeForegroundBrush}" />
+        <Setter Property="Opacity" Value="0.6" />
+    </Style>
+
+    <Style Selector="NumericUpDown /template/ ButtonSpinner#PART_Spinner RepeatButton">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+    </Style>
+
+    <Style Selector="NumericUpDown /template/ ButtonSpinner#PART_Spinner RepeatButton:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource CaptionButtonHoverBg}" />
+    </Style>
+</Styles>

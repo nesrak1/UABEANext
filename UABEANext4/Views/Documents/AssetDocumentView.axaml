@@ -4,139 +4,194 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              xmlns:docs="using:UABEANext4.ViewModels.Documents"
+             xmlns:menu="using:UABEANext4.ViewModels.Menu"
+             xmlns:plugins="using:UABEANext4.Plugins"
              xmlns:uac="using:UABEANext4.Converters"
              xmlns:ws="using:UABEANext4.AssetWorkspace"
              x:Class="UABEANext4.Views.Documents.AssetDocumentView"
-             x:DataType="docs:AssetDocumentViewModel">
-  <Grid>
-    <Grid.Resources>
-      <uac:AssetTypeIconConverter x:Key="AssetTypeIconConverter" />
-      <uac:AssetClassIDConverter x:Key="AssetClassIDConverter" />
-    </Grid.Resources>
-    <Grid.RowDefinitions>
-      <RowDefinition Height="25"/>
-      <RowDefinition Height="26"/>
-      <RowDefinition Height="*"/>
-    </Grid.RowDefinitions>
+             x:DataType="docs:AssetDocumentViewModel"
+             Background="{DynamicResource DockThemeBackgroundBrush}">
+    <Design.DataContext>
+        <docs:AssetDocumentViewModel IsBusy="False" />
+    </Design.DataContext>
 
-    <UniformGrid Grid.Row="0" Rows="1" HorizontalAlignment="Left">
-      <Button MaxWidth="100" Command="{Binding ViewScene}">
-        <StackPanel Orientation="Horizontal">
-          <Image Source="avares://UABEANext4/Assets/Icons/action-view-scene.png" Margin="0,0,3,0" />
-          <TextBlock>View Scene</TextBlock>
-        </StackPanel>
-      </Button>
-      <Button MaxWidth="100" Command="{Binding Export}">
-        <StackPanel Orientation="Horizontal">
-          <Image Source="avares://UABEANext4/Assets/Icons/action-export-asset.png" Margin="0,0,3,0" />
-          <TextBlock>Export</TextBlock>
-        </StackPanel>
-      </Button>
-      <Button MaxWidth="100" Command="{Binding Import}">
-        <StackPanel Orientation="Horizontal">
-          <Image Source="avares://UABEANext4/Assets/Icons/action-import-asset.png" Margin="0,0,3,0" />
-          <TextBlock>Import</TextBlock>
-        </StackPanel>
-      </Button>
-      <Button MaxWidth="100" Command="{Binding EditDump}">
-        <StackPanel Orientation="Horizontal">
-          <Image Source="avares://UABEANext4/Assets/Icons/action-view-info.png" Margin="0,0,3,0" />
-          <TextBlock>Edit Data</TextBlock>
-        </StackPanel>
-      </Button>
-      <Button MaxWidth="100" Command="{Binding ShowPlugins}" Name="showPluginsBtn">
-        <StackPanel Orientation="Horizontal">
-          <Image Source="avares://UABEANext4/Assets/Icons/action-plugins.png" Margin="0,0,3,0" />
-          <TextBlock>Plugins</TextBlock>
-        </StackPanel>
-        <Button.Flyout>
-          <MenuFlyout ItemsSource="{Binding PluginsItems}">
-            <MenuFlyout.ItemContainerTheme>
-              <ControlTheme TargetType="MenuItem" BasedOn="{StaticResource {x:Type MenuItem}}" x:DataType="docs:PluginItemInfo">
-                <Setter Property="Header" Value="{Binding Name}"/>
-                <Setter Property="Command" Value="{Binding Execute}"/>
-                <Setter Property="CommandParameter" Value="{Binding $parent[UserControl].((docs:AssetDocumentViewModel)DataContext).SelectedItems}"/>
-              </ControlTheme>
-            </MenuFlyout.ItemContainerTheme>
-          </MenuFlyout>
-        </Button.Flyout>
-      </Button>
-      <Button MaxWidth="100" Command="{Binding AddAsset}">
-        <StackPanel Orientation="Horizontal">
-          <Image Source="avares://UABEANext4/Assets/Icons/action-add-asset.png" Margin="0,0,3,0" />
-          <TextBlock>Add</TextBlock>
-        </StackPanel>
-      </Button>
-      <Button MaxWidth="100" Command="{Binding RemoveAsset}">
-        <StackPanel Orientation="Horizontal">
-          <Image Source="avares://UABEANext4/Assets/Icons/action-remove-asset.png" Margin="0,0,3,0" />
-          <TextBlock>Remove</TextBlock>
-        </StackPanel>
-      </Button>
-    </UniformGrid>
+    <UserControl.Styles>
+        <Style Selector="Button.toolbar">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Padding" Value="8,4" />
+            <Setter Property="VerticalAlignment" Value="Stretch" />
+        </Style>
+        <Style Selector="Button.toolbar:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource CaptionButtonHoverBg}" />
+        </Style>
+        <Style Selector="Button.toolbar Image">
+            <Setter Property="Width" Value="16" />
+            <Setter Property="Height" Value="16" />
+            <Setter Property="Margin" Value="0,0,6,0" />
+        </Style>
+    </UserControl.Styles>
+    <Grid RowDefinitions="Auto,Auto,*" Background="Transparent">
+        <Grid.Resources>
+            <uac:AssetTypeIconConverter x:Key="AssetTypeIconConverter" />
+            <uac:AssetClassIDConverter x:Key="AssetClassIDConverter" />
+            <uac:BitmapAssetValueConverter x:Key="BitmapAssetValueConverter" />
+        </Grid.Resources>
 
-    <Grid Grid.Row="1" ColumnDefinitions="*,Auto">
-      <TextBox Grid.Column="0" Text="{Binding SearchText}" Watermark="Asset name search" />
-      <Button Grid.Column="1">
-        <StackPanel Orientation="Horizontal">
-          <Image Source="avares://UABEANext4/Assets/Icons/action-filter.png" Margin="0,0,3,0" />
-          <TextBlock>Search Filters</TextBlock>
-        </StackPanel>
-        <Button.Flyout>
-          <Flyout>
-            <!-- fixed width to "workaround" https://github.com/AvaloniaUI/Avalonia/issues/11018 -->
-            <StackPanel Margin="5" Width="200">
-              <TextBlock Margin="0,0,0,2">Filters</TextBlock>
-              <Button Command="{Binding SetTypeFilter}">Set type filter</Button>
-              <!--<ComboBox ItemsSource="{Binding $parent[UserControl].((docs:AssetDocumentViewModel)DataContext).TypeFilterTypes}" />-->
+        <Border Grid.Row="0"
+                IsEnabled="{Binding !IsBusy}"
+                Background="{DynamicResource DockThemeBackgroundBrush}"
+                BorderBrush="{DynamicResource DockThemeBorderLowBrush}"
+                BorderThickness="0,0,0,1">
+            <WrapPanel Orientation="Horizontal" Margin="2">
+                <Button Classes="toolbar" Command="{Binding ViewScene}">
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="avares://UABEANext4/Assets/Icons/action-view-scene.png" />
+                        <TextBlock Text="View Scene" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+                <Button Classes="toolbar" Command="{Binding Export}">
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="avares://UABEANext4/Assets/Icons/action-export-asset.png" />
+                        <TextBlock Text="Export" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+                <Button Classes="toolbar" Command="{Binding Import}">
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="avares://UABEANext4/Assets/Icons/action-import-asset.png" />
+                        <TextBlock Text="Import" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+                <Button Classes="toolbar" Command="{Binding EditDump}">
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="avares://UABEANext4/Assets/Icons/action-view-info.png" />
+                        <TextBlock Text="Edit Data" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+                <Button Classes="toolbar" Command="{Binding ShowPlugins}" Name="showPluginsBtn">
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="avares://UABEANext4/Assets/Icons/action-plugins.png" />
+                        <TextBlock Text="Plugins" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <Button.Flyout>
+                        <MenuFlyout ItemsSource="{Binding PluginsItems}">
+                            <MenuFlyout.ItemContainerTheme>
+                                <ControlTheme TargetType="MenuItem" BasedOn="{StaticResource {x:Type MenuItem}}" x:DataType="plugins:PluginItemInfo">
+                                    <Setter Property="Header" Value="{Binding Name}"/>
+                                    <Setter Property="Command" Value="{Binding Execute}"/>
+                                    <Setter Property="CommandParameter" Value="{Binding $parent[UserControl].((docs:AssetDocumentViewModel)DataContext).SelectedItems}"/>
+                                </ControlTheme>
+                            </MenuFlyout.ItemContainerTheme>
+                        </MenuFlyout>
+                    </Button.Flyout>
+                </Button>
+                <Button Classes="toolbar" Command="{Binding AddAsset}">
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="avares://UABEANext4/Assets/Icons/action-add-asset.png" />
+                        <TextBlock Text="Add" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+                <Button Classes="toolbar" Command="{Binding RemoveAsset}">
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="avares://UABEANext4/Assets/Icons/action-remove-asset.png" />
+                        <TextBlock Text="Remove" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+            </WrapPanel>
+        </Border>
 
-              <Separator Margin="0,5,0,2" />
+        <Grid Grid.Row="1" ColumnDefinitions="*,Auto" Margin="4" Height="30" IsEnabled="{Binding !IsBusy}">
+            <TextBox Grid.Column="0" Text="{Binding SearchText}" Watermark="Asset name search" VerticalContentAlignment="Center" />
+            <Button Grid.Column="1" Margin="4,0,0,0" Padding="10,0">
+                <StackPanel Orientation="Horizontal">
+                    <Image Source="avares://UABEANext4/Assets/Icons/action-filter.png" Width="14" Height="14" Margin="0,0,5,0" />
+                    <TextBlock VerticalAlignment="Center">Filters</TextBlock>
+                </StackPanel>
+                <Button.Flyout>
+                    <Flyout>
+                        <StackPanel Margin="5" Width="220">
+                            <TextBlock Margin="0,0,0,5" FontWeight="Bold">Filters</TextBlock>
+                            <Button Classes="outline" Command="{Binding SetTypeFilter}" HorizontalAlignment="Stretch">Set type filter</Button>
+                            <Separator Margin="0,10" />
+                            <CheckBox IsChecked="{Binding IsSearchCaseSensitive}">Case sensitive</CheckBox>
+                            <ListBox Classes="RadioButtonListBox" SelectedIndex="{Binding SearchKind}" Margin="0,5">
+                                <ListBoxItem>Plain search</ListBoxItem>
+                                <ListBoxItem>Regex search</ListBoxItem>
+                            </ListBox>
+                        </StackPanel>
+                    </Flyout>
+                </Button.Flyout>
+            </Button>
+        </Grid>
+        <Panel Grid.Row="2">
+            <DataGrid
+                AutoGenerateColumns="False"
+                CanUserResizeColumns="True"
+                CanUserReorderColumns="True"
+                IsReadOnly="True" ItemsSource="{Binding CollectionView}"
+                SelectionChanged="DataGrid_SelectionChanged" Margin="0"
+                Name="dataGrid"
+                Background="Transparent"
+                RowBackground="Transparent"
+                GridLinesVisibility="Horizontal"
+                HorizontalScrollBarVisibility="Auto"
+                HorizontalGridLinesBrush="{DynamicResource DockThemeBorderLowBrush}">
+                <DataGrid.ContextFlyout>
+                    <MenuFlyout ItemsSource="{Binding ContextMenuItems}" Opening="MenuFlyout_Opening">
+                        <MenuFlyout.ItemContainerTheme>
+                            <ControlTheme TargetType="MenuItem" BasedOn="{StaticResource {x:Type MenuItem}}" x:DataType="menu:MenuOptionViewModel">
+                                <Setter Property="Header" Value="{Binding Header}"/>
+                                <Setter Property="Command" Value="{Binding Command}"/>
+                                <Setter Property="CommandParameter" Value="{Binding CommandParameter}"/>
+                                <Setter Property="ItemsSource" Value="{Binding Items}"/>
+                                <Setter Property="Icon">
+                                    <Template>
+                                        <Image Source="{Binding IconPath, Converter={StaticResource BitmapAssetValueConverter}}" Width="16" Height="16" />
+                                    </Template>
+                                </Setter>
+                            </ControlTheme>
+                        </MenuFlyout.ItemContainerTheme>
+                    </MenuFlyout>
+                </DataGrid.ContextFlyout>
+                <DataGrid.Columns>
+                    <DataGridTemplateColumn Header=" ">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate x:DataType="ws:AssetInst">
+                                <Image Source="{Binding Type, Converter={StaticResource AssetTypeIconConverter}}" Width="16" Height="16" HorizontalAlignment="Center" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTextColumn Header="Name" MinWidth ="150" Width="200" Binding="{Binding DisplayName}" x:DataType="ws:AssetInst"/>
+                    <DataGridTextColumn Header="Type" MinWidth ="120" Width="120" Binding="{Binding Type, Converter={StaticResource AssetClassIDConverter}}" x:DataType="ws:AssetInst"/>
+                    <DataGridTextColumn Header="Container" MinWidth ="100" Width="100" Binding="{Binding DisplayContainer}" x:DataType="ws:AssetInst" IsVisible="{Binding $parent[UserControl].((docs:AssetDocumentViewModel)DataContext).LoadContainers}"/>
+                    <DataGridTextColumn Header="Bundle Name" MinWidth ="120" Width="150" Binding="{Binding BundleName}" x:DataType="ws:AssetInst" IsVisible="False"/>
+                    <DataGridTextColumn Header="File Name"  MinWidth ="120" Width="150" Binding="{Binding FileName}" x:DataType="ws:AssetInst"/>
+                    <DataGridTextColumn Header="Path ID" MinWidth ="130" Width="160" Binding="{Binding PathId}" x:DataType="ws:AssetInst"/>
+                    <!--<DataGridTextColumn Header="Offset" Binding="{Binding ByteOffset}" x:DataType="ws:AssetInst"/>-->
+                    <DataGridTextColumn Header="Size" MinWidth ="80" Width="80" Binding="{Binding ByteSizeModified}" x:DataType="ws:AssetInst"/>
+                    <DataGridTextColumn Header="Modified" MinWidth="80" Width="80" Binding="{Binding ModifiedString}" x:DataType="ws:AssetInst"/>
+                </DataGrid.Columns>
+            </DataGrid>
 
-              <TextBlock Margin="0,5,0,2">Search settings</TextBlock>
-              <CheckBox IsChecked="{Binding $parent[UserControl].((docs:AssetDocumentViewModel)DataContext).IsSearchCaseSensitive}">Case sensitive</CheckBox>
-              <ListBox Classes="RadioButtonListBox" SelectedIndex="{Binding SearchKind}">
-                <ListBoxItem Tag="Search plainly">Plain search</ListBoxItem>
-                <ListBoxItem Tag="Search with regex (slow!)">Regex search</ListBoxItem>
-                <!--<ListBoxItem Tag="Allow searching non-name fields (e.g., $pathid=123, $filename=level0, $type=Transform)">Meta search</ListBoxItem>-->
-              </ListBox>
-            </StackPanel>
-          </Flyout>
-        </Button.Flyout>
-      </Button>
+            <Panel IsVisible="{Binding IsBusy}" >
+                <Border Background="{DynamicResource DockThemeBackgroundBrush}"
+                        Opacity="0.8" />
+                <StackPanel VerticalAlignment="Center"
+                            HorizontalAlignment="Center"
+                            Spacing="15">
+
+                    <ProgressBar IsIndeterminate="True"
+                                 Width="250"
+                                 Height="4"
+                                 Foreground="{DynamicResource SystemAccentColor}" />
+
+                    <TextBlock Text="Processing assets..."
+                               FontSize="14"
+                               HorizontalAlignment="Center"
+                               Foreground="{DynamicResource DockThemeForegroundBrush}">
+                    </TextBlock>
+                </StackPanel>
+            </Panel>
+        </Panel>
     </Grid>
-
-    <DataGrid
-      Grid.Row="2" AutoGenerateColumns="False" CanUserResizeColumns="True" CanUserReorderColumns="True"
-      IsReadOnly="True" ItemsSource="{Binding CollectionView}" x:DataType="docs:AssetDocumentViewModel"
-      SelectionChanged="DataGrid_SelectionChanged" Margin="0,0,0,0" Name="dataGrid">
-      <DataGrid.RowTheme>
-        <ControlTheme TargetType="DataGridRow" BasedOn="{StaticResource {x:Type DataGridRow}}">
-          <ControlTheme.Children>
-            <Style Selector="^:nth-child(2n)">
-              <Setter Property="Background" Value="#00FFFFFF" />
-            </Style>
-          </ControlTheme.Children>
-        </ControlTheme>
-      </DataGrid.RowTheme>
-      <DataGrid.Columns>
-        <DataGridTemplateColumn Header=" ">
-            <DataGridTemplateColumn.CellTemplate>
-                <DataTemplate x:DataType="ws:AssetInst">
-                    <Image Source="{Binding Type, Converter={StaticResource AssetTypeIconConverter}}" Width="16" Height="16" />
-                </DataTemplate>
-            </DataGridTemplateColumn.CellTemplate>
-        </DataGridTemplateColumn>
-        
-        <DataGridTextColumn Header="Name" Width="150" Binding="{Binding DisplayName}" x:DataType="ws:AssetInst"/>
-        <DataGridTextColumn Header="Type" Width="120" Binding="{Binding Type, Converter={StaticResource AssetClassIDConverter}}" x:DataType="ws:AssetInst"/>
-        <DataGridTextColumn Header="Container" Width="100" Binding="{Binding DisplayContainer}" x:DataType="ws:AssetInst" IsVisible="{Binding $parent[UserControl].((docs:AssetDocumentViewModel)DataContext).LoadContainers}"/>
-        <DataGridTextColumn Header="Bundle Name" Width="120" Binding="{Binding BundleName}" x:DataType="ws:AssetInst" IsVisible="False"/>
-        <DataGridTextColumn Header="File Name" Width="120" Binding="{Binding FileName}" x:DataType="ws:AssetInst"/>
-        <DataGridTextColumn Header="Path ID" Width="130" Binding="{Binding PathId}" x:DataType="ws:AssetInst"/>
-        <!--<DataGridTextColumn Header="Offset" Binding="{Binding ByteStart}" x:DataType="ws:AssetInst"/>-->
-        <DataGridTextColumn Header="Size" Width="80" Binding="{Binding ByteSizeModified}" x:DataType="ws:AssetInst"/>
-        <DataGridTextColumn Header="Modified" Binding="{Binding ModifiedString}" x:DataType="ws:AssetInst"/>
-      </DataGrid.Columns>
-    </DataGrid>
-  </Grid>
 </UserControl>

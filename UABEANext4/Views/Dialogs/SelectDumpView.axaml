@@ -3,19 +3,39 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:dlg="using:UABEANext4.ViewModels.Dialogs"
-             mc:Ignorable="d" d:DesignWidth="300" d:DesignHeight="80"
+             mc:Ignorable="d" d:DesignWidth="350" d:DesignHeight="120"
              x:Class="UABEANext4.Views.Dialogs.SelectDumpView"
-             x:DataType="dlg:SelectDumpViewModel">
-  <Grid Margin="10,10,10,10">
-    <ComboBox VerticalAlignment="Top" Height="26"
-              SelectedIndex="{Binding SelectedItem}" ItemsSource="{Binding DropdownItems}" />
-    <Grid VerticalAlignment="Bottom">
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="*"></ColumnDefinition>
-        <ColumnDefinition Width="*"></ColumnDefinition>
-      </Grid.ColumnDefinitions>
-      <Button Grid.Column="0" Command="{Binding BtnOk_Click}">Ok</Button>
-      <Button Grid.Column="1" Command="{Binding BtnCancel_Click}">Cancel</Button>
+             x:DataType="dlg:SelectDumpViewModel"
+             Background="{DynamicResource DockThemeBackgroundBrush}">
+
+    <Grid Margin="12" RowDefinitions="Auto, *">
+
+        <ComboBox Grid.Row="0"
+                  HorizontalAlignment="Stretch"
+                  Height="32"
+                  VerticalContentAlignment="Center"
+                  SelectedIndex="{Binding SelectedItem}"
+                  ItemsSource="{Binding DropdownItems}" />
+
+        <StackPanel Grid.Row="1"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Bottom"
+                    Spacing="8"
+                    Margin="0,16,0,0">
+
+            <Button Command="{Binding BtnOk_Click}"
+                    Content="OK"
+                    Width="85"
+                    Height="28"
+                    IsDefault="True" />
+
+            <Button Command="{Binding BtnCancel_Click}"
+                    Content="Cancel"
+                    Width="85"
+                    Height="28"
+                    IsCancel="True" />
+        </StackPanel>
+
     </Grid>
-  </Grid>
 </UserControl>

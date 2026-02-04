@@ -1,9 +1,13 @@
 ﻿using AssetsTools.NET;
 using AssetsTools.NET.Extra;
+using Avalonia;
 using Avalonia.Collections;
+using Avalonia.Controls;
 using Avalonia.Platform.Storage;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.DependencyInjection;
+using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Dock.Model.Mvvm.Controls;
 using DynamicData;
@@ -26,6 +30,7 @@ using UABEANext4.Plugins;
 using UABEANext4.Services;
 using UABEANext4.Util;
 using UABEANext4.ViewModels.Dialogs;
+using UABEANext4.ViewModels.Menu;
 
 namespace UABEANext4.ViewModels.Documents;
 
@@ -55,8 +60,13 @@ public partial class AssetDocumentViewModel : Document
     [ObservableProperty]
     public AssetTextSearchKind _searchKind = 0;
 
+    [ObservableProperty]
+    public ObservableCollection<MenuOptionViewModel> _contextMenuItems = [];
+
     public event Action? ShowPluginsContextMenuAction;
     public event Action<List<AssetInst>>? SetSelectedItemsAction;
+    [ObservableProperty]
+    private bool _isBusy;
 
     private List<TypeFilterTypeEntry>? _filterTypes = null;
     private HashSet<TypeFilterTypeEntry> _filterTypesFiltered = [];
@@ -114,10 +124,10 @@ public partial class AssetDocumentViewModel : Document
             ? StringComparison.Ordinal
             : StringComparison.OrdinalIgnoreCase;
 
-        Regex? regex;
+        Regex? searchRegex;
         try
         {
-            regex = SearchKind == AssetTextSearchKind.RegexSearch
+            searchRegex = SearchKind == AssetTextSearchKind.RegexSearch
                 ? new Regex(searchText, IsSearchCaseSensitive
                     ? RegexOptions.None
                     : RegexOptions.IgnoreCase)
@@ -126,7 +136,7 @@ public partial class AssetDocumentViewModel : Document
         catch
         {
             // skip invalid regex
-            regex = null;
+            searchRegex = null;
         }
 
         if (_filterTypesFiltered is null || _filterTypesFiltered.Count == 0)
@@ -136,7 +146,7 @@ public partial class AssetDocumentViewModel : Document
             if (string.IsNullOrEmpty(searchText))
                 return a => true;
 
-            if (regex is not null)
+            if (searchRegex is not null)
             {
                 // simple + regex
                 return o =>
@@ -144,10 +154,13 @@ public partial class AssetDocumentViewModel : Document
                     if (o is not AssetInst a)
                         return false;
 
-                    if (regex.IsMatch(a.DisplayName))
+                    if (searchRegex.IsMatch(a.DisplayName))
                         return true;
 
-                    if (ClassIdToString.TryGetValue(a.Type, out string? classIdName) && regex.IsMatch(classIdName))
+                    if (ClassIdToString.TryGetValue(a.Type, out string? classIdName) && searchRegex.IsMatch(classIdName))
+                        return true;
+                    
+                    if (searchRegex.IsMatch(a.PathId.ToString()))
                         return true;
 
                     return false;
@@ -166,6 +179,9 @@ public partial class AssetDocumentViewModel : Document
 
                     if (ClassIdToString.TryGetValue(a.Type, out string? classIdName) && classIdName == searchText)
                         return true;
+                    
+                    if (a.PathId.ToString().Contains(searchText, strCmp))
+                        return true;
 
                     return false;
                 };
@@ -183,7 +199,7 @@ public partial class AssetDocumentViewModel : Document
                 ScriptRef = null
             };
 
-            if (regex is not null)
+            if (searchRegex is not null)
             {
                 // type + regex
                 return o =>
@@ -191,8 +207,15 @@ public partial class AssetDocumentViewModel : Document
                     if (o is not AssetInst a)
                         return false;
 
-                    if (!regex.IsMatch(a.DisplayName))
-                        return false;
+                    // require a match on name / class id / path id first
+                    if (!searchRegex.IsMatch(a.DisplayName))
+                    {
+                        if (!(ClassIdToString.TryGetValue(a.Type, out string? classIdName) && searchRegex.IsMatch(classIdName))
+                            && !searchRegex.IsMatch(a.PathId.ToString()))
+                        {
+                            return false;
+                        }
+                    }
 
                     return DoesTypeFilterPass(a, baseTypeEntry);
                 };
@@ -205,8 +228,15 @@ public partial class AssetDocumentViewModel : Document
                     if (o is not AssetInst a)
                         return false;
 
+                    // require a match on name / class id / path id first
                     if (!a.DisplayName.Contains(searchText, strCmp))
-                        return false;
+                    {
+                        if (!(ClassIdToString.TryGetValue(a.Type, out string? classIdName) && classIdName == searchText)
+                            && !a.PathId.ToString().Contains(searchText, strCmp))
+                        {
+                            return false;
+                        }
+                    }
 
                     return DoesTypeFilterPass(a, baseTypeEntry);
                 };
@@ -254,6 +284,7 @@ public partial class AssetDocumentViewModel : Document
         _loadCtSrc?.Cancel();
         _loadCtSrc = new CancellationTokenSource();
         var loadCt = _loadCtSrc.Token;
+        IsBusy = true;
         try
         {
             await Task.Run(() =>
@@ -270,27 +301,32 @@ public partial class AssetDocumentViewModel : Document
                         LoadContainersIntoInfos(fileInst, infosObsCol);
                 }
             }, loadCt);
+
+
+            var observableList = sourceList
+                .Connect()
+                .MergeMany(e => e.ToObservableChangeSet())
+                .Transform(a => (AssetInst)a);
+
+            _disposableLastList = observableList.Bind(out var items).Subscribe();
+            Items = items;
+            FileInsts = fileInsts;
+
+            _filterTypes = null;
+            _filterTypesFiltered = [];
+            _typeRefLookup = [];
+
+            CollectionView = new DataGridCollectionView(Items);
+            CollectionView.Filter = SetDataGridFilter(SearchText);
         }
         catch (OperationCanceledException)
         {
             sourceList.Clear();
         }
-
-        var observableList = sourceList
-            .Connect()
-            .MergeMany(e => e.ToObservableChangeSet())
-            .Transform(a => (AssetInst)a);
-
-        _disposableLastList = observableList.Bind(out var items).Subscribe();
-        Items = items;
-        FileInsts = fileInsts;
-
-        _filterTypes = null;
-        _filterTypesFiltered = [];
-        _typeRefLookup = [];
-
-        CollectionView = new DataGridCollectionView(Items);
-        CollectionView.Filter = SetDataGridFilter(SearchText);
+        finally
+        {
+            IsBusy = false;
+        }
     }
 
     private void LoadContainersIntoInfos(AssetsFileInstance fileInst, IList<AssetFileInfo> fileInfos)
@@ -356,25 +392,24 @@ public partial class AssetDocumentViewModel : Document
         }
     }
 
-    public void Import()
+    [RelayCommand]
+    public async Task Import()
     {
         if (SelectedItems.Count > 1)
         {
-            ImportBatch(SelectedItems.ToList());
+            await ImportBatch(SelectedItems.ToList());
         }
         else if (SelectedItems.Count == 1)
         {
-            ImportSingle(SelectedItems.First());
+            await ImportSingle(SelectedItems.First());
         }
     }
 
-    public async void ImportBatch(List<AssetInst> assets)
+    public async Task ImportBatch(List<AssetInst> assets)
     {
         var storageProvider = StorageService.GetStorageProvider();
         if (storageProvider is null)
-        {
             return;
-        }
 
         var result = await storageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
         {
@@ -386,89 +421,105 @@ public partial class AssetDocumentViewModel : Document
         if (folders == null || folders.Length != 1)
             return;
 
-        List<string> exts = new List<string>()
-        {
-            "json", "txt", "dat"
-        };
-
+        var exts = new List<string> { "json", "txt", "dat" };
         var dialogService = Ioc.Default.GetRequiredService<IDialogService>();
 
-        var fileNamesToDirty = new HashSet<string>();
         var batchInfos = await dialogService.ShowDialog(new BatchImportViewModel(Workspace, assets, folders[0], exts));
         if (batchInfos == null)
-        {
             return;
-        }
 
-        foreach (ImportBatchInfo batchInfo in batchInfos)
+        var fileNamesToDirty = new HashSet<string>();
+
+        try
         {
-            var selectedFilePath = batchInfo.ImportFile;
-            if (selectedFilePath == null)
-                continue;
+            IsBusy = true;
 
-            var selectedAsset = batchInfo.Asset;
-            var selectedInst = selectedAsset.FileInstance;
-
-            using FileStream fs = File.OpenRead(selectedFilePath);
-
-            Workspace.CheckAndSetMonoTempGenerators(selectedInst, selectedAsset);
-            var importer = new AssetImport(fs, Workspace.Manager.GetRefTypeManager(selectedInst));
-
-            byte[]? data;
-            string? exceptionMessage;
-
-            if (selectedFilePath.EndsWith(".json"))
+            await Task.Run(async () =>
             {
-                var tempField = Workspace.GetTemplateField(selectedAsset);
-                data = importer.ImportJsonAsset(tempField, out exceptionMessage);
-            }
-            else if (selectedFilePath.EndsWith(".txt"))
-            {
-                data = importer.ImportTextAsset(out exceptionMessage);
-            }
-            else
-            {
-                exceptionMessage = string.Empty;
-                data = importer.ImportRawAsset();
-            }
+                foreach (var batchInfo in batchInfos)
+                {
+                    var selectedFilePath = batchInfo.ImportFile;
+                    if (selectedFilePath == null) continue;
 
-            if (data == null)
-            {
-                await MessageBoxUtil.ShowDialog("Parse error", "Something went wrong when reading the dump file:\n" + exceptionMessage);
-                goto dirtyFiles;
-            }
+                    var selectedAsset = batchInfo.Asset;
+                    var selectedInst = selectedAsset.FileInstance;
 
-            selectedAsset.UpdateAssetDataAndRow(Workspace, data);
-            fileNamesToDirty.Add(selectedAsset.FileInstance.name);
+                    Workspace.CheckAndSetMonoTempGenerators(selectedInst, selectedAsset);
+
+                    using FileStream fs = File.OpenRead(selectedFilePath);
+                    var importer = new AssetImport(fs, Workspace.Manager.GetRefTypeManager(selectedInst));
+
+                    byte[]? data;
+                    string? exceptionMessage;
+
+                    if (selectedFilePath.EndsWith(".json"))
+                    {
+                        var tempField = Workspace.GetTemplateField(selectedAsset);
+                        data = importer.ImportJsonAsset(tempField, out exceptionMessage);
+                    }
+                    else if (selectedFilePath.EndsWith(".txt"))
+                    {
+                        data = importer.ImportTextAsset(out exceptionMessage);
+                    }
+                    else
+                    {
+                        exceptionMessage = string.Empty;
+                        data = importer.ImportRawAsset();
+                    }
+
+                    if (data == null)
+                    {
+                        await Dispatcher.UIThread.InvokeAsync(async () =>
+                        {
+                            await MessageBoxUtil.ShowDialog("Parse error",
+                                $"Error in file {Path.GetFileName(selectedFilePath)}:\n{exceptionMessage}");
+                        });
+                        continue;
+                    }
+
+                    selectedAsset.UpdateAssetDataAndRow(Workspace, data);
+
+                    lock (fileNamesToDirty)
+                    {
+                        fileNamesToDirty.Add(selectedAsset.FileInstance.name);
+                    }
+                }
+            });
         }
-
-    dirtyFiles:
-        foreach (var fileName in fileNamesToDirty)
+        catch (Exception ex)
         {
-            var fileToDirty = Workspace.ItemLookup[fileName];
-            Workspace.Dirty(fileToDirty);
+            await MessageBoxUtil.ShowDialog("Import Error", "An error occurred: " + ex.Message);
+        }
+        finally
+        {
+            foreach (var fileName in fileNamesToDirty)
+            {
+                if (Workspace.ItemLookup.TryGetValue(fileName, out var fileToDirty))
+                {
+                    Workspace.Dirty(fileToDirty);
+                }
+            }
+            IsBusy = false;
         }
     }
 
-    public async void ImportSingle(AssetInst asset)
+    public async Task ImportSingle(AssetInst asset)
     {
         var storageProvider = StorageService.GetStorageProvider();
         if (storageProvider is null)
-        {
             return;
-        }
 
         var result = await storageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
         {
             Title = "Choose file to import",
-            AllowMultiple = true,
-            FileTypeFilter = new FilePickerFileType[]
+            AllowMultiple = false,
+            FileTypeFilter = new[]
             {
-                new FilePickerFileType("UABEA json dump (*.json)") { Patterns = new[] { "*.json" } },
-                new FilePickerFileType("UABE txt dump (*.txt)") { Patterns = new[] { "*.txt" } },
-                new FilePickerFileType("Raw dump (*.dat)") { Patterns = new[] { "*.dat" } },
-                new FilePickerFileType("Raw dump (*.*)") { Patterns = new[] { "*" } },
-            },
+            new FilePickerFileType("UABEA json dump (*.json)") { Patterns = new[] { "*.json" } },
+            new FilePickerFileType("UABE txt dump (*.txt)") { Patterns = new[] { "*.txt" } },
+            new FilePickerFileType("Raw dump (*.dat)") { Patterns = new[] { "*.dat" } },
+            new FilePickerFileType("All files (*.*)") { Patterns = new[] { "*" } },
+        },
         });
 
         var files = FileDialogUtils.GetOpenFileDialogFiles(result);
@@ -476,49 +527,66 @@ public partial class AssetDocumentViewModel : Document
             return;
 
         var file = files[0];
-        using var fs = File.OpenRead(file);
 
-        Workspace.CheckAndSetMonoTempGenerators(asset.FileInstance, asset);
-        var importer = new AssetImport(fs, Workspace.Manager.GetRefTypeManager(asset.FileInstance));
-
-        byte[]? data = null;
-        string? exception;
-
-        if (file.EndsWith(".json") || file.EndsWith(".txt"))
+        try
         {
-            if (file.EndsWith(".json"))
+            IsBusy = true;
+
+            await Task.Run(async () =>
             {
-                var baseField = Workspace.GetTemplateField(asset);
-                if (baseField != null)
+                Workspace.CheckAndSetMonoTempGenerators(asset.FileInstance, asset);
+
+                using var fs = File.OpenRead(file);
+                var importer = new AssetImport(fs, Workspace.Manager.GetRefTypeManager(asset.FileInstance));
+
+                byte[]? data = null;
+                string? exception = null;
+
+                if (file.EndsWith(".json"))
                 {
+                    var baseField = Workspace.GetTemplateField(asset);
                     data = importer.ImportJsonAsset(baseField, out exception);
+                }
+                else if (file.EndsWith(".txt"))
+                {
+                    data = importer.ImportTextAsset(out exception);
                 }
                 else
                 {
-                    // handle template read error
+                    data = importer.ImportRawAsset();
                 }
-            }
-            else if (file.EndsWith(".txt"))
-            {
-                data = importer.ImportTextAsset(out exception);
-            }
-        }
-        else //if (file.EndsWith(".dat"))
-        {
-            using var stream = File.OpenRead(file);
-            data = importer.ImportRawAsset();
-        }
 
-        if (data != null)
-        {
-            asset.UpdateAssetDataAndRow(Workspace, data);
-        }
+                if (data != null)
+                {
+                    asset.UpdateAssetDataAndRow(Workspace, data);
 
-        var fileToDirty = Workspace.ItemLookup[asset.FileInstance.name];
-        Workspace.Dirty(fileToDirty);
+                    await Dispatcher.UIThread.InvokeAsync(() =>
+                    {
+                        var fileToDirty = Workspace.ItemLookup[asset.FileInstance.name];
+                        Workspace.Dirty(fileToDirty);
+                    });
+                }
+                else if (exception != null)
+                {
+                    await Dispatcher.UIThread.InvokeAsync(async () =>
+                    {
+                        await MessageBoxUtil.ShowDialog("Import Error", exception);
+                    });
+                }
+            });
+        }
+        catch (Exception ex)
+        {
+            await MessageBoxUtil.ShowDialog("Import Error", ex.Message);
+        }
+        finally
+        {
+            IsBusy = false;
+        }
     }
 
-    public async void Export()
+    [RelayCommand]
+    public async Task Export()
     {
         var storageProvider = StorageService.GetStorageProvider();
         if (storageProvider is null)
@@ -527,18 +595,17 @@ public partial class AssetDocumentViewModel : Document
         }
 
         var maxNameLen = ConfigurationManager.Settings.ExportNameLength;
-        var filesToWrite = new List<(AssetInst, string)>();
+        var filesToWrite = new List<(AssetInst Asset, string Path)>();
+
         if (SelectedItems.Count > 1)
         {
             var dialogService = Ioc.Default.GetRequiredService<IDialogService>();
-
             var exportType = await dialogService.ShowDialog(new SelectDumpViewModel(true));
             if (exportType == null)
             {
                 return;
             }
 
-            // bug fix for double dialog box freezing in windows
             await Task.Yield();
 
             var exportExt = exportType switch
@@ -551,7 +618,7 @@ public partial class AssetDocumentViewModel : Document
 
             var result = await storageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
             {
-                Title = "Choose file to export to",
+                Title = "Choose folder to export to",
                 AllowMultiple = false
             });
 
@@ -577,12 +644,12 @@ public partial class AssetDocumentViewModel : Document
             var result = await storageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
             {
                 Title = "Choose file to export",
-                FileTypeChoices = new FilePickerFileType[]
+                FileTypeChoices = new[]
                 {
-                    new FilePickerFileType("UABEA json dump (*.json)") { Patterns = new[] { "*.json" } },
-                    new FilePickerFileType("UABE txt dump (*.txt)") { Patterns = new[] { "*.txt" } },
-                    new FilePickerFileType("Raw dump (*.dat)") { Patterns = new[] { "*.dat" } }
-                },
+                new FilePickerFileType("UABEA json dump (*.json)") { Patterns = new[] { "*.json" } },
+                new FilePickerFileType("UABE txt dump (*.txt)") { Patterns = new[] { "*.txt" } },
+                new FilePickerFileType("Raw dump (*.dat)") { Patterns = new[] { "*.dat" } }
+            },
                 DefaultExtension = "json",
                 SuggestedFileName = exportFileName
             });
@@ -596,49 +663,68 @@ public partial class AssetDocumentViewModel : Document
             filesToWrite.Add((asset, file));
         }
 
-        foreach (var (asset, file) in filesToWrite)
+        if (filesToWrite.Count == 0)
         {
-            using var fs = File.OpenWrite(file);
-            var exporter = new AssetExport(fs);
+            return;
+        }
 
-            if (file.EndsWith(".json") || file.EndsWith(".txt"))
+        try
+        {
+            IsBusy = true;
+            await Task.Run(() =>
             {
-                var baseField = Workspace.GetBaseField(asset);
-                if (baseField == null)
+                foreach (var (asset, file) in filesToWrite)
                 {
-                    fs.Write(Encoding.UTF8.GetBytes("Asset failed to deserialize."));
-                }
-                else
-                {
-                    if (file.EndsWith(".json"))
+                    using var fs = File.Open(file, FileMode.Create, FileAccess.Write, FileShare.None);
+                    var exporter = new AssetExport(fs);
+
+                    if (file.EndsWith(".json") || file.EndsWith(".txt"))
                     {
-                        exporter.DumpJsonAsset(baseField);
+                        var baseField = Workspace.GetBaseField(asset);
+                        if (baseField == null)
+                        {
+                            byte[] failMsg = Encoding.UTF8.GetBytes("Asset failed to deserialize.");
+                            fs.Write(failMsg, 0, failMsg.Length);
+                        }
+                        else
+                        {
+                            if (file.EndsWith(".json"))
+                                exporter.DumpJsonAsset(baseField);
+                            else
+                                exporter.DumpTextAsset(baseField);
+                        }
                     }
-                    else if (file.EndsWith(".txt"))
+                    else if (file.EndsWith(".dat"))
                     {
-                        exporter.DumpTextAsset(baseField);
+                        if (asset.IsReplacerPreviewable)
+                        {
+                            var previewStream = asset.Replacer.GetPreviewStream();
+                            var previewReader = new AssetsFileReader(previewStream);
+                            lock (previewStream)
+                            {
+                                exporter.DumpRawAsset(previewReader, 0, (uint)previewStream.Length);
+                            }
+                        }
+                        else
+                        {
+                            lock (asset.FileInstance.LockReader)
+                            {
+                                exporter.DumpRawAsset(asset.FileReader, asset.AbsoluteByteStart, asset.ByteSize);
+                            }
+                        }
                     }
                 }
-            }
-            else if (file.EndsWith(".dat"))
-            {
-                if (asset.IsReplacerPreviewable)
-                {
-                    var previewStream = asset.Replacer.GetPreviewStream();
-                    var previewReader = new AssetsFileReader(previewStream);
-                    lock (previewStream)
-                    {
-                        exporter.DumpRawAsset(previewReader, 0, (uint)previewStream.Length);
-                    }
-                }
-                else
-                {
-                    lock (asset.FileInstance.LockReader)
-                    {
-                        exporter.DumpRawAsset(asset.FileReader, asset.AbsoluteByteStart, asset.ByteSize);
-                    }
-                }
-            }
+            });
+        }
+
+        catch (Exception ex)
+        {
+            await MessageBoxUtil.ShowDialog("Export Error", $"Failed to export assets: {ex.Message}");
+        }
+
+        finally
+        {
+            IsBusy = false;
         }
     }
 
@@ -803,44 +889,60 @@ public partial class AssetDocumentViewModel : Document
         }
     }
 
+    public void CreateContextMenu()
+    {
+        ContextMenuItems.Clear();
+        if (SelectedItems.Count == 0)
+            return;
+        var selected = SelectedItems;
+        var first = selected[0];
+
+        ContextMenuItems.Add(new MenuOptionViewModel("Edit Data",
+            new RelayCommand(EditDump), null, ApplicationExtensions.GetIconPath("action-view-info.png")));
+
+        ContextMenuItems.Add(new MenuOptionViewModel("-"));
+
+        var pluginsMenu = new MenuOptionViewModel("Plugins", null, null, ApplicationExtensions.GetIconPath("action-plugins.png"))
+        {
+            Items = new ObservableCollection<MenuOptionViewModel>()
+        };
+
+        var pluginTypes = UavPluginMode.Export | UavPluginMode.Import;
+        var pluginsList = Workspace.Plugins.GetOptionsThatSupport(Workspace, SelectedItems, pluginTypes);
+
+        if (pluginsList != null && pluginsList.Count > 0)
+        {
+            foreach (var plugin in pluginsList)
+            {
+                pluginsMenu.Items.Add(new MenuOptionViewModel(
+                    plugin.Option.Name,
+                    new RelayCommand(() => plugin.Option.Execute(Workspace, new UavPluginFunctions(), pluginTypes, SelectedItems))
+                ));
+            }
+        }
+        else
+        {
+            var disabledItem = new MenuOptionViewModel("No plugins available");
+            pluginsMenu.Items.Add(disabledItem);
+        }
+        ContextMenuItems.Add(pluginsMenu);
+        ContextMenuItems.Add(new MenuOptionViewModel("-"));
+
+        var copyMenu = new MenuOptionViewModel("Copy");
+        copyMenu.Items = new ObservableCollection<MenuOptionViewModel>
+        {
+            new MenuOptionViewModel("Name", new AsyncRelayCommand(() => ApplicationExtensions.CopyToClipboard(first.DisplayName))),
+            new MenuOptionViewModel("Path ID", new AsyncRelayCommand(() => ApplicationExtensions.CopyToClipboard(first.PathId.ToString())))
+        };
+        ContextMenuItems.Add(copyMenu);
+
+        ContextMenuItems.Add(new MenuOptionViewModel("Remove",
+            new RelayCommand(RemoveAsset), null, ApplicationExtensions.GetIconPath("action-remove-asset.png")));
+    }
+
     private async Task OnWorkspaceClosing(object recipient, WorkspaceClosingMessage message)
     {
         await Load([]);
-    }
-}
-
-// todo: move all classes to new namespace
-
-public class PluginItemInfo
-{
-    public string Name { get; }
-
-    private IUavPluginOption? _option;
-    private AssetDocumentViewModel _docViewModel;
-
-    public PluginItemInfo(string name, IUavPluginOption? option, AssetDocumentViewModel docViewModel)
-    {
-        Name = name;
-        _option = option;
-        _docViewModel = docViewModel;
-    }
-
-    public async Task Execute(object selectedItems)
-    {
-        if (_option != null)
-        {
-            var workspace = _docViewModel.Workspace;
-            var res = await _option.Execute(workspace, new UavPluginFunctions(), _option.Options, (List<AssetInst>)selectedItems);
-            if (res)
-            {
-                _docViewModel.ResendSelectedAssetsSelected();
-            }
-        }
-    }
-
-    public override string ToString()
-    {
-        return Name;
     }
 }
 

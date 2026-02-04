@@ -23,18 +23,18 @@ public class SpritePreviewer : IUavPluginPreviewer
         return previewType;
     }
 
-    public Bitmap? ExecuteImage(Workspace workspace, IUavPluginFunctions funcs, AssetInst selection, out string? error)
+    public (Bitmap?, int) ExecuteImage(Workspace workspace, IUavPluginFunctions funcs, AssetInst selection, out string? error)
     {
         var image = _textureLoader.GetSpriteAvaloniaBitmap(workspace, selection, true, out TextureFormat format);
         if (image != null)
         {
             error = null;
-            return image;
+            return (image, (int)format);
         }
         else
         {
             error = $"Sprite texture failed to decode. The image format may not be supported or the texture is not valid. ({format})";
-            return null;
+            return (null, -1);
         }
     }
 

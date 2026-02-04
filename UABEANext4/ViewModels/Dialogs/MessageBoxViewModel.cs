@@ -25,6 +25,9 @@ public partial class MessageBoxViewModel : ViewModelBase, IDialogAware<MessageBo
     public string Title => MsgTitle;
     public int Width => 400;
     public int Height => 160;
+
+    public bool IsModal => true;
+
     public event Action<MessageBoxResult?>? RequestClose;
 
     public MessageBoxViewModel()

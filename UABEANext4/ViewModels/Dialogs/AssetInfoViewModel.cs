@@ -49,8 +49,10 @@ public partial class AssetInfoViewModel : ViewModelBase, IDialogAware
     private readonly Workspace _workspace;
 
     public string Title => "Asset Info";
-    public int Width => 500;
-    public int Height => 450;
+    public int Width => 650;
+    public int Height => 500;
+
+    public bool IsModal => false;
 
     [Obsolete("This constructor is for the designer only and should not be used directly.", true)]
     public AssetInfoViewModel()

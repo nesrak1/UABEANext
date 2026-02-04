@@ -10,7 +10,9 @@ public partial class RenameFileViewModel : ViewModelBase, IDialogAware<string?>
 
     public string Title => "Rename File";
     public int Width => 350;
-    public int Height => 80;
+    public int Height => 120;
+    public bool IsModal => true;
+
     public event Action<string?>? RequestClose;
 
     public RenameFileViewModel(string originalName)

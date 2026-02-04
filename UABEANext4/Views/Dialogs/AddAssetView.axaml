@@ -4,36 +4,66 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:dlg="using:UABEANext4.ViewModels.Dialogs"
              xmlns:uac="using:UABEANext4.Converters"
-             mc:Ignorable="d" d:DesignWidth="300" d:DesignHeight="170"
+             mc:Ignorable="d" d:DesignWidth="420" d:DesignHeight="200"
              x:Class="UABEANext4.Views.Dialogs.AddAssetView"
-             x:DataType="dlg:AddAssetViewModel">
-  <Grid Margin="10,10,10,10">
-    <Grid.Resources>
-      <uac:AssetsFileInstanceNameConverter x:Key="AssetsFileInstanceNameConverter" />
-    </Grid.Resources>
-    <Grid VerticalAlignment="Top"
-          ColumnDefinitions="100, *"
-          RowDefinitions="Auto, Auto, Auto, Auto">
-      <Label Grid.Column="0" Grid.Row="0">File</Label>
-      <ComboBox Grid.Column="1" Grid.Row="0"
-                ItemsSource="{Binding Files}" SelectedItem="{Binding SelectedFile}"
-                DisplayMemberBinding="{Binding Path=., Converter={StaticResource AssetsFileInstanceNameConverter}}" />
-      <Label Grid.Column="0" Grid.Row="1">Path ID</Label>
-      <TextBox Grid.Column="1" Grid.Row="1" Text="{Binding PathIdString}" />
-      <Label Grid.Column="0" Grid.Row="2">Type name/ID</Label>
-      <TextBox Grid.Column="1" Grid.Row="2" Text="{Binding TypeNameOrId}" />
-      <Label Grid.Column="0" Grid.Row="3">Script</Label>
-      <ComboBox Grid.Column="1" Grid.Row="3"
-                IsEnabled="{Binding IsScript}" ItemsSource="{Binding Scripts}"
-                SelectedIndex="{Binding SelectedScriptIndex}" />
+             x:DataType="dlg:AddAssetViewModel"
+             Background="{DynamicResource DockThemeBackgroundBrush}">
+
+    <UserControl.Resources>
+        <uac:AssetsFileInstanceNameConverter x:Key="AssetsFileInstanceNameConverter" />
+    </UserControl.Resources>
+
+    <Grid RowDefinitions="*, Auto" Margin="12">
+
+        <Grid Grid.Row="0"
+              ColumnDefinitions="110, *"
+              RowDefinitions="Auto, Auto, Auto, Auto"
+              VerticalAlignment="Top">
+
+            <Label Grid.Row="0" Grid.Column="0" Content="File" VerticalAlignment="Center" Margin="0,0,0,8"/>
+            <ComboBox Grid.Row="0" Grid.Column="1"
+                      HorizontalAlignment="Stretch" Margin="0,0,0,8"
+                      ItemsSource="{Binding Files}"
+                      SelectedItem="{Binding SelectedFile}"
+                      DisplayMemberBinding="{Binding Path=., Converter={StaticResource AssetsFileInstanceNameConverter}}" />
+
+            <Label Grid.Row="1" Grid.Column="0" Content="Path ID" VerticalAlignment="Center" Margin="0,0,0,8"/>
+            <TextBox Grid.Row="1" Grid.Column="1"
+                     Text="{Binding PathIdString}"
+                     Margin="0,0,0,8"
+                     VerticalContentAlignment="Center" />
+            <Label Grid.Row="2" Grid.Column="0" Content="Type name/ID" VerticalAlignment="Center" Margin="0,0,0,8"/>
+            <TextBox Grid.Row="2" Grid.Column="1"
+                     Text="{Binding TypeNameOrId}"
+                     Margin="0,0,0,8"
+                     VerticalContentAlignment="Center" />
+
+            <Label Grid.Row="3" Grid.Column="0" Content="Script" VerticalAlignment="Center"/>
+            <ComboBox Grid.Row="3" Grid.Column="1"
+                      HorizontalAlignment="Stretch"
+                      IsEnabled="{Binding IsScript}"
+                      ItemsSource="{Binding Scripts}"
+                      SelectedIndex="{Binding SelectedScriptIndex}" />
+        </Grid>
+
+        <StackPanel Grid.Row="1"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Right"
+                    Spacing="8"
+                    Margin="0,16,0,0">
+
+            <Button Command="{Binding BtnOk_Click}"
+                    Content="OK"
+                    Width="85"
+                    Height="28"
+                    IsDefault="True" />
+
+            <Button Command="{Binding BtnCancel_Click}"
+                    Content="Cancel"
+                    Width="85"
+                    Height="28"
+                    IsCancel="True" />
+        </StackPanel>
+
     </Grid>
-    <Grid VerticalAlignment="Bottom">
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="*"></ColumnDefinition>
-        <ColumnDefinition Width="*"></ColumnDefinition>
-      </Grid.ColumnDefinitions>
-      <Button Grid.Column="0" Command="{Binding BtnOk_Click}">Ok</Button>
-      <Button Grid.Column="1" Command="{Binding BtnCancel_Click}">Cancel</Button>
-    </Grid>
-  </Grid>
 </UserControl>

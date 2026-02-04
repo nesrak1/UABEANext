@@ -56,7 +56,8 @@ public class DialogService(Window mainWindow, ViewLocator viewLocator) : IDialog
             throw new Exception("View is not a UserControl");
         }
 
-        return new Window
+        bool isModal = viewModel.IsModal;
+        Window window = new Window
         {
             Content = uc,
             Icon = mainWindow.Icon,
@@ -64,6 +65,13 @@ public class DialogService(Window mainWindow, ViewLocator viewLocator) : IDialog
             Title = viewModel.Title,
             Width = viewModel.Width,
             Height = viewModel.Height,
+            MinWidth = viewModel.Width,
+            MinHeight = viewModel.Height,
+            CanResize = !isModal,
+            CanMinimize = !isModal,
+            ShowInTaskbar = !isModal,
         };
+
+        return window;
     }
 }
