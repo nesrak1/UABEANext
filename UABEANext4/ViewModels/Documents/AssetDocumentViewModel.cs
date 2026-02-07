@@ -2,7 +2,6 @@
 using AssetsTools.NET.Extra;
 using Avalonia;
 using Avalonia.Collections;
-using Avalonia.Controls;
 using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -159,7 +158,7 @@ public partial class AssetDocumentViewModel : Document
 
                     if (ClassIdToString.TryGetValue(a.Type, out string? classIdName) && searchRegex.IsMatch(classIdName))
                         return true;
-                    
+
                     if (searchRegex.IsMatch(a.PathId.ToString()))
                         return true;
 
@@ -179,7 +178,7 @@ public partial class AssetDocumentViewModel : Document
 
                     if (ClassIdToString.TryGetValue(a.Type, out string? classIdName) && classIdName == searchText)
                         return true;
-                    
+
                     if (a.PathId.ToString().Contains(searchText, strCmp))
                         return true;
 
@@ -646,10 +645,10 @@ public partial class AssetDocumentViewModel : Document
                 Title = "Choose file to export",
                 FileTypeChoices = new[]
                 {
-                new FilePickerFileType("UABEA json dump (*.json)") { Patterns = new[] { "*.json" } },
-                new FilePickerFileType("UABE txt dump (*.txt)") { Patterns = new[] { "*.txt" } },
-                new FilePickerFileType("Raw dump (*.dat)") { Patterns = new[] { "*.dat" } }
-            },
+                    new FilePickerFileType("UABEA json dump (*.json)") { Patterns = new[] { "*.json" } },
+                    new FilePickerFileType("UABE txt dump (*.txt)") { Patterns = new[] { "*.txt" } },
+                    new FilePickerFileType("Raw dump (*.dat)") { Patterns = new[] { "*.dat" } }
+                },
                 DefaultExtension = "json",
                 SuggestedFileName = exportFileName
             });
@@ -688,10 +687,17 @@ public partial class AssetDocumentViewModel : Document
                         }
                         else
                         {
-                            if (file.EndsWith(".json"))
-                                exporter.DumpJsonAsset(baseField);
-                            else
-                                exporter.DumpTextAsset(baseField);
+                            try
+                            {
+                                if (file.EndsWith(".json"))
+                                    exporter.DumpJsonAsset(baseField);
+                                else
+                                    exporter.DumpTextAsset(baseField);
+                            }
+                            catch (Exception ex)
+                            {
+                                throw new Exception($"Dump failed with \"{ex.Message}\" on {asset.FileName}/{asset.PathId}");
+                            }
                         }
                     }
                     else if (file.EndsWith(".dat"))
@@ -716,12 +722,10 @@ public partial class AssetDocumentViewModel : Document
                 }
             });
         }
-
         catch (Exception ex)
         {
-            await MessageBoxUtil.ShowDialog("Export Error", $"Failed to export assets: {ex.Message}");
+            await MessageBoxUtil.ShowDialog("Export Error", ex.Message);
         }
-
         finally
         {
             IsBusy = false;
