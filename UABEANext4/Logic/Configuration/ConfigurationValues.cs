@@ -31,6 +31,11 @@ public partial class ConfigurationValues : ObservableObject
     [property: ConfigRange(0, int.MaxValue)]
     private int _exportNameLength = 150;
 
+    [ObservableProperty]
+    [property: ConfigTitle("Load Container Paths")]
+    [property: ConfigDesc("Load container paths, which may take a while when loading many assets.")]
+    private bool _loadContainerPaths = true;
+
     private readonly Action<int> _saveDebounceFunc = DebounceUtils.Debounce(
         (int _) => ConfigurationManager.SaveConfig(), 500);
 

@@ -1,19 +1,21 @@
-<UserControl xmlns="https://github.com/avaloniaui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:tools="using:UABEANext4.ViewModels.Tools"
-             d:DesignWidth="400" d:DesignHeight="450"
-             xmlns:avedit="clr-namespace:AvaloniaEdit;assembly=AvaloniaEdit"
-             x:Class="UABEANext4.Views.Tools.TextPreviewView"
-             x:DataType="tools:PreviewerToolViewModel">
+<UserControl
+    x:Class="UABEANext4.Views.Tools.TextPreviewView"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:avedit="clr-namespace:AvaloniaEdit;assembly=AvaloniaEdit"
+    xmlns:tools="using:UABEANext4.ViewModels.Tools"
+    d:DesignWidth="400"
+    d:DesignHeight="450"
+    x:DataType="tools:PreviewerToolViewModel">
     <avedit:TextEditor
         Name="textEditor"
+        Background="{DynamicResource DockThemeListBackgroundBrush}"
+        Document="{Binding ActiveDocument}"
         FontFamily="Cascadia Code,Consolas,Monospace,Courier,DejaVu Sans Mono,Roboto Mono,Menlo"
         FontSize="13"
-        Document="{Binding ActiveDocument}"
-        WordWrap="True"
+        Foreground="{DynamicResource DockThemeForegroundBrush}"
         IsReadOnly="True"
-        Background="{DynamicResource DockThemeListBackgroundBrush}"
-        Foreground="{DynamicResource DockThemeForegroundBrush}" />
+        WordWrap="True" />
 </UserControl>

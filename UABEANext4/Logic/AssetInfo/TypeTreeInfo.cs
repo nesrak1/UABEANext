@@ -42,7 +42,7 @@ public partial class TypeTreeInfo : ObservableObject
     [ObservableProperty] public string _selectedScriptId = "";
     [ObservableProperty] public string _selectedTypeHash = "";
     [ObservableProperty] public string _selectedMonoHash = "";
-    [ObservableProperty] public string _selectedAligned = "";
+    [ObservableProperty] public bool _selectedAligned = false;
     [ObservableProperty] public string _selectedTypeFlags = "";
     [ObservableProperty] public string _selectedMetaFlags = "";
 
@@ -82,7 +82,7 @@ public partial class TypeTreeInfo : ObservableObject
             SelectedScriptId = string.Empty;
             SelectedTypeHash = string.Empty;
             SelectedMonoHash = string.Empty;
-            SelectedAligned = string.Empty;
+            SelectedAligned = false;
             SelectedTypeFlags = string.Empty;
             SelectedMetaFlags = string.Empty;
         }
@@ -93,13 +93,13 @@ public partial class TypeTreeInfo : ObservableObject
         if (uiNode != null)
         {
             var node = uiNode.Node;
-            SelectedAligned = (node.MetaFlags & 0x4000) != 0 ? "true" : "false";
+            SelectedAligned = (node.MetaFlags & 0x4000) != 0;
             SelectedTypeFlags = node.TypeFlags.ToString();
             SelectedMetaFlags = node.MetaFlags.ToString("X4");
         }
         else
         {
-            SelectedAligned = string.Empty;
+            SelectedAligned = false;
             SelectedTypeFlags = string.Empty;
             SelectedMetaFlags = string.Empty;
         }
@@ -195,7 +195,7 @@ public partial class TypeTreeInfo : ObservableObject
         SelectedScriptId = string.Empty,
         SelectedTypeHash = string.Empty,
         SelectedMonoHash = string.Empty,
-        SelectedAligned = string.Empty,
+        SelectedAligned = false,
 
         SelectedTypeFlags = string.Empty,
         SelectedMetaFlags = string.Empty,

@@ -12,135 +12,135 @@
              x:DataType="dlg:AssetInfoViewModel"
              Background="{DynamicResource DockThemeBackgroundBrush}">
 
-    <Grid Margin="12" RowDefinitions="*, Auto">
-        <Grid.Resources>
-            <uac:AssetTypeIconConverter x:Key="TypeTreeNodeConverter" />
-        </Grid.Resources>
+  <Grid Margin="12" RowDefinitions="*,Auto">
+    <Grid.Resources>
+      <uac:AssetTypeIconConverter x:Key="TypeTreeNodeConverter" />
+    </Grid.Resources>
 
-        <TabControl Grid.Row="0">
+    <TabControl Grid.Row="0">
+      <TabItem Header="General Info">
+        <ScrollViewer Margin="0,10,0,0">
+          <StackPanel Spacing="15">
+            <HeaderedContentControl Header="Header Info">
+              <Grid Margin="10" RowDefinitions="Auto,Auto,Auto,Auto,Auto" ColumnDefinitions="150,*" RowSpacing="2">
+                <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Text="Metadata Size" />
+                <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding GeneralInfo.MetadataSize}" IsReadOnly="True" />
 
-            <TabItem Header="General Info">
-                <ScrollViewer Margin="0,10,0,0">
-                    <StackPanel Spacing="15">
-                        <HeaderedContentControl Header="Header Info">
-                            <Grid Margin="10" RowDefinitions="Auto,Auto,Auto,Auto,Auto" ColumnDefinitions="150, *">
-                                <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Text="Metadata Size" />
-                                <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding GeneralInfo.MetadataSize}" IsReadOnly="True" Margin="0,2"/>
+                <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Text="File Size" />
+                <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding GeneralInfo.FileSize}" IsReadOnly="True" />
 
-                                <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Text="File Size" />
-                                <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding GeneralInfo.FileSize}" IsReadOnly="True" Margin="0,2"/>
+                <TextBlock Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" Text="Format" />
+                <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding GeneralInfo.Format}" IsReadOnly="True" />
 
-                                <TextBlock Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" Text="Format" />
-                                <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding GeneralInfo.Format}" IsReadOnly="True" Margin="0,2"/>
+                <TextBlock Grid.Row="3" Grid.Column="0" VerticalAlignment="Center" Text="First File Offset" />
+                <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding GeneralInfo.FirstFileOffset}" IsReadOnly="True" />
 
-                                <TextBlock Grid.Row="3" Grid.Column="0" VerticalAlignment="Center" Text="First File Offset" />
-                                <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding GeneralInfo.FirstFileOffset}" IsReadOnly="True" Margin="0,2"/>
+                <TextBlock Grid.Row="4" Grid.Column="0" VerticalAlignment="Center" Text="Endianness" />
+                <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding GeneralInfo.Endianness}" IsReadOnly="True" />
+              </Grid>
+            </HeaderedContentControl>
 
-                                <TextBlock Grid.Row="4" Grid.Column="0" VerticalAlignment="Center" Text="Endianness" />
-                                <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding GeneralInfo.Endianness}" IsReadOnly="True" Margin="0,2"/>
-                            </Grid>
-                        </HeaderedContentControl>
+            <HeaderedContentControl Header="Metadata Info">
+              <Grid Margin="10" RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="150,*" RowSpacing="2">
+                <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Text="Engine Version" />
+                <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding GeneralInfo.EngineVersion}" IsReadOnly="True" />
 
-                        <HeaderedContentControl Header="Metadata Info">
-                            <Grid Margin="10" RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="150, *">
-                                <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Text="Engine Version" />
-                                <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding GeneralInfo.EngineVersion}" IsReadOnly="True" Margin="0,2"/>
+                <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Text="Platform" />
+                <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding GeneralInfo.Platform}" IsReadOnly="True" />
 
-                                <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Text="Platform" />
-                                <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding GeneralInfo.Platform}" IsReadOnly="True" Margin="0,2"/>
+                <TextBlock Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" Text="Type Tree Enabled" />
+                <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding GeneralInfo.TypeTreeEnabled}" IsReadOnly="True" />
+              </Grid>
+            </HeaderedContentControl>
+          </StackPanel>
+        </ScrollViewer>
+      </TabItem>
 
-                                <TextBlock Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" Text="Type Tree Enabled" />
-                                <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding GeneralInfo.TypeTreeEnabled}" IsReadOnly="True" Margin="0,2"/>
-                            </Grid>
-                        </HeaderedContentControl>
-                    </StackPanel>
-                </ScrollViewer>
-            </TabItem>
+      <TabItem Header="Type Tree">
+        <Grid ColumnDefinitions="*,4,*,240" Margin="0,10,0,0">
+          <Border Grid.Column="0" BorderBrush="{DynamicResource DockThemeBorderLowBrush}" BorderThickness="1">
+            <TreeView ItemsSource="{Binding TypeTreeInfo.TypeTreeNodes}"
+                      SelectedItem="{Binding TypeTreeInfo.SelectedNode}"
+                      Background="{DynamicResource DockThemeListBackgroundBrush}">
+              <TreeView.ItemTemplate>
+                <TreeDataTemplate DataType="{x:Type info:TypeTreeUINode}" ItemsSource="{Binding Children}">
+                  <TextBlock Inlines="{Binding Display}" VerticalAlignment="Center" />
+                </TreeDataTemplate>
+              </TreeView.ItemTemplate>
+            </TreeView>
+          </Border>
 
-            <TabItem Header="Type Tree">
-                <Grid ColumnDefinitions="*, 4, *, 240" Margin="0,10,0,0">
-                    <Border Grid.Column="0" BorderBrush="{DynamicResource DockThemeBorderLowBrush}" BorderThickness="1">
-                        <TreeView ItemsSource="{Binding TypeTreeInfo.TypeTreeNodes}"
-                                  SelectedItem="{Binding TypeTreeInfo.SelectedNode}"
-                                  Background="{DynamicResource DockThemeListBackgroundBrush}">
-                            <TreeView.ItemTemplate>
-                                <TreeDataTemplate DataType="{x:Type info:TypeTreeUINode}" ItemsSource="{Binding Children}">
-                                    <TextBlock Inlines="{Binding Display}" VerticalAlignment="Center"/>
-                                </TreeDataTemplate>
-                            </TreeView.ItemTemplate>
-                        </TreeView>
-                    </Border>
+          <GridSplitter Grid.Column="1" Background="Transparent" />
 
-                    <GridSplitter Grid.Column="1" Background="Transparent" />
+          <Border Grid.Column="2" BorderBrush="{DynamicResource DockThemeBorderLowBrush}" BorderThickness="1">
+            <ListBox ItemsSource="{Binding TypeTreeInfo.TypeTreeTypeInfos}"
+                     SelectedItem="{Binding TypeTreeInfo.SelectedType}"
+                     Background="{DynamicResource DockThemeListBackgroundBrush}" />
+          </Border>
 
-                    <Border Grid.Column="2" BorderBrush="{DynamicResource DockThemeBorderLowBrush}" BorderThickness="1">
-                        <ListBox ItemsSource="{Binding TypeTreeInfo.TypeTreeTypeInfos}"
-                                 SelectedItem="{Binding TypeTreeInfo.SelectedType}"
-                                 Background="{DynamicResource DockThemeListBackgroundBrush}" />
-                    </Border>
+          <ScrollViewer Grid.Column="3" Margin="10,0,0,0">
+            <StackPanel Spacing="8">
+              <TextBlock Text="Properties" FontWeight="Bold" Margin="0,0,0,5" />
+              <Label Content="Type Name" />
 
-                    <ScrollViewer Grid.Column="3" Margin="10,0,0,0">
-                        <StackPanel Spacing="8">
-                            <TextBlock Text="Properties" FontWeight="Bold" Margin="0,0,0,5"/>
-                            <Label Content="Type Name"/>
-                            <TextBox Text="{Binding TypeTreeInfo.SelectedTypeName}" IsReadOnly="True" />
-                            <Label Content="Type ID"/>
-                            <TextBox Text="{Binding TypeTreeInfo.SelectedTypeId}" IsReadOnly="True" />
-                            <Label Content="Script ID"/>
-                            <TextBox Text="{Binding TypeTreeInfo.SelectedScriptId}" IsReadOnly="True" />
-                            <Label Content="Type Hash"/>
-                            <TextBox Text="{Binding TypeTreeInfo.SelectedTypeHash}" IsReadOnly="True" />
-                            <Label Content="Script Hash"/>
-                            <TextBox Text="{Binding TypeTreeInfo.SelectedMonoHash}" IsReadOnly="True" />
-                            <CheckBox Content="Aligned" IsChecked="{Binding TypeTreeInfo.SelectedAligned}" IsEnabled="False" />
-                        </StackPanel>
-                    </ScrollViewer>
-                </Grid>
-            </TabItem>
+              <TextBox Text="{Binding TypeTreeInfo.SelectedTypeName}" IsReadOnly="True" />
+              <Label Content="Type ID" />
 
-            <TabItem Header="Externals">
-                <Grid RowDefinitions="*, Auto" Margin="0,10,0,0">
-                    <Border Grid.Row="0" BorderBrush="{DynamicResource DockThemeBorderLowBrush}" BorderThickness="1">
-                        <ListBox ItemsSource="{Binding ExternalsInfo.ExternalsDisplay}"
-                                 SelectedIndex="{Binding ExternalsInfo.SelectedExternIndex}"
-                                 Background="{DynamicResource DockThemeListBackgroundBrush}" />
-                    </Border>
-                    <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="4" Margin="0,8,0,0">
-                        <Button Classes="toolbar" Content="Add" Command="{Binding ExternalsInfo.Add_Click}" />
-                        <Button Classes="toolbar" Content="Edit" IsEnabled="{Binding ExternalsInfo.IsAssetSelected}" Command="{Binding ExternalsInfo.Edit_Click}" />
-                        <Button Classes="toolbar" Content="Remove" IsEnabled="{Binding ExternalsInfo.IsAssetSelected}" Command="{Binding ExternalsInfo.Remove_Click}" />
-                        <Rectangle Width="1" Height="16" Fill="{DynamicResource DockThemeBorderLowBrush}" Margin="4,0" />
-                        <Button Classes="toolbar" Content="Move Up" IsEnabled="{Binding ExternalsInfo.CanSelectedAssetMoveUp}" Command="{Binding ExternalsInfo.MoveUp_Click}" />
-                        <Button Classes="toolbar" Content="Move Down" IsEnabled="{Binding ExternalsInfo.CanSelectedAssetMoveDown}" Command="{Binding ExternalsInfo.MoveDown_Click}" />
-                    </StackPanel>
-                </Grid>
-            </TabItem>
+              <TextBox Text="{Binding TypeTreeInfo.SelectedTypeId}" IsReadOnly="True" />
+              <Label Content="Script ID" />
 
-            <TabItem Header="Script Infos">
-                <Border Margin="0,10,0,0" BorderBrush="{DynamicResource DockThemeBorderLowBrush}" BorderThickness="1">
-                    <ListBox ItemsSource="{Binding ScriptsInfo.ScriptsDisplay}" Background="{DynamicResource DockThemeListBackgroundBrush}" />
-                </Border>
-            </TabItem>
-        </TabControl>
+              <TextBox Text="{Binding TypeTreeInfo.SelectedScriptId}" IsReadOnly="True" />
+              <Label Content="Type Hash" />
 
-        <Border Grid.Row="1"
-                Margin="0,15,0,0"
-                Padding="0,10,0,0"
+              <TextBox Text="{Binding TypeTreeInfo.SelectedTypeHash}" IsReadOnly="True" />
+              <Label Content="Script Hash" />
 
-                BorderThickness="0,1,0,0">
-            <StackPanel Orientation="Horizontal" Spacing="12">
-                <TextBlock Text="Selected asset:" VerticalAlignment="Center" FontWeight="SemiBold" Opacity="0.7" />
-                <ComboBox x:Name="SelectedAssetComboBox"
-                          MinWidth="250"
-                          SelectedIndex="0"
-                          SelectedItem="{Binding SelectedItem}">
-                    <ComboBox.ItemTemplate>
-                        <DataTemplate x:DataType="assetWorkspace:WorkspaceItem">
-                            <TextBlock Text="{Binding Name}" VerticalAlignment="Center" />
-                        </DataTemplate>
-                    </ComboBox.ItemTemplate>
-                </ComboBox>
+              <TextBox Text="{Binding TypeTreeInfo.SelectedMonoHash}" IsReadOnly="True" />
+              <CheckBox Content="Aligned" IsChecked="{Binding TypeTreeInfo.SelectedAligned}" IsEnabled="False" />
             </StackPanel>
+          </ScrollViewer>
+        </Grid>
+      </TabItem>
+
+      <TabItem Header="Externals">
+        <Grid RowDefinitions="*,Auto" Margin="0,10,0,0">
+          <Border Grid.Row="0" BorderBrush="{DynamicResource DockThemeBorderLowBrush}" BorderThickness="1">
+            <ListBox ItemsSource="{Binding ExternalsInfo.ExternalsDisplay}"
+                     SelectedIndex="{Binding ExternalsInfo.SelectedExternIndex}"
+                     Background="{DynamicResource DockThemeListBackgroundBrush}" />
+          </Border>
+          <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="4" Margin="0,8,0,0">
+            <Button Classes="toolbar" Content="Add" Command="{Binding ExternalsInfo.Add_Click}" />
+            <Button Classes="toolbar" Content="Edit" IsEnabled="{Binding ExternalsInfo.IsAssetSelected}" Command="{Binding ExternalsInfo.Edit_Click}" />
+            <Button Classes="toolbar" Content="Remove" IsEnabled="{Binding ExternalsInfo.IsAssetSelected}" Command="{Binding ExternalsInfo.Remove_Click}" />
+            <Rectangle Width="1" Height="16" Fill="{DynamicResource DockThemeBorderLowBrush}" Margin="4,0" />
+            <Button Classes="toolbar" Content="Move Up" IsEnabled="{Binding ExternalsInfo.CanSelectedAssetMoveUp}" Command="{Binding ExternalsInfo.MoveUp_Click}" />
+            <Button Classes="toolbar" Content="Move Down" IsEnabled="{Binding ExternalsInfo.CanSelectedAssetMoveDown}" Command="{Binding ExternalsInfo.MoveDown_Click}" />
+          </StackPanel>
+        </Grid>
+      </TabItem>
+
+      <TabItem Header="Script Infos">
+        <Border Margin="0,10,0,0" BorderBrush="{DynamicResource DockThemeBorderLowBrush}" BorderThickness="1">
+          <ListBox ItemsSource="{Binding ScriptsInfo.ScriptsDisplay}" Background="{DynamicResource DockThemeListBackgroundBrush}" />
         </Border>
-    </Grid>
+      </TabItem>
+    </TabControl>
+
+    <Border Grid.Row="1" Margin="0,15,0,0" Padding="0,10,0,0" BorderThickness="0,1,0,0">
+      <StackPanel Orientation="Horizontal" Spacing="12">
+        <TextBlock Text="Selected asset:" VerticalAlignment="Center" FontWeight="SemiBold" Opacity="0.7" />
+        <ComboBox x:Name="SelectedAssetComboBox"
+                  MinWidth="250"
+                  SelectedIndex="0"
+                  SelectedItem="{Binding SelectedItem}">
+          <ComboBox.ItemTemplate>
+            <DataTemplate x:DataType="assetWorkspace:WorkspaceItem">
+              <TextBlock Text="{Binding Name}" VerticalAlignment="Center" />
+            </DataTemplate>
+          </ComboBox.ItemTemplate>
+        </ComboBox>
+      </StackPanel>
+    </Border>
+  </Grid>
 </UserControl>

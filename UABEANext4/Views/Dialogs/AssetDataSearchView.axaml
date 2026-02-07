@@ -9,7 +9,7 @@
              x:DataType="dlg:AssetDataSearchViewModel"
              Background="{DynamicResource DockThemeBackgroundBrush}">
 
-    <Grid Margin="12" RowDefinitions="Auto, *, Auto, Auto">
+    <Grid Margin="12" RowDefinitions="Auto,*,Auto,Auto">
         <Grid.Resources>
             <uac:AssetClassIDConverter x:Key="AssetClassIDConverter" />
         </Grid.Resources>
@@ -32,9 +32,12 @@
                 </StackPanel>
             </Button>
             <ComboBox SelectedIndex="{Binding SearchKind}" Width="130" Grid.Column="2">
-                <ComboBoxItem Content="Bytes" /><ComboBoxItem Content="Text" />
-                <ComboBoxItem Content="Signed 4-byte" /><ComboBoxItem Content="Signed 8-byte" />
-                <ComboBoxItem Content="Unsigned 4-byte" /><ComboBoxItem Content="Unsigned 8-byte" />
+                <ComboBoxItem Content="Bytes" />
+                <ComboBoxItem Content="Text" />
+                <ComboBoxItem Content="Signed 4-byte" />
+                <ComboBoxItem Content="Signed 8-byte" />
+                <ComboBoxItem Content="Unsigned 4-byte" />
+                <ComboBoxItem Content="Unsigned 8-byte" />
             </ComboBox>
         </Grid>
 

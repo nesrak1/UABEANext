@@ -6,6 +6,7 @@ using System.IO;
 using static System.FormattableString;
 
 namespace UABEANext4.Logic.ImportExport;
+
 public class AssetExport
 {
     private readonly Stream _stream;
@@ -183,6 +184,7 @@ public class AssetExport
 
     public void DumpJsonAsset(AssetTypeValueField baseField)
     {
+        throw new Exception("idkkkkkk what is happening rn");
         var jBaseField = RecurseJsonDump(baseField, false);
         _streamWriter.Write(jBaseField.ToString());
         _streamWriter.Flush();

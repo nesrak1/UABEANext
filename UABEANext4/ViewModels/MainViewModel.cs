@@ -17,6 +17,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using UABEANext4.AssetWorkspace;
 using UABEANext4.Logic;
+using UABEANext4.Logic.Configuration;
 using UABEANext4.Services;
 using UABEANext4.Util;
 using UABEANext4.ViewModels.Dialogs;
@@ -38,8 +39,6 @@ public partial class MainViewModel : ViewModelBase
     public bool _dockInspectorVisible = true;
     [ObservableProperty]
     public bool _dockPreviewerVisible = true;
-    [ObservableProperty]
-    public bool _loadContainers = false;
 
     public Workspace Workspace { get; }
 
@@ -529,6 +528,8 @@ public partial class MainViewModel : ViewModelBase
 
     private async Task<AssetDocumentViewModel?> OpenAssetDocument(List<WorkspaceItem> workspaceItems, bool replaceDock)
     {
+        var loadContainers = ConfigurationManager.Settings.LoadContainerPaths;
+
         AssetDocumentViewModel document;
         if (workspaceItems.Count == 1)
         {
@@ -540,14 +541,13 @@ public partial class MainViewModel : ViewModelBase
             if (workspaceItem.Object is not AssetsFileInstance mainFileInst)
                 return null;
 
-            document = new AssetDocumentViewModel(Workspace, LoadContainers)
+            document = new AssetDocumentViewModel(Workspace, loadContainers)
             {
                 Title = mainFileInst.name,
                 Id = mainFileInst.name
             };
 
             _lastLoadedFiles = [mainFileInst];
-          //  await document.Load(_lastLoadedFiles);
         }
         else
         {
@@ -563,13 +563,12 @@ public partial class MainViewModel : ViewModelBase
             if (assetsFileItems[0] is not AssetsFileInstance mainFileInst)
                 return null;
 
-            document = new AssetDocumentViewModel(Workspace, LoadContainers)
+            document = new AssetDocumentViewModel(Workspace, loadContainers)
             {
                 Title = $"{mainFileInst.name} and {assetsFileItems.Count - 1} other files"
             };
 
             _lastLoadedFiles = assetsFileItems!;
-          //  await document.Load(_lastLoadedFiles);
         }
 
         var files = _factory.GetDockable<IDocumentDock>("Files");
@@ -597,7 +596,6 @@ public partial class MainViewModel : ViewModelBase
             _factory.DocMan.LastFocusedDocument = document;
         }
 
-        
         _lastLoadedFiles = workspaceItems.Select(i => i.Object as AssetsFileInstance).Where(i => i != null).ToList()!;
         await document.Load(_lastLoadedFiles);
 

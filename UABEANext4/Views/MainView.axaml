@@ -28,9 +28,6 @@
                 <MenuItem
                     Header="Save All" Command="{Binding FileSaveAll}"
                     HotKey="Ctrl+Alt+S" InputGesture="Ctrl+Alt+S" IsEnabled="{Binding Workspace.RootItems.Count}" />
-                <!--<MenuItem
-                Header="Save All As..." Command="{Binding FileSaveAllAs}"
-                HotKey="Ctrl+Shift+L" InputGesture="Ctrl+Shift+L" />-->
                 <MenuItem
                     Header="Close All" Command="{Binding FileCloseAll}"
                     HotKey="Ctrl+Shift+W" InputGesture="Ctrl+Shift+W" IsEnabled="{Binding Workspace.RootItems.Count}" />
@@ -42,14 +39,11 @@
                 <MenuItem Header="Hierarchy" ToggleType="CheckBox" IsChecked="{Binding DockHierarchyVisible, Mode=TwoWay}" />
                 <MenuItem Header="Inspector" ToggleType="CheckBox" IsChecked="{Binding DockInspectorVisible, Mode=TwoWay}" />
                 <MenuItem Header="Previewer" ToggleType="CheckBox" IsChecked="{Binding DockPreviewerVisible, Mode=TwoWay}" />
-                <MenuItem Header="-" />
-                <MenuItem Header="Show container paths (slow)" ToggleType="CheckBox" IsChecked="{Binding LoadContainers, Mode=TwoWay}" />
             </MenuItem>
             <MenuItem Header="Tools">
                 <MenuItem Header="Asset Info" Command="{Binding ShowAssetInfoDialog}" IsEnabled="{Binding Workspace.RootItems.Count}" />
                 <MenuItem Header="Search Bytes" Command="{Binding ShowSearchBytesDialog}" IsEnabled="{Binding Workspace.RootItems.Count}" />
                 <MenuItem Header="Options" Command="{Binding ShowOptionsDialog}" />
-                <!--<MenuItem Header="Generate XRefs" Command="{Binding ToolsXrefs}" />-->
             </MenuItem>
         </Menu>
         <DockControl Layout="{Binding Layout}" Margin="4" Grid.Row="1" Name="dockControl" />
