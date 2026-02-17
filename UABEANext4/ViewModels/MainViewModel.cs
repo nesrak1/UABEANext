@@ -1,8 +1,10 @@
-﻿using AssetsTools.NET.Extra;
+﻿using AssetsTools.NET;
+using AssetsTools.NET.Extra;
 using Avalonia.Platform;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.DependencyInjection;
+using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Dock.Model.Controls;
 using Dock.Model.Core;
@@ -41,6 +43,7 @@ public partial class MainViewModel : ViewModelBase
     public bool _dockPreviewerVisible = true;
 
     public Workspace Workspace { get; }
+    public IAsyncRelayCommand CompressBundle { get; }
 
     public bool UsesChrome => OperatingSystem.IsWindows();
 
@@ -54,6 +57,7 @@ public partial class MainViewModel : ViewModelBase
     public MainViewModel()
     {
         Workspace = new();
+        CompressBundle = new AsyncRelayCommand(OpenCompressBundleDialogAsync);
         _factory = new MainDockFactory(Workspace);
         Layout = _factory.CreateLayout();
         if (Layout is not null)
@@ -723,9 +727,105 @@ public partial class MainViewModel : ViewModelBase
         dialogService.Show(new AssetDataSearchViewModel(Workspace, fileInsts));
     }
 
+    public async Task OpenCompressBundleDialogAsync()
+    {
+        var bundleItem = GetSelectedBundleWorkspaceItem();
+        if (bundleItem == null || bundleItem.Object is not BundleFileInstance bunInst)
+        {
+            await MessageBoxUtil.ShowDialog(
+                "Compress Bundle",
+                "Please select a bundle file in Workspace Explorer first.\n" +
+                "If only one bundle is loaded, it will be used automatically.");
+            return;
+        }
+
+        var dialogService = Ioc.Default.GetRequiredService<IDialogService>();
+        var compressResult = await dialogService.ShowDialog(
+            new CompressBundleViewModel(bunInst.path));
+        if (compressResult == null)
+        {
+            return;
+        }
+
+        string outputPath = compressResult.OutputPath.Trim();
+        if (string.IsNullOrWhiteSpace(outputPath))
+        {
+            await MessageBoxUtil.ShowDialog("Compress Bundle", "Please set an output file path.");
+            return;
+        }
+
+        Workspace.ModifyMutex.WaitOne();
+        try
+        {
+            Workspace.SetProgressThreadSafe(0f, "Compressing bundle...");
+            var progress = new BundleCompressProgress(Workspace);
+            await Task.Run(() => Workspace.CompressBundleToFile(
+                bundleItem,
+                outputPath,
+                compressResult.CompressionType,
+                progress));
+
+            Workspace.SetProgressThreadSafe(1f, "Bundle compressed");
+        }
+        catch (Exception ex)
+        {
+            await MessageBoxUtil.ShowDialog("Compress Bundle", "Compression failed:\n" + ex);
+            return;
+        }
+        finally
+        {
+            Workspace.ModifyMutex.ReleaseMutex();
+        }
+
+        await MessageBoxUtil.ShowDialog("Compress Bundle", "Bundle compressed successfully.");
+    }
+
+    private WorkspaceItem? GetSelectedBundleWorkspaceItem()
+    {
+        var explorer = _factory.GetDockable<WorkspaceExplorerToolViewModel>("WorkspaceExplorer");
+        if (explorer != null)
+        {
+            foreach (var selected in explorer.SelectedItems)
+            {
+                if (selected is not WorkspaceItem item)
+                {
+                    continue;
+                }
+
+                if (item.ObjectType == WorkspaceItemType.BundleFile)
+                {
+                    return item;
+                }
+
+                if (item.Parent != null && item.Parent.ObjectType == WorkspaceItemType.BundleFile)
+                {
+                    return item.Parent;
+                }
+            }
+        }
+
+        var bundleRoots = Workspace.RootItems.Where(i => i.ObjectType == WorkspaceItemType.BundleFile).ToList();
+        return bundleRoots.Count == 1 ? bundleRoots[0] : null;
+    }
+
     public void ShowOptionsDialog()
     {
         var dialogService = Ioc.Default.GetRequiredService<IDialogService>();
         dialogService.Show(new SettingsViewModel());
+    }
+
+    private sealed class BundleCompressProgress : IAssetBundleCompressProgress
+    {
+        private readonly Workspace _workspace;
+
+        public BundleCompressProgress(Workspace workspace)
+        {
+            _workspace = workspace;
+        }
+
+        public void SetProgress(float progress)
+        {
+            _workspace.SetProgressThreadSafe(progress, "Compressing bundle...");
+        }
     }
 }
