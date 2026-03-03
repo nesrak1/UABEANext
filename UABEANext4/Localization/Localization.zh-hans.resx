@@ -110,4 +110,28 @@
     <data name="Settings Prompt" xml:space="preserve">
         <value>本会话中的所有更改将立即保存。</value>
     </data>
+    <data name="Hierarchy GameObject Sort" xml:space="preserve">
+        <value>按A-Z顺序排序根游戏对象</value>
+    </data>
+    <data name="View Scene" xml:space="preserve">
+        <value>转到层级视图</value>
+    </data>
+    <data name="Export" xml:space="preserve">
+        <value>导出</value>
+    </data>
+    <data name="Add" xml:space="preserve">
+        <value>添加</value>
+    </data>
+    <data name="Edit Data" xml:space="preserve">
+        <value>编辑数据</value>
+    </data>
+    <data name="Import" xml:space="preserve">
+        <value>导入</value>
+    </data>
+    <data name="Plugins" xml:space="preserve">
+        <value>插件</value>
+    </data>
+    <data name="Remove" xml:space="preserve">
+        <value>移除</value>
+    </data>
 </root>

@@ -117,4 +117,28 @@
     <data name="Settings Prompt" xml:space="preserve">
         <value>All changes in this dialog save immediately.</value>
     </data>
+    <data name="Hierarchy GameObject Sort" xml:space="preserve">
+        <value>Sort root GameObjects alphabetically</value>
+    </data>
+    <data name="View Scene" xml:space="preserve">
+        <value>View Scene</value>
+    </data>
+    <data name="Export" xml:space="preserve">
+        <value>Export</value>
+    </data>
+    <data name="Import" xml:space="preserve">
+        <value>Import</value>
+    </data>
+    <data name="Edit Data" xml:space="preserve">
+        <value>Edit Data</value>
+    </data>
+    <data name="Plugins" xml:space="preserve">
+        <value>Plugins</value>
+    </data>
+    <data name="Add" xml:space="preserve">
+        <value>Add</value>
+    </data>
+    <data name="Remove" xml:space="preserve">
+        <value>Remove</value>
+    </data>
 </root>

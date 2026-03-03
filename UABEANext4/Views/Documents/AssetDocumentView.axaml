@@ -8,6 +8,7 @@
              xmlns:plugins="using:UABEANext4.Plugins"
              xmlns:uac="using:UABEANext4.Converters"
              xmlns:ws="using:UABEANext4.AssetWorkspace"
+             xmlns:lang="clr-namespace:UABEANext4.Assets.Localization"
              x:Class="UABEANext4.Views.Documents.AssetDocumentView"
              x:DataType="docs:AssetDocumentViewModel"
              Background="{DynamicResource DockThemeBackgroundBrush}">
@@ -47,31 +48,31 @@
                 <Button Classes="toolbar" Command="{Binding ViewScene}">
                     <StackPanel Orientation="Horizontal">
                         <Image Source="avares://UABEANext4/Assets/Icons/action-view-scene.png" />
-                        <TextBlock Text="View Scene" VerticalAlignment="Center"/>
+                        <TextBlock Text="{x:Static lang:Localization.View_Scene}" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>
                 <Button Classes="toolbar" Command="{Binding Export}">
                     <StackPanel Orientation="Horizontal">
                         <Image Source="avares://UABEANext4/Assets/Icons/action-export-asset.png" />
-                        <TextBlock Text="Export" VerticalAlignment="Center"/>
+                        <TextBlock Text="{x:Static lang:Localization.Export}" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>
                 <Button Classes="toolbar" Command="{Binding Import}">
                     <StackPanel Orientation="Horizontal">
                         <Image Source="avares://UABEANext4/Assets/Icons/action-import-asset.png" />
-                        <TextBlock Text="Import" VerticalAlignment="Center"/>
+                        <TextBlock Text="{x:Static lang:Localization.Import}" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>
                 <Button Classes="toolbar" Command="{Binding EditDump}">
                     <StackPanel Orientation="Horizontal">
                         <Image Source="avares://UABEANext4/Assets/Icons/action-view-info.png" />
-                        <TextBlock Text="Edit Data" VerticalAlignment="Center"/>
+                        <TextBlock Text="{x:Static lang:Localization.Edit_Data}" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>
                 <Button Classes="toolbar" Command="{Binding ShowPlugins}" Name="showPluginsBtn">
                     <StackPanel Orientation="Horizontal">
                         <Image Source="avares://UABEANext4/Assets/Icons/action-plugins.png" />
-                        <TextBlock Text="Plugins" VerticalAlignment="Center"/>
+                        <TextBlock Text="{x:Static lang:Localization.Plugins}" VerticalAlignment="Center"/>
                     </StackPanel>
                     <Button.Flyout>
                         <MenuFlyout ItemsSource="{Binding PluginsItems}">
@@ -88,13 +89,13 @@
                 <Button Classes="toolbar" Command="{Binding AddAsset}">
                     <StackPanel Orientation="Horizontal">
                         <Image Source="avares://UABEANext4/Assets/Icons/action-add-asset.png" />
-                        <TextBlock Text="Add" VerticalAlignment="Center"/>
+                        <TextBlock Text="{x:Static lang:Localization.Add}" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>
                 <Button Classes="toolbar" Command="{Binding RemoveAsset}">
                     <StackPanel Orientation="Horizontal">
                         <Image Source="avares://UABEANext4/Assets/Icons/action-remove-asset.png" />
-                        <TextBlock Text="Remove" VerticalAlignment="Center"/>
+                        <TextBlock Text="{x:Static lang:Localization.Remove}" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>
             </WrapPanel>

@@ -60,6 +60,15 @@ namespace UABEANext4.Assets.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Add.
+        /// </summary>
+        public static string Add {
+            get {
+                return ResourceManager.GetString("Add", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Asset Info.
         /// </summary>
         public static string Asset_Info {
@@ -96,11 +105,29 @@ namespace UABEANext4.Assets.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Edit Data.
+        /// </summary>
+        public static string Edit_Data {
+            get {
+                return ResourceManager.GetString("Edit Data", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Expand.
         /// </summary>
         public static string Expand {
             get {
                 return ResourceManager.GetString("Expand", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Export.
+        /// </summary>
+        public static string Export {
+            get {
+                return ResourceManager.GetString("Export", resourceCulture);
             }
         }
         
@@ -119,6 +146,24 @@ namespace UABEANext4.Assets.Localization {
         public static string Hierarchy {
             get {
                 return ResourceManager.GetString("Hierarchy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sort root GameObjects alphabetically.
+        /// </summary>
+        public static string Hierarchy_GameObject_Sort {
+            get {
+                return ResourceManager.GetString("Hierarchy GameObject Sort", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Import.
+        /// </summary>
+        public static string Import {
+            get {
+                return ResourceManager.GetString("Import", resourceCulture);
             }
         }
         
@@ -222,11 +267,29 @@ namespace UABEANext4.Assets.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Plugins.
+        /// </summary>
+        public static string Plugins {
+            get {
+                return ResourceManager.GetString("Plugins", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Previewer.
         /// </summary>
         public static string Previewer {
             get {
                 return ResourceManager.GetString("Previewer", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Remove.
+        /// </summary>
+        public static string Remove {
+            get {
+                return ResourceManager.GetString("Remove", resourceCulture);
             }
         }
         
@@ -344,6 +407,15 @@ namespace UABEANext4.Assets.Localization {
         public static string View {
             get {
                 return ResourceManager.GetString("View", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to View Scene.
+        /// </summary>
+        public static string View_Scene {
+            get {
+                return ResourceManager.GetString("View Scene", resourceCulture);
             }
         }
         
