@@ -7,6 +7,7 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using UABEANext4.Assets.Localization;
 using UABEANext4.Interfaces;
 using UABEANext4.Logic.Configuration;
 using UABEANext4.Logic.ImportExport;
@@ -18,7 +19,7 @@ public partial class SettingsViewModel : ViewModelBase, IDialogAware
     [ObservableProperty]
     private ObservableCollection<ConfigurationItemBase> _configItems = [];
     
-    public string Title => "Settings";
+    public string Title => Localization.Settings;
     public int Width => 350;
     public int Height => 550;
     public bool IsModal => true;

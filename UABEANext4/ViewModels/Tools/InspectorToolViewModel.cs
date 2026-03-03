@@ -3,13 +3,14 @@ using CommunityToolkit.Mvvm.Messaging;
 using Dock.Model.Mvvm.Controls;
 using System;
 using System.Collections.ObjectModel;
+using UABEANext4.Assets.Localization;
 using UABEANext4.AssetWorkspace;
 using UABEANext4.Logic;
 
 namespace UABEANext4.ViewModels.Tools;
 public partial class InspectorToolViewModel : Tool
 {
-    const string TOOL_TITLE = "Inspector";
+    private static readonly string TOOL_TITLE = Localization.Hierarchy;
 
     public Workspace Workspace { get; }
 

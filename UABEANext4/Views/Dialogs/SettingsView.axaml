@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:dlg="using:UABEANext4.ViewModels.Dialogs"
              xmlns:cnf="using:UABEANext4.Logic.Configuration"
+             xmlns:lang="clr-namespace:UABEANext4.Assets.Localization"
              mc:Ignorable="d" d:DesignWidth="350" d:DesignHeight="550"
              x:Class="UABEANext4.Views.Dialogs.SettingsView"
              x:DataType="dlg:SettingsViewModel"
@@ -60,7 +61,7 @@
                       Height="14"
                       Opacity="0.6"
                       VerticalAlignment="Center" />
-                <TextBlock Text="All changes in this dialog save immediately."
+                <TextBlock Text="{x:Static lang:Localization.Settings_Prompt}"
                            FontSize="12"
                            FontStyle="Italic"
                            Opacity="0.6"

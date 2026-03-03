@@ -1,0 +1,113 @@
+﻿<root>
+    <resheader name="resmimetype">
+        <value>text/microsoft-resx</value>
+    </resheader>
+    <resheader name="version">
+        <value>1.3</value>
+    </resheader>
+    <resheader name="reader">
+        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <resheader name="writer">
+        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <data name="File" xml:space="preserve">
+        <value>文件</value>
+    </data>
+    <data name="Open" xml:space="preserve">
+        <value>打开</value>
+    </data>
+    <data name="Open Folder" xml:space="preserve">
+        <value>打开文件夹</value>
+    </data>
+    <data name="Save Selected" xml:space="preserve">
+        <value>保存选中项</value>
+    </data>
+    <data name="Save Selected As" xml:space="preserve">
+        <value>另存选中项为...</value>
+    </data>
+    <data name="Save All" xml:space="preserve">
+        <value>全部保存</value>
+    </data>
+    <data name="Close All" xml:space="preserve">
+        <value>全部关闭</value>
+    </data>
+    <data name="View" xml:space="preserve">
+        <value>视图</value>
+    </data>
+    <data name="Workspace Explorer" xml:space="preserve">
+        <value>资源管理器</value>
+    </data>
+    <data name="Duplicate Tab" xml:space="preserve">
+        <value>新建标签页</value>
+    </data>
+    <data name="Hierarchy" xml:space="preserve">
+        <value>层级视图</value>
+    </data>
+    <data name="Inspector" xml:space="preserve">
+        <value>检查器</value>
+    </data>
+    <data name="Previewer" xml:space="preserve">
+        <value>预览器</value>
+    </data>
+    <data name="Languages" xml:space="preserve">
+        <value>语言</value>
+    </data>
+    <data name="Tools" xml:space="preserve">
+        <value>工具</value>
+    </data>
+    <data name="Asset Info" xml:space="preserve">
+        <value>资产信息</value>
+    </data>
+    <data name="Search Bytes" xml:space="preserve">
+        <value>搜索字节</value>
+    </data>
+    <data name="Options" xml:space="preserve">
+        <value>选项</value>
+    </data>
+    <data name="Select Language" xml:space="preserve">
+        <value>选择语言</value>
+    </data>
+    <data name="New Tab" xml:space="preserve">
+        <value>新标签页</value>
+    </data>
+    <data name="New Tab Prompt" xml:space="preserve">
+        <value>打开一个 .assets 文件或 bundle 文件，并在资源管理器中选择它以在此处加载。</value>
+    </data>
+    <data name="Open A File" xml:space="preserve">
+        <value>打开一个文件</value>
+    </data>
+    <data name="Open A Folder" xml:space="preserve">
+        <value>打开一个文件夹</value>
+    </data>
+    <data name="Load All" xml:space="preserve">
+        <value>全部加载</value>
+    </data>
+    <data name="Expand" xml:space="preserve">
+        <value>展开</value>
+    </data>
+    <data name="Collapse" xml:space="preserve">
+        <value>折叠</value>
+    </data>
+    <data name="No Preview Available" xml:space="preserve">
+        <value>暂无可预览的项。</value>
+    </data>
+    <data name="Settings" xml:space="preserve">
+        <value>设置</value>
+    </data>
+    <data name="Theme Type" xml:space="preserve">
+        <value>主题类型</value>
+    </data>
+    <data name="Theme Type Description" xml:space="preserve">
+        <value>选择要使用的主题。</value>
+    </data>
+    <data name="Theme Light" xml:space="preserve">
+        <value>浅色</value>
+    </data>
+    <data name="Theme Dark" xml:space="preserve">
+        <value>深色</value>
+    </data>
+    <data name="Settings Prompt" xml:space="preserve">
+        <value>本会话中的所有更改将立即保存。</value>
+    </data>
+</root>

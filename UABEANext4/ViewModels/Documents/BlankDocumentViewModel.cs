@@ -1,9 +1,10 @@
 ﻿using Dock.Model.Mvvm.Controls;
+using UABEANext4.Assets.Localization;
 
 namespace UABEANext4.ViewModels.Documents;
 public partial class BlankDocumentViewModel : Document
 {
-    const string TOOL_TITLE = "New Tab";
+    private static readonly string TOOL_TITLE = Localization.New_Tab;
 
     public BlankDocumentViewModel()
     {

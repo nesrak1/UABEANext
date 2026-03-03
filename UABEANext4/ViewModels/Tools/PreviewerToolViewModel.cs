@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
 using Dock.Model.Mvvm.Controls;
 using System;
+using UABEANext4.Assets.Localization;
 using UABEANext4.AssetWorkspace;
 using UABEANext4.Logic;
 using UABEANext4.Logic.Mesh;
@@ -12,7 +13,7 @@ using UABEANext4.Plugins;
 namespace UABEANext4.ViewModels.Tools;
 public partial class PreviewerToolViewModel : Tool
 {
-    const string TOOL_TITLE = "Previewer";
+    private static readonly string TOOL_TITLE = Localization.Previewer;
 
     public Workspace Workspace { get; }
     [ObservableProperty]
@@ -48,7 +49,7 @@ public partial class PreviewerToolViewModel : Tool
         Id = TOOL_TITLE.Replace(" ", "");
         Title = TOOL_TITLE;
 
-        _activeDocument = new TextDocument("No preview available.");
+        _activeDocument = new TextDocument(Localization.No_Preview_Available);
 
         WeakReferenceMessenger.Default.Register<AssetsSelectedMessage>(this, OnAssetsSelected);
         WeakReferenceMessenger.Default.Register<WorkspaceClosingMessage>(this, OnWorkspaceClosing);

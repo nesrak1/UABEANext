@@ -10,6 +10,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using UABEANext4.Assets.Localization;
 using UABEANext4.AssetWorkspace;
 using UABEANext4.Logic;
 using UABEANext4.Logic.Hierarchy;
@@ -17,7 +18,7 @@ using UABEANext4.Logic.Hierarchy;
 namespace UABEANext4.ViewModels.Tools;
 public partial class HierarchyToolViewModel : Tool
 {
-    const string TOOL_TITLE = "Hierarchy";
+    private static readonly string TOOL_TITLE = Localization.Hierarchy;
 
     public Workspace Workspace { get; }
 

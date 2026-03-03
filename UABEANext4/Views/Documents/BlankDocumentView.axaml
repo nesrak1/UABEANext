@@ -6,6 +6,7 @@
              xmlns:docs="using:UABEANext4.ViewModels.Documents"
              xmlns:uac="using:UABEANext4.Converters"
              xmlns:ws="using:UABEANext4.AssetWorkspace"
+             xmlns:lang="clr-namespace:UABEANext4.Assets.Localization"
              x:Class="UABEANext4.Views.Documents.BlankDocumentView"
              x:DataType="docs:BlankDocumentViewModel"
              Background="{DynamicResource DockThemeBackgroundBrush}">
@@ -17,10 +18,10 @@
             TextAlignment="Center"
             TextWrapping="Wrap"
             FontSize="14"
-            MaxWidth="400"
+            MaxWidth="750"
             Foreground="{DynamicResource DockThemeForegroundBrush}"
-            Opacity="0.5">
-            Open an assets file or bundle file and select it in the Workspace Explorer to load it here.
+            Opacity="0.5"
+            Text="{x:Static lang:Localization.New_Tab_Prompt}">
         </TextBlock>
     </Grid>
 </UserControl>
