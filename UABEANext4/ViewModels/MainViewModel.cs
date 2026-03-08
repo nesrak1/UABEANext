@@ -15,7 +15,6 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using UABEANext4.Assets.Localization;
 using UABEANext4.AssetWorkspace;
 using UABEANext4.Logic;
 using UABEANext4.Logic.Configuration;
@@ -29,12 +28,17 @@ namespace UABEANext4.ViewModels;
 
 public partial class MainViewModel : ViewModelBase
 {
-    [ObservableProperty] public IRootDock? _layout;
+    [ObservableProperty]
+    public IRootDock? _layout;
 
-    [ObservableProperty] public bool _dockWorkspaceExplorerVisible = true;
-    [ObservableProperty] public bool _dockHierarchyVisible = true;
-    [ObservableProperty] public bool _dockInspectorVisible = true;
-    [ObservableProperty] public bool _dockPreviewerVisible = true;
+    [ObservableProperty]
+    public bool _dockWorkspaceExplorerVisible = true;
+    [ObservableProperty]
+    public bool _dockHierarchyVisible = true;
+    [ObservableProperty]
+    public bool _dockInspectorVisible = true;
+    [ObservableProperty]
+    public bool _dockPreviewerVisible = true;
 
     public Workspace Workspace { get; }
 
@@ -57,11 +61,9 @@ public partial class MainViewModel : ViewModelBase
             _factory.InitLayout(Layout);
         }
 
-        WeakReferenceMessenger.Default.Register<SelectedWorkspaceItemChangedMessage>(this,
-            (r, h) => _ = OnSelectedWorkspaceItemsChanged(r, h));
+        WeakReferenceMessenger.Default.Register<SelectedWorkspaceItemChangedMessage>(this, (r, h) => _ = OnSelectedWorkspaceItemsChanged(r, h));
         WeakReferenceMessenger.Default.Register<RequestEditAssetMessage>(this, OnRequestEditAsset);
-        WeakReferenceMessenger.Default.Register<RequestVisitAssetMessage>(this,
-            (r, h) => _ = OnRequestVisitAsset(r, h));
+        WeakReferenceMessenger.Default.Register<RequestVisitAssetMessage>(this, (r, h) => _ = OnRequestVisitAsset(r, h));
 
         _factory.DockableAdded += FactoryDockableAdded;
         _factory.DockableClosed += FactoryDockableClosed;
@@ -71,7 +73,6 @@ public partial class MainViewModel : ViewModelBase
     // todo: split out
 
     #region Dockable toggles
-
     private void FactoryDockableAdded(object? sender, DockableAddedEventArgs e)
     {
         if (e.Dockable is not IDockable dockable)
@@ -186,11 +187,9 @@ public partial class MainViewModel : ViewModelBase
                 return true;
         }
     }
-
     #endregion
 
     #region Menu items
-
     public async Task OpenFiles(IEnumerable<string?> paths)
     {
         var filePaths = new List<string>();
@@ -208,7 +207,10 @@ public partial class MainViewModel : ViewModelBase
             return;
         }
 
-        var options = new ParallelOptions { MaxDegreeOfParallelism = Math.Min(Environment.ProcessorCount - 1, 4) };
+        var options = new ParallelOptions
+        {
+            MaxDegreeOfParallelism = Math.Min(Environment.ProcessorCount - 1, 4)
+        };
 
         Workspace.SetProgressThreadSafe(0f, "Loading files...");
         await Task.Run(() =>
@@ -291,10 +293,9 @@ public partial class MainViewModel : ViewModelBase
 
         var result = await storageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
         {
-            Title = Localization.Open_A_File,
-            FileTypeFilter =
-            [
-                new FilePickerFileType("All files (*.*)") { Patterns = ["*"] }
+            Title = "Open a file",
+            FileTypeFilter = [
+                new FilePickerFileType("All files (*.*)") { Patterns = [ "*" ] }
             ],
             AllowMultiple = true
         });
@@ -313,7 +314,8 @@ public partial class MainViewModel : ViewModelBase
 
         var result = await storageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
         {
-            Title = Localization.Open_A_Folder, AllowMultiple = true
+            Title = "Open a folder",
+            AllowMultiple = true
         });
 
         var folderNames = FileDialogUtils.GetOpenFolderDialogFolders(result);
@@ -333,7 +335,6 @@ public partial class MainViewModel : ViewModelBase
                 {
                     rootItem = rootItem.Parent;
                 }
-
                 rootItems.Add(rootItem);
             }
 
@@ -403,7 +404,6 @@ public partial class MainViewModel : ViewModelBase
                 {
                     rootItem = rootItem.Parent;
                 }
-
                 rootItems.Add(rootItem);
             }
 
@@ -495,7 +495,6 @@ public partial class MainViewModel : ViewModelBase
             }
         }
     }
-
     #endregion
 
     private async Task OnSelectedWorkspaceItemsChanged(object recipient, SelectedWorkspaceItemChangedMessage message)
@@ -544,7 +543,8 @@ public partial class MainViewModel : ViewModelBase
 
             document = new AssetDocumentViewModel(Workspace, loadContainers)
             {
-                Title = mainFileInst.name, Id = mainFileInst.name
+                Title = mainFileInst.name,
+                Id = mainFileInst.name
             };
 
             _lastLoadedFiles = [mainFileInst];
@@ -657,7 +657,7 @@ public partial class MainViewModel : ViewModelBase
         await MessageBoxUtil.ShowDialog("Error", "Couldn't find asset document to show this asset in.");
         return;
 
-        finish:
+    finish:
         if (foundAssetDocVm is not null)
         {
             foundAssetDocVm.SetSelectedItems([asset]);
@@ -727,11 +727,5 @@ public partial class MainViewModel : ViewModelBase
     {
         var dialogService = Ioc.Default.GetRequiredService<IDialogService>();
         dialogService.Show(new SettingsViewModel());
-    }
-
-    public void ShowLanguagesDialog()
-    {
-        var dialogService = Ioc.Default.GetRequiredService<IDialogService>();
-        dialogService.Show(new SelectLanguageViewModel());
     }
 }
