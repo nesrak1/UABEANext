@@ -96,6 +96,14 @@
   <EmbeddedResource Update="Localization\Localization.resx">
     <Generator>PublicResXFileCodeGenerator</Generator>
   </EmbeddedResource>
+  <EmbeddedResource Update="Localization\Localization.en-us.resx">
+    <Generator>PublicResXFileCodeGenerator</Generator>
+    <DependentUpon>Localization.resx</DependentUpon>
+  </EmbeddedResource>
+  <EmbeddedResource Update="Localization\Localization.zh-hans.resx">
+    <Generator>PublicResXFileCodeGenerator</Generator>
+    <DependentUpon>Localization.resx</DependentUpon>
+  </EmbeddedResource>
 </ItemGroup>
 
 <ItemGroup>

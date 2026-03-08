@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.Messaging;
 using Dock.Model.Mvvm.Controls;
 using System;
 using System.Collections.Generic;
+using UABEANext4.Assets.Localization;
 using UABEANext4.AssetWorkspace;
 using UABEANext4.Logic;
 using UABEANext4.Services;
@@ -14,7 +15,7 @@ namespace UABEANext4.ViewModels.Tools
 {
     public partial class WorkspaceExplorerToolViewModel : Tool
     {
-        const string TOOL_TITLE = "Workspace Explorer";
+        string TOOL_TITLE = Localization.WorkspaceExplorer;
 
         public delegate void SelectedWorkspaceItemChangedEvent(List<WorkspaceItem> workspaceItems);
 

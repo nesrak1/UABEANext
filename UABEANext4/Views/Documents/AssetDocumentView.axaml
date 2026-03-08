@@ -48,7 +48,7 @@
                 <Button Classes="toolbar" Command="{Binding ViewScene}">
                     <StackPanel Orientation="Horizontal">
                         <Image Source="avares://UABEANext4/Assets/Icons/action-view-scene.png" />
-                        <TextBlock Text="{x:Static lang:Localization.View_Scene}" VerticalAlignment="Center"/>
+                        <TextBlock Text="{x:Static lang:Localization.ViewScene}" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>
                 <Button Classes="toolbar" Command="{Binding Export}">
@@ -66,7 +66,7 @@
                 <Button Classes="toolbar" Command="{Binding EditDump}">
                     <StackPanel Orientation="Horizontal">
                         <Image Source="avares://UABEANext4/Assets/Icons/action-view-info.png" />
-                        <TextBlock Text="{x:Static lang:Localization.Edit_Data}" VerticalAlignment="Center"/>
+                        <TextBlock Text="{x:Static lang:Localization.EditData}" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>
                 <Button Classes="toolbar" Command="{Binding ShowPlugins}" Name="showPluginsBtn">

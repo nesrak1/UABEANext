@@ -42,7 +42,7 @@
                       IsEnabled="{Binding !IsLoadingNewItems}"
                       FontSize="11"
                       Margin="0"
-                      Content="{x:Static lang:Localization.Hierarchy_GameObject_Sort}">
+                      Content="{x:Static lang:Localization.HierarchyGameObjectSort}">
             </CheckBox>
         </Border>
 

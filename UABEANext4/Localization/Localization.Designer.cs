@@ -71,18 +71,18 @@ namespace UABEANext4.Assets.Localization {
         /// <summary>
         ///   Looks up a localized string similar to Asset Info.
         /// </summary>
-        public static string Asset_Info {
+        public static string AssetInfo {
             get {
-                return ResourceManager.GetString("Asset Info", resourceCulture);
+                return ResourceManager.GetString("AssetInfo", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Close All.
         /// </summary>
-        public static string Close_All {
+        public static string CloseAll {
             get {
-                return ResourceManager.GetString("Close All", resourceCulture);
+                return ResourceManager.GetString("CloseAll", resourceCulture);
             }
         }
         
@@ -98,18 +98,18 @@ namespace UABEANext4.Assets.Localization {
         /// <summary>
         ///   Looks up a localized string similar to Duplicate Tab.
         /// </summary>
-        public static string Duplicate_Tab {
+        public static string DuplicateTab {
             get {
-                return ResourceManager.GetString("Duplicate Tab", resourceCulture);
+                return ResourceManager.GetString("DuplicateTab", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Edit Data.
         /// </summary>
-        public static string Edit_Data {
+        public static string EditData {
             get {
-                return ResourceManager.GetString("Edit Data", resourceCulture);
+                return ResourceManager.GetString("EditData", resourceCulture);
             }
         }
         
@@ -152,9 +152,9 @@ namespace UABEANext4.Assets.Localization {
         /// <summary>
         ///   Looks up a localized string similar to Sort root GameObjects alphabetically.
         /// </summary>
-        public static string Hierarchy_GameObject_Sort {
+        public static string HierarchyGameObjectSort {
             get {
-                return ResourceManager.GetString("Hierarchy GameObject Sort", resourceCulture);
+                return ResourceManager.GetString("HierarchyGameObjectSort", resourceCulture);
             }
         }
         
@@ -188,36 +188,36 @@ namespace UABEANext4.Assets.Localization {
         /// <summary>
         ///   Looks up a localized string similar to Load All.
         /// </summary>
-        public static string Load_All {
+        public static string LoadAll {
             get {
-                return ResourceManager.GetString("Load All", resourceCulture);
+                return ResourceManager.GetString("LoadAll", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to New Tab.
         /// </summary>
-        public static string New_Tab {
+        public static string NewTab {
             get {
-                return ResourceManager.GetString("New Tab", resourceCulture);
+                return ResourceManager.GetString("NewTab", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Open an assets file or bundle file and select it in the Workspace Explorer to load it here..
         /// </summary>
-        public static string New_Tab_Prompt {
+        public static string NewTabPrompt {
             get {
-                return ResourceManager.GetString("New Tab Prompt", resourceCulture);
+                return ResourceManager.GetString("NewTabPrompt", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to No preview available..
         /// </summary>
-        public static string No_Preview_Available {
+        public static string NoPreviewAvailable {
             get {
-                return ResourceManager.GetString("No Preview Available", resourceCulture);
+                return ResourceManager.GetString("NoPreviewAvailable", resourceCulture);
             }
         }
         
@@ -233,27 +233,27 @@ namespace UABEANext4.Assets.Localization {
         /// <summary>
         ///   Looks up a localized string similar to Open a file.
         /// </summary>
-        public static string Open_A_File {
+        public static string OpenAFile {
             get {
-                return ResourceManager.GetString("Open A File", resourceCulture);
+                return ResourceManager.GetString("OpenAFile", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Open a folder.
         /// </summary>
-        public static string Open_A_Folder {
+        public static string OpenAFolder {
             get {
-                return ResourceManager.GetString("Open A Folder", resourceCulture);
+                return ResourceManager.GetString("OpenAFolder", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Open Folder.
         /// </summary>
-        public static string Open_Folder {
+        public static string OpenFolder {
             get {
-                return ResourceManager.GetString("Open Folder", resourceCulture);
+                return ResourceManager.GetString("OpenFolder", resourceCulture);
             }
         }
         
@@ -296,45 +296,45 @@ namespace UABEANext4.Assets.Localization {
         /// <summary>
         ///   Looks up a localized string similar to Save All.
         /// </summary>
-        public static string Save_All {
+        public static string SaveAll {
             get {
-                return ResourceManager.GetString("Save All", resourceCulture);
+                return ResourceManager.GetString("SaveAll", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Save Selected.
         /// </summary>
-        public static string Save_Selected {
+        public static string SaveSelected {
             get {
-                return ResourceManager.GetString("Save Selected", resourceCulture);
+                return ResourceManager.GetString("SaveSelected", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Save Selected As....
         /// </summary>
-        public static string Save_Selected_As {
+        public static string SaveSelectedAs {
             get {
-                return ResourceManager.GetString("Save Selected As", resourceCulture);
+                return ResourceManager.GetString("SaveSelectedAs", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Search.
         /// </summary>
-        public static string Search_Bytes {
+        public static string SearchBytes {
             get {
-                return ResourceManager.GetString("Search Bytes", resourceCulture);
+                return ResourceManager.GetString("SearchBytes", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Select Language.
         /// </summary>
-        public static string Select_Language {
+        public static string SelectLanguage {
             get {
-                return ResourceManager.GetString("Select Language", resourceCulture);
+                return ResourceManager.GetString("SelectLanguage", resourceCulture);
             }
         }
         
@@ -350,45 +350,45 @@ namespace UABEANext4.Assets.Localization {
         /// <summary>
         ///   Looks up a localized string similar to All changes in this dialog save immediately..
         /// </summary>
-        public static string Settings_Prompt {
+        public static string SettingsPrompt {
             get {
-                return ResourceManager.GetString("Settings Prompt", resourceCulture);
+                return ResourceManager.GetString("SettingsPrompt", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Dark.
         /// </summary>
-        public static string Theme_Dark {
+        public static string ThemeDark {
             get {
-                return ResourceManager.GetString("Theme Dark", resourceCulture);
+                return ResourceManager.GetString("ThemeDark", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Light.
         /// </summary>
-        public static string Theme_Light {
+        public static string ThemeLight {
             get {
-                return ResourceManager.GetString("Theme Light", resourceCulture);
+                return ResourceManager.GetString("ThemeLight", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Theme Type.
         /// </summary>
-        public static string Theme_Type {
+        public static string ThemeType {
             get {
-                return ResourceManager.GetString("Theme Type", resourceCulture);
+                return ResourceManager.GetString("ThemeType", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to The theme to use..
         /// </summary>
-        public static string Theme_Type_Description {
+        public static string ThemeTypeDescription {
             get {
-                return ResourceManager.GetString("Theme Type Description", resourceCulture);
+                return ResourceManager.GetString("ThemeTypeDescription", resourceCulture);
             }
         }
         
@@ -413,18 +413,18 @@ namespace UABEANext4.Assets.Localization {
         /// <summary>
         ///   Looks up a localized string similar to View Scene.
         /// </summary>
-        public static string View_Scene {
+        public static string ViewScene {
             get {
-                return ResourceManager.GetString("View Scene", resourceCulture);
+                return ResourceManager.GetString("ViewScene", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Workspace Explorer.
         /// </summary>
-        public static string Workspace_Explorer {
+        public static string WorkspaceExplorer {
             get {
-                return ResourceManager.GetString("Workspace Explorer", resourceCulture);
+                return ResourceManager.GetString("WorkspaceExplorer", resourceCulture);
             }
         }
     }
