@@ -15,7 +15,7 @@ namespace UABEANext4.ViewModels.Tools
 {
     public partial class WorkspaceExplorerToolViewModel : Tool
     {
-        string TOOL_TITLE = Localization.WorkspaceExplorer;
+        string TOOL_TITLE => Localization.WorkspaceExplorer;
 
         public delegate void SelectedWorkspaceItemChangedEvent(List<WorkspaceItem> workspaceItems);
 
@@ -41,6 +41,11 @@ namespace UABEANext4.ViewModels.Tools
 
             Id = TOOL_TITLE.Replace(" ", "");
             Title = TOOL_TITLE;
+            
+            LocalizationService.Instance.PropertyChanged += (_, _) =>
+            {
+                Title = TOOL_TITLE;
+            };
         }
 
         public void SelectedItemsChanged(List<WorkspaceItem> value)

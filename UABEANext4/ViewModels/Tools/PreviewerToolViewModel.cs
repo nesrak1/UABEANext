@@ -4,15 +4,17 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
 using Dock.Model.Mvvm.Controls;
 using System;
+using UABEANext4.Assets.Localization;
 using UABEANext4.AssetWorkspace;
 using UABEANext4.Logic;
 using UABEANext4.Logic.Mesh;
 using UABEANext4.Plugins;
+using UABEANext4.Services;
 
 namespace UABEANext4.ViewModels.Tools;
 public partial class PreviewerToolViewModel : Tool
 {
-    const string TOOL_TITLE = "Previewer";
+    string TOOL_TITLE => Localization.Previewer;
 
     public Workspace Workspace { get; }
     [ObservableProperty]
@@ -47,6 +49,11 @@ public partial class PreviewerToolViewModel : Tool
 
         Id = TOOL_TITLE.Replace(" ", "");
         Title = TOOL_TITLE;
+        
+        LocalizationService.Instance.PropertyChanged += (_, _) =>
+        {
+            Title = TOOL_TITLE;
+        };
 
         _activeDocument = new TextDocument("No preview available.");
 
