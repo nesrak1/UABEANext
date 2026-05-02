@@ -11,6 +11,14 @@ Report any issues on the original repo: https://github.com/nesrak1/UABEA
 
 ---
 
+## 📥 Download My Enhanced Build
+
+This fork provides a pre-compiled version with all the optimizations and Spanish localization included:
+
+- **[Download UABEANext4 Enhanced (Windows x64)](https://github.com/AtaraxyInDev/UABEANext/releases/download/v1.0.0/UABEANext4-Enhanced-Win64.zip)**
+
+---
+
 ## 🚀 Enhanced Features in this Fork
 
 This fork introduces significant improvements to **Localization**, **Performance**, and **Processing Engines**.
