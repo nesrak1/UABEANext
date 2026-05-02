@@ -1,4 +1,4 @@
-﻿using AssetsTools.NET.Extra;
+using AssetsTools.NET.Extra;
 using Avalonia.Threading;
 using AvaloniaEdit.Utils;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using UABEANext4.AssetWorkspace;
 using UABEANext4.Logic;
 using UABEANext4.Logic.Hierarchy;
+using UABEANext4.Util;
 
 namespace UABEANext4.ViewModels.Tools;
 public partial class HierarchyToolViewModel : Tool
@@ -43,7 +44,7 @@ public partial class HierarchyToolViewModel : Tool
         Workspace = new();
 
         Id = TOOL_TITLE.Replace(" ", "");
-        Title = TOOL_TITLE;
+        Title = LocalizationHelper.GetString("Tools.Hierarchy", TOOL_TITLE);
     }
 
     public HierarchyToolViewModel(Workspace workspace)
@@ -51,7 +52,7 @@ public partial class HierarchyToolViewModel : Tool
         Workspace = workspace;
 
         Id = TOOL_TITLE.Replace(" ", "");
-        Title = TOOL_TITLE;
+        Title = LocalizationHelper.GetString("Tools.Hierarchy", TOOL_TITLE);
 
         WeakReferenceMessenger.Default.Register<AssetsSelectedMessage>(this, OnAssetsSelected);
         WeakReferenceMessenger.Default.Register<AssetsUpdatedMessage>(this, OnAssetsUpdated);

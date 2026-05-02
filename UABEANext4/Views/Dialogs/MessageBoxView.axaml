@@ -17,36 +17,36 @@
             <DataTemplate x:Key="OK" DataType="dlg:MessageBoxType">
                 <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
                     <Button MinWidth="85" Height="28" IsDefault="True"
-                            Command="{Binding $parent[UserControl].((dlg:MessageBoxViewModel)DataContext).BtnA_Click}">OK</Button>
+                            Command="{Binding $parent[UserControl].((dlg:MessageBoxViewModel)DataContext).BtnA_Click}" Content="{DynamicResource Button.Ok}" />
                 </StackPanel>
             </DataTemplate>
 
             <DataTemplate x:Key="OKCancel" DataType="dlg:MessageBoxType">
                 <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
                     <Button MinWidth="85" Height="28" IsDefault="True"
-                            Command="{Binding $parent[UserControl].((dlg:MessageBoxViewModel)DataContext).BtnA_Click}">OK</Button>
+                            Command="{Binding $parent[UserControl].((dlg:MessageBoxViewModel)DataContext).BtnA_Click}" Content="{DynamicResource Button.Ok}" />
                     <Button MinWidth="85" Height="28" IsCancel="True"
-                            Command="{Binding $parent[UserControl].((dlg:MessageBoxViewModel)DataContext).BtnB_Click}">Cancel</Button>
+                            Command="{Binding $parent[UserControl].((dlg:MessageBoxViewModel)DataContext).BtnB_Click}" Content="{DynamicResource Button.Cancel}" />
                 </StackPanel>
             </DataTemplate>
 
             <DataTemplate x:Key="YesNo" DataType="dlg:MessageBoxType">
                 <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
                     <Button MinWidth="85" Height="28" IsDefault="True"
-                            Command="{Binding $parent[UserControl].((dlg:MessageBoxViewModel)DataContext).BtnA_Click}">Yes</Button>
+                            Command="{Binding $parent[UserControl].((dlg:MessageBoxViewModel)DataContext).BtnA_Click}" Content="{DynamicResource Button.Yes}" />
                     <Button MinWidth="85" Height="28"
-                            Command="{Binding $parent[UserControl].((dlg:MessageBoxViewModel)DataContext).BtnB_Click}">No</Button>
+                            Command="{Binding $parent[UserControl].((dlg:MessageBoxViewModel)DataContext).BtnB_Click}" Content="{DynamicResource Button.No}" />
                 </StackPanel>
             </DataTemplate>
 
             <DataTemplate x:Key="YesNoCancel" DataType="dlg:MessageBoxType">
                 <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
                     <Button MinWidth="85" Height="28" IsDefault="True"
-                            Command="{Binding $parent[UserControl].((dlg:MessageBoxViewModel)DataContext).BtnA_Click}">Yes</Button>
+                            Command="{Binding $parent[UserControl].((dlg:MessageBoxViewModel)DataContext).BtnA_Click}" Content="{DynamicResource Button.Yes}" />
                     <Button MinWidth="85" Height="28"
-                            Command="{Binding $parent[UserControl].((dlg:MessageBoxViewModel)DataContext).BtnB_Click}">No</Button>
+                            Command="{Binding $parent[UserControl].((dlg:MessageBoxViewModel)DataContext).BtnB_Click}" Content="{DynamicResource Button.No}" />
                     <Button MinWidth="85" Height="28" IsCancel="True"
-                            Command="{Binding $parent[UserControl].((dlg:MessageBoxViewModel)DataContext).BtnC_Click}">Cancel</Button>
+                            Command="{Binding $parent[UserControl].((dlg:MessageBoxViewModel)DataContext).BtnC_Click}" Content="{DynamicResource Button.Cancel}" />
                 </StackPanel>
             </DataTemplate>
 

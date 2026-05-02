@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using System;
 using UABEANext4.Interfaces;
 
@@ -8,7 +8,7 @@ public partial class RenameFileViewModel : ViewModelBase, IDialogAware<string?>
     [ObservableProperty]
     public string _newName;
 
-    public string Title => "Rename File";
+    public string Title => UABEANext4.Util.LocalizationHelper.GetString("RenameFile.Title", "Rename File");
     public int Width => 350;
     public int Height => 120;
     public bool IsModal => true;

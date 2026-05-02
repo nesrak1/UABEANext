@@ -1,4 +1,4 @@
-﻿using AssetsTools.NET.Extra;
+using AssetsTools.NET.Extra;
 using Avalonia.Platform.Storage;
 using System.Text;
 using UABEANext4.AssetWorkspace;
@@ -8,7 +8,7 @@ using UABEANext4.Util;
 namespace TextAssetPlugin;
 public class ExportTextAssetPlugin : IUavPluginOption
 {
-    public string Name => "Export TextAsset";
+    public string Name => LocalizationHelper.GetString("Plugins.TextAsset.Export", "Export TextAsset");
     public string Description => "Exports TextAssets to txt";
     public UavPluginMode Options => UavPluginMode.Export;
 
@@ -39,7 +39,7 @@ public class ExportTextAssetPlugin : IUavPluginOption
     {
         var dir = await funcs.ShowOpenFolderDialog(new FolderPickerOpenOptions()
         {
-            Title = "Select export directory"
+            Title = LocalizationHelper.GetString("Plugins.TextAsset.SelectExportDir", "Select export directory")
         });
 
         if (dir == null)
@@ -93,7 +93,7 @@ public class ExportTextAssetPlugin : IUavPluginOption
         string assetName = PathUtils.ReplaceInvalidPathChars(name);
         var filePath = await funcs.ShowSaveFileDialog(new FilePickerSaveOptions()
         {
-            Title = "Save text asset",
+            Title = LocalizationHelper.GetString("Plugins.TextAsset.SaveText", "Save text asset"),
             FileTypeChoices = new List<FilePickerFileType>()
             {
                 new("TXT file (*.txt)") { Patterns = ["*.txt"] },

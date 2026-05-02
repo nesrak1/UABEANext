@@ -1,4 +1,4 @@
-﻿using AssetsTools.NET;
+using AssetsTools.NET;
 using AssetsTools.NET.Extra;
 using Avalonia;
 using Avalonia.Collections;
@@ -375,7 +375,7 @@ public partial class AssetDocumentViewModel : Document
                 var assetBfGoPtr = assetBf["m_GameObject"];
                 if (assetBfGoPtr.IsDummy)
                 {
-                    await MessageBoxUtil.ShowDialog("Not a GameObject or component", "The selected asset must be a GameObject or GameObject component.");
+                    await MessageBoxUtil.ShowDialog(LocalizationHelper.GetString("Status.NotAGameObject", "Not a GameObject or component"), LocalizationHelper.GetString("Status.SelectedAssetMustBeGO", "The selected asset must be a GameObject or GameObject component."));
                     return;
                 }
 
@@ -428,61 +428,111 @@ public partial class AssetDocumentViewModel : Document
             return;
 
         var fileNamesToDirty = new HashSet<string>();
+        var updatedAssets = new List<AssetInst>();
+        var errors = new List<string>();
+        int totalCount = batchInfos.Count;
 
         try
         {
             IsBusy = true;
 
-            await Task.Run(async () =>
+            await Task.Run(() =>
             {
-                foreach (var batchInfo in batchInfos)
+                // Pre-initialize mono temp generators once for the first asset
+                if (batchInfos.Count > 0)
+                {
+                    var firstInfo = batchInfos[0];
+                    Workspace.CheckAndSetMonoTempGenerators(firstInfo.Asset.FileInstance, firstInfo.Asset);
+                }
+
+                object lockObj = new object();
+                int processed = 0;
+
+                var parallelOptions = new ParallelOptions 
+                { 
+                    MaxDegreeOfParallelism = Math.Max(1, Environment.ProcessorCount - 1) 
+                };
+
+                Parallel.ForEach(batchInfos, parallelOptions, (batchInfo, state) =>
                 {
                     var selectedFilePath = batchInfo.ImportFile;
-                    if (selectedFilePath == null) continue;
+                    if (selectedFilePath == null) return;
 
                     var selectedAsset = batchInfo.Asset;
                     var selectedInst = selectedAsset.FileInstance;
 
-                    Workspace.CheckAndSetMonoTempGenerators(selectedInst, selectedAsset);
-
-                    using FileStream fs = File.OpenRead(selectedFilePath);
-                    var importer = new AssetImport(fs, Workspace.Manager.GetRefTypeManager(selectedInst));
-
-                    byte[]? data;
-                    string? exceptionMessage;
-
-                    if (selectedFilePath.EndsWith(".json"))
+                    try
                     {
-                        var tempField = Workspace.GetTemplateField(selectedAsset);
-                        data = importer.ImportJsonAsset(tempField, out exceptionMessage);
-                    }
-                    else if (selectedFilePath.EndsWith(".txt"))
-                    {
-                        data = importer.ImportTextAsset(out exceptionMessage);
-                    }
-                    else
-                    {
-                        exceptionMessage = string.Empty;
-                        data = importer.ImportRawAsset();
-                    }
-
-                    if (data == null)
-                    {
-                        await Dispatcher.UIThread.InvokeAsync(async () =>
+                        using FileStream fs = File.OpenRead(selectedFilePath);
+                        
+                        // AssetImport and GetRefTypeManager might not be thread-safe due to internal caching
+                        AssetImport importer;
+                        lock (Workspace.Manager)
                         {
-                            await MessageBoxUtil.ShowDialog("Parse error",
-                                $"Error in file {Path.GetFileName(selectedFilePath)}:\n{exceptionMessage}");
-                        });
-                        continue;
+                            var refManager = Workspace.Manager.GetRefTypeManager(selectedInst);
+                            importer = new AssetImport(fs, refManager);
+                        }
+
+                        byte[]? data;
+                        string? exceptionMessage;
+
+                        if (selectedFilePath.EndsWith(".json"))
+                        {
+                            AssetTypeTemplateField tempField;
+                            lock (Workspace.Manager)
+                            {
+                                tempField = Workspace.GetTemplateField(selectedAsset);
+                            }
+                            data = importer.ImportJsonAsset(tempField, out exceptionMessage);
+                        }
+                        else if (selectedFilePath.EndsWith(".txt"))
+                        {
+                            data = importer.ImportTextAsset(out exceptionMessage);
+                        }
+                        else
+                        {
+                            exceptionMessage = string.Empty;
+                            data = importer.ImportRawAsset();
+                        }
+
+                        if (data == null)
+                        {
+                            lock (lockObj)
+                            {
+                                if (errors.Count < 50)
+                                    errors.Add($"{Path.GetFileName(selectedFilePath)}: {exceptionMessage}");
+                            }
+                            return;
+                        }
+
+                        // Use silent update - no PropertyChanged, no Dirty() per asset
+                        selectedAsset.UpdateAssetDataSilent(Workspace, data);
+                        
+                        lock (lockObj)
+                        {
+                            updatedAssets.Add(selectedAsset);
+                            fileNamesToDirty.Add(selectedAsset.FileInstance.name);
+                        }
                     }
-
-                    selectedAsset.UpdateAssetDataAndRow(Workspace, data);
-
-                    lock (fileNamesToDirty)
+                    catch (Exception ex)
                     {
-                        fileNamesToDirty.Add(selectedAsset.FileInstance.name);
+                        lock (lockObj)
+                        {
+                            if (errors.Count < 50)
+                                errors.Add($"{Path.GetFileName(selectedFilePath ?? "unknown")}: {ex.Message}");
+                        }
                     }
-                }
+
+                    int curr = Interlocked.Increment(ref processed);
+                    if (curr % 100 == 0 || curr == totalCount)
+                    {
+                        Workspace.SetProgressThreadSafe(
+                            (float)curr / totalCount,
+                            string.Format(LocalizationHelper.GetString("Status.Importing", "Importing {0}/{1}..."), curr.ToString("N0"), totalCount.ToString("N0")));
+                    }
+                });
+
+                Workspace.SetProgressThreadSafe(1f, LocalizationHelper.GetString("Status.Done", "Done"));
             });
         }
         catch (Exception ex)
@@ -491,6 +541,13 @@ public partial class AssetDocumentViewModel : Document
         }
         finally
         {
+            // Batch refresh: fire PropertyChanged for all updated assets at once
+            foreach (var asset in updatedAssets)
+            {
+                asset.RefreshRow();
+            }
+
+            // Batch dirty: mark files as dirty only once per file, not per asset
             foreach (var fileName in fileNamesToDirty)
             {
                 if (Workspace.ItemLookup.TryGetValue(fileName, out var fileToDirty))
@@ -498,7 +555,25 @@ public partial class AssetDocumentViewModel : Document
                     Workspace.Dirty(fileToDirty);
                 }
             }
+
+            Workspace.SetProgressThreadSafe(0f, "");
             IsBusy = false;
+
+            // Show collected errors as a single summary
+            if (errors.Count > 0)
+            {
+                var errorSummary = $"{errors.Count} error(s) during import:\n\n" +
+                    string.Join("\n", errors.Take(20));
+                if (errors.Count > 20)
+                    errorSummary += $"\n... and {errors.Count - 20} more";
+
+                await MessageBoxUtil.ShowDialog("Import Errors", errorSummary);
+            }
+            else if (updatedAssets.Count > 0)
+            {
+                await MessageBoxUtil.ShowDialog("Import Complete",
+                    $"Successfully imported {updatedAssets.Count:N0} assets.");
+            }
         }
     }
 
@@ -510,7 +585,7 @@ public partial class AssetDocumentViewModel : Document
 
         var result = await storageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
         {
-            Title = "Choose file to import",
+            Title = LocalizationHelper.GetString("Dialog.Import.Title", "Choose file to import"),
             AllowMultiple = false,
             FileTypeFilter = new[]
             {
@@ -642,7 +717,7 @@ public partial class AssetDocumentViewModel : Document
 
             var result = await storageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
             {
-                Title = "Choose file to export",
+                Title = LocalizationHelper.GetString("Dialog.Export.Title", "Choose file to export"),
                 FileTypeChoices = new[]
                 {
                     new FilePickerFileType("UABEA json dump (*.json)") { Patterns = new[] { "*.json" } },
@@ -670,57 +745,90 @@ public partial class AssetDocumentViewModel : Document
         try
         {
             IsBusy = true;
+            int processed = 0;
+            int totalCount = filesToWrite.Count;
+            object lockObj = new object();
+            List<string> errors = new List<string>();
+
             await Task.Run(() =>
             {
-                foreach (var (asset, file) in filesToWrite)
-                {
-                    using var fs = File.Open(file, FileMode.Create, FileAccess.Write, FileShare.None);
-                    var exporter = new AssetExport(fs);
+                var parallelOptions = new ParallelOptions 
+                { 
+                    MaxDegreeOfParallelism = Math.Max(1, Environment.ProcessorCount - 1) 
+                };
 
-                    if (file.EndsWith(".json") || file.EndsWith(".txt"))
+                Parallel.ForEach(filesToWrite, parallelOptions, item =>
+                {
+                    var (asset, file) = item;
+                    try
                     {
-                        var baseField = Workspace.GetBaseField(asset);
-                        if (baseField == null)
+                        using var fs = File.Open(file, FileMode.Create, FileAccess.Write, FileShare.None);
+                        var exporter = new AssetExport(fs);
+
+                        if (file.EndsWith(".json") || file.EndsWith(".txt"))
                         {
-                            byte[] failMsg = Encoding.UTF8.GetBytes("Asset failed to deserialize.");
-                            fs.Write(failMsg, 0, failMsg.Length);
-                        }
-                        else
-                        {
-                            try
+                            AssetTypeValueField? baseField;
+                            lock (Workspace.Manager)
+                            {
+                                baseField = Workspace.GetBaseField(asset);
+                            }
+
+                            if (baseField == null)
+                            {
+                                byte[] failMsg = Encoding.UTF8.GetBytes("Asset failed to deserialize.");
+                                fs.Write(failMsg, 0, failMsg.Length);
+                            }
+                            else
                             {
                                 if (file.EndsWith(".json"))
                                     exporter.DumpJsonAsset(baseField);
                                 else
                                     exporter.DumpTextAsset(baseField);
                             }
-                            catch (Exception ex)
+                        }
+                        else if (file.EndsWith(".dat"))
+                        {
+                            if (asset.IsReplacerPreviewable)
                             {
-                                throw new Exception($"Dump failed with \"{ex.Message}\" on {asset.FileName}/{asset.PathId}");
+                                var previewStream = asset.Replacer.GetPreviewStream();
+                                var previewReader = new AssetsFileReader(previewStream);
+                                lock (previewStream)
+                                {
+                                    exporter.DumpRawAsset(previewReader, 0, (uint)previewStream.Length);
+                                }
+                            }
+                            else
+                            {
+                                lock (asset.FileInstance.LockReader)
+                                {
+                                    exporter.DumpRawAsset(asset.FileReader, asset.AbsoluteByteStart, asset.ByteSize);
+                                }
                             }
                         }
                     }
-                    else if (file.EndsWith(".dat"))
+                    catch (Exception ex)
                     {
-                        if (asset.IsReplacerPreviewable)
+                        lock (lockObj)
                         {
-                            var previewStream = asset.Replacer.GetPreviewStream();
-                            var previewReader = new AssetsFileReader(previewStream);
-                            lock (previewStream)
-                            {
-                                exporter.DumpRawAsset(previewReader, 0, (uint)previewStream.Length);
-                            }
-                        }
-                        else
-                        {
-                            lock (asset.FileInstance.LockReader)
-                            {
-                                exporter.DumpRawAsset(asset.FileReader, asset.AbsoluteByteStart, asset.ByteSize);
-                            }
+                            errors.Add($"[{asset.AssetName ?? "Unnamed"}/{asset.PathId}]: {ex.Message}");
                         }
                     }
-                }
+
+                    int curr = Interlocked.Increment(ref processed);
+                    if (curr % 100 == 0 || curr == totalCount)
+                    {
+                        Workspace.SetProgressThreadSafe(
+                            (float)curr / totalCount,
+                            string.Format(LocalizationHelper.GetString("Status.Exporting", "Exporting {0}/{1}..."), curr.ToString("N0"), totalCount.ToString("N0")));
+                    }
+                });
             });
+
+            if (errors.Count > 0)
+            {
+                var errorSummary = $"{errors.Count} error(s) during export:\n\n" + string.Join("\n", errors.Take(10));
+                await MessageBoxUtil.ShowDialog("Export Errors", errorSummary);
+            }
         }
         catch (Exception ex)
         {
@@ -751,7 +859,7 @@ public partial class AssetDocumentViewModel : Document
         if (pluginsList.Count == 0)
         {
             PluginsItems.Clear();
-            PluginsItems.Add(new PluginItemInfo("No plugins available", null, this));
+            PluginsItems.Add(new PluginItemInfo(LocalizationHelper.GetString("ContextMenu.NoPlugins", "No plugins available"), null, this));
         }
         else
         {
@@ -798,15 +906,12 @@ public partial class AssetDocumentViewModel : Document
         if (SelectedItems.Count == 0)
             return;
 
-        var singPlurStr = SelectedItems.Count > 1
-            ? "these assets"
-            : "this asset";
+        var title = LocalizationHelper.GetString("Dialog.RemoveAsset.Title", "Remove asset");
+        var message = SelectedItems.Count > 1 
+            ? LocalizationHelper.GetString("Dialog.RemoveAssets.Message", "Are you sure you want to remove these assets? Remaining references to these assets will not be fixed.")
+            : LocalizationHelper.GetString("Dialog.RemoveAsset.Message", "Are you sure you want to remove this asset? Remaining references to this asset will not be fixed.");
 
-        var dialogRes = await MessageBoxUtil.ShowDialog(
-            "Remove asset",
-            $"Are you sure you want to remove {singPlurStr}? Remaining references to {singPlurStr} will not be fixed.",
-            MessageBoxType.YesNo
-        );
+        var dialogRes = await MessageBoxUtil.ShowDialog(title, message, MessageBoxType.YesNo);
         if (dialogRes == MessageBoxResult.No)
             return;
 
@@ -901,12 +1006,12 @@ public partial class AssetDocumentViewModel : Document
         var selected = SelectedItems;
         var first = selected[0];
 
-        ContextMenuItems.Add(new MenuOptionViewModel("Edit Data",
+        ContextMenuItems.Add(new MenuOptionViewModel(LocalizationHelper.GetString("ContextMenu.EditData", "Edit Data"),
             new RelayCommand(EditDump), null, ApplicationExtensions.GetIconPath("action-view-info.png")));
 
         ContextMenuItems.Add(new MenuOptionViewModel("-"));
 
-        var pluginsMenu = new MenuOptionViewModel("Plugins", null, null, ApplicationExtensions.GetIconPath("action-plugins.png"))
+        var pluginsMenu = new MenuOptionViewModel(LocalizationHelper.GetString("ContextMenu.Plugins", "Plugins"), null, null, ApplicationExtensions.GetIconPath("action-plugins.png"))
         {
             Items = new ObservableCollection<MenuOptionViewModel>()
         };
@@ -926,21 +1031,21 @@ public partial class AssetDocumentViewModel : Document
         }
         else
         {
-            var disabledItem = new MenuOptionViewModel("No plugins available");
+            var disabledItem = new MenuOptionViewModel(LocalizationHelper.GetString("ContextMenu.NoPlugins", "No plugins available"));
             pluginsMenu.Items.Add(disabledItem);
         }
         ContextMenuItems.Add(pluginsMenu);
         ContextMenuItems.Add(new MenuOptionViewModel("-"));
 
-        var copyMenu = new MenuOptionViewModel("Copy");
+        var copyMenu = new MenuOptionViewModel(LocalizationHelper.GetString("ContextMenu.Copy", "Copy"));
         copyMenu.Items = new ObservableCollection<MenuOptionViewModel>
         {
-            new MenuOptionViewModel("Name", new AsyncRelayCommand(() => ApplicationExtensions.CopyToClipboard(first.DisplayName))),
-            new MenuOptionViewModel("Path ID", new AsyncRelayCommand(() => ApplicationExtensions.CopyToClipboard(first.PathId.ToString())))
+            new MenuOptionViewModel(LocalizationHelper.GetString("ContextMenu.Copy.Name", "Name"), new AsyncRelayCommand(() => ApplicationExtensions.CopyToClipboard(first.DisplayName))),
+            new MenuOptionViewModel(LocalizationHelper.GetString("ContextMenu.Copy.PathId", "Path ID"), new AsyncRelayCommand(() => ApplicationExtensions.CopyToClipboard(first.PathId.ToString())))
         };
         ContextMenuItems.Add(copyMenu);
 
-        ContextMenuItems.Add(new MenuOptionViewModel("Remove",
+        ContextMenuItems.Add(new MenuOptionViewModel(LocalizationHelper.GetString("ContextMenu.Remove", "Remove"),
             new RelayCommand(RemoveAsset), null, ApplicationExtensions.GetIconPath("action-remove-asset.png")));
     }
 

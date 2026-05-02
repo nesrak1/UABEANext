@@ -1,4 +1,4 @@
-﻿using AssetsTools.NET;
+using AssetsTools.NET;
 using AssetsTools.NET.Extra;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -225,7 +225,7 @@ public partial class AssetDataSearchViewModel : ViewModelBase, IDialogAware<stri
                 Dispatcher.UIThread.Post(() =>
                 {
                     SearchResults = new ObservableCollection<SearchResultItem>(allFound);
-                    ProgressStatus = $"Done. Found {allFound.Count} assets.";
+                    ProgressStatus = string.Format(LocalizationHelper.GetString("Status.ReadyMatched", "Done. Found {0} assets."), allFound.Count);
                     _workspace.SetProgressThreadSafe(1f, ProgressStatus);
                 });
             });

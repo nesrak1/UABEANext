@@ -328,3 +328,9 @@ ASALocalRun/
 
 # Free "ignore folder" for whatever you want
 ignore/
+
+# Custom build outputs
+BuildOutput/
+*.exe
+*.dll
+*.apphost

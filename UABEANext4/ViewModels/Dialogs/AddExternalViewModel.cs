@@ -1,4 +1,4 @@
-﻿using AssetsTools.NET;
+using AssetsTools.NET;
 using CommunityToolkit.Mvvm.ComponentModel;
 using System;
 using System.ComponentModel.DataAnnotations;
@@ -89,4 +89,4 @@ public partial class AddExternalViewModel : ViewModelBaseValidator, IDialogAware
     {
         RequestClose?.Invoke(null);
     }
-}
+}

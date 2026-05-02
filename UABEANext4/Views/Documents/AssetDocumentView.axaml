@@ -47,31 +47,31 @@
                 <Button Classes="toolbar" Command="{Binding ViewScene}">
                     <StackPanel Orientation="Horizontal">
                         <Image Source="avares://UABEANext4/Assets/Icons/action-view-scene.png" />
-                        <TextBlock Text="View Scene" VerticalAlignment="Center"/>
+                        <TextBlock Text="{DynamicResource Tools.ViewScene}" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>
                 <Button Classes="toolbar" Command="{Binding Export}">
                     <StackPanel Orientation="Horizontal">
                         <Image Source="avares://UABEANext4/Assets/Icons/action-export-asset.png" />
-                        <TextBlock Text="Export" VerticalAlignment="Center"/>
+                        <TextBlock Text="{DynamicResource Button.Export}" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>
                 <Button Classes="toolbar" Command="{Binding Import}">
                     <StackPanel Orientation="Horizontal">
                         <Image Source="avares://UABEANext4/Assets/Icons/action-import-asset.png" />
-                        <TextBlock Text="Import" VerticalAlignment="Center"/>
+                        <TextBlock Text="{DynamicResource Button.Import}" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>
                 <Button Classes="toolbar" Command="{Binding EditDump}">
                     <StackPanel Orientation="Horizontal">
                         <Image Source="avares://UABEANext4/Assets/Icons/action-view-info.png" />
-                        <TextBlock Text="Edit Data" VerticalAlignment="Center"/>
+                        <TextBlock Text="{DynamicResource Tools.EditData}" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>
                 <Button Classes="toolbar" Command="{Binding ShowPlugins}" Name="showPluginsBtn">
                     <StackPanel Orientation="Horizontal">
                         <Image Source="avares://UABEANext4/Assets/Icons/action-plugins.png" />
-                        <TextBlock Text="Plugins" VerticalAlignment="Center"/>
+                        <TextBlock Text="{DynamicResource Tools.Plugins}" VerticalAlignment="Center"/>
                     </StackPanel>
                     <Button.Flyout>
                         <MenuFlyout ItemsSource="{Binding PluginsItems}">
@@ -88,35 +88,35 @@
                 <Button Classes="toolbar" Command="{Binding AddAsset}">
                     <StackPanel Orientation="Horizontal">
                         <Image Source="avares://UABEANext4/Assets/Icons/action-add-asset.png" />
-                        <TextBlock Text="Add" VerticalAlignment="Center"/>
+                        <TextBlock Text="{DynamicResource Tools.Add}" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>
                 <Button Classes="toolbar" Command="{Binding RemoveAsset}">
                     <StackPanel Orientation="Horizontal">
                         <Image Source="avares://UABEANext4/Assets/Icons/action-remove-asset.png" />
-                        <TextBlock Text="Remove" VerticalAlignment="Center"/>
+                        <TextBlock Text="{DynamicResource Button.Remove}" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>
             </WrapPanel>
         </Border>
 
         <Grid Grid.Row="1" ColumnDefinitions="*,Auto" Margin="4" Height="30" IsEnabled="{Binding !IsBusy}">
-            <TextBox Grid.Column="0" Text="{Binding SearchText}" Watermark="Asset name search" VerticalContentAlignment="Center" />
+            <TextBox Grid.Column="0" Text="{Binding SearchText}" Watermark="{DynamicResource Assets.SearchWatermark}" VerticalContentAlignment="Center" />
             <Button Grid.Column="1" Margin="4,0,0,0" Padding="10,0">
                 <StackPanel Orientation="Horizontal">
                     <Image Source="avares://UABEANext4/Assets/Icons/action-filter.png" Width="14" Height="14" Margin="0,0,5,0" />
-                    <TextBlock VerticalAlignment="Center">Filters</TextBlock>
+                    <TextBlock VerticalAlignment="Center" Text="{DynamicResource Assets.Filters}"/>
                 </StackPanel>
                 <Button.Flyout>
                     <Flyout>
                         <StackPanel Margin="5" Width="220">
-                            <TextBlock Margin="0,0,0,5" FontWeight="Bold">Filters</TextBlock>
-                            <Button Classes="outline" Command="{Binding SetTypeFilter}" HorizontalAlignment="Stretch">Set type filter</Button>
+                            <TextBlock Margin="0,0,0,5" FontWeight="Bold" Text="{DynamicResource Assets.Filters}"/>
+                            <Button Classes="outline" Command="{Binding SetTypeFilter}" HorizontalAlignment="Stretch" Content="{DynamicResource Assets.SetTypeFilter}"/>
                             <Separator Margin="0,10" />
-                            <CheckBox IsChecked="{Binding IsSearchCaseSensitive}">Case sensitive</CheckBox>
+                            <CheckBox IsChecked="{Binding IsSearchCaseSensitive}" Content="{DynamicResource Assets.CaseSensitive}"/>
                             <ListBox Classes="RadioButtonListBox" SelectedIndex="{Binding SearchKind}" Margin="0,5">
-                                <ListBoxItem>Plain search</ListBoxItem>
-                                <ListBoxItem>Regex search</ListBoxItem>
+                                <ListBoxItem Content="{DynamicResource Assets.PlainSearch}"/>
+                                <ListBoxItem Content="{DynamicResource Assets.RegexSearch}"/>
                             </ListBox>
                         </StackPanel>
                     </Flyout>
@@ -161,15 +161,15 @@
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
-                    <DataGridTextColumn Header="Name" MinWidth ="150" Width="200" Binding="{Binding DisplayName}" x:DataType="ws:AssetInst"/>
-                    <DataGridTextColumn Header="Type" MinWidth ="120" Width="120" Binding="{Binding Type, Converter={StaticResource AssetClassIDConverter}}" x:DataType="ws:AssetInst"/>
-                    <DataGridTextColumn Header="Container" MinWidth ="100" Width="100" Binding="{Binding DisplayContainer}" x:DataType="ws:AssetInst" IsVisible="{Binding $parent[UserControl].((docs:AssetDocumentViewModel)DataContext).LoadContainers}"/>
-                    <DataGridTextColumn Header="Bundle Name" MinWidth ="120" Width="150" Binding="{Binding BundleName}" x:DataType="ws:AssetInst" IsVisible="False"/>
-                    <DataGridTextColumn Header="File Name"  MinWidth ="120" Width="150" Binding="{Binding FileName}" x:DataType="ws:AssetInst"/>
-                    <DataGridTextColumn Header="Path ID" MinWidth ="130" Width="160" Binding="{Binding PathId}" x:DataType="ws:AssetInst"/>
+                    <DataGridTextColumn Header="{DynamicResource Assets.Name}" MinWidth ="150" Width="200" Binding="{Binding DisplayName}" x:DataType="ws:AssetInst"/>
+                    <DataGridTextColumn Header="{DynamicResource Assets.Type}" MinWidth ="120" Width="120" Binding="{Binding Type, Converter={StaticResource AssetClassIDConverter}}" x:DataType="ws:AssetInst"/>
+                    <DataGridTextColumn Header="{DynamicResource Assets.Container}" MinWidth ="100" Width="100" Binding="{Binding DisplayContainer}" x:DataType="ws:AssetInst" IsVisible="{Binding $parent[UserControl].((docs:AssetDocumentViewModel)DataContext).LoadContainers}"/>
+                    <DataGridTextColumn Header="{DynamicResource Assets.BundleName}" MinWidth ="120" Width="150" Binding="{Binding BundleName}" x:DataType="ws:AssetInst" IsVisible="False"/>
+                    <DataGridTextColumn Header="{DynamicResource Assets.FileName}"  MinWidth ="120" Width="150" Binding="{Binding FileName}" x:DataType="ws:AssetInst"/>
+                    <DataGridTextColumn Header="{DynamicResource Assets.PathId}" MinWidth ="130" Width="160" Binding="{Binding PathId}" x:DataType="ws:AssetInst"/>
                     <!--<DataGridTextColumn Header="Offset" Binding="{Binding ByteOffset}" x:DataType="ws:AssetInst"/>-->
-                    <DataGridTextColumn Header="Size" MinWidth ="80" Width="80" Binding="{Binding ByteSizeModified}" x:DataType="ws:AssetInst"/>
-                    <DataGridTextColumn Header="Modified" MinWidth="80" Width="80" Binding="{Binding ModifiedString}" x:DataType="ws:AssetInst"/>
+                    <DataGridTextColumn Header="{DynamicResource Assets.Size}" MinWidth ="80" Width="80" Binding="{Binding ByteSizeModified}" x:DataType="ws:AssetInst"/>
+                    <DataGridTextColumn Header="{DynamicResource Assets.Modified}" MinWidth="80" Width="80" Binding="{Binding ModifiedString}" x:DataType="ws:AssetInst"/>
                 </DataGrid.Columns>
             </DataGrid>
 
@@ -185,7 +185,7 @@
                                  Height="4"
                                  Foreground="{DynamicResource SystemAccentColor}" />
 
-                    <TextBlock Text="Processing assets..."
+                    <TextBlock Text="{DynamicResource Assets.Processing}"
                                FontSize="14"
                                HorizontalAlignment="Center"
                                Foreground="{DynamicResource DockThemeForegroundBrush}">

@@ -40,9 +40,8 @@
             <CheckBox IsChecked="{Binding SortAlphabetically}"
                       IsEnabled="{Binding !IsLoadingNewItems}"
                       FontSize="11"
-                      Margin="0">
-                Sort root GameObjects alphabetically
-            </CheckBox>
+                      Margin="0"
+                      Content="{DynamicResource Tools.SortAlphabetically}" />
         </Border>
 
     </Grid>

@@ -1,0 +1,299 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=netstandard">
+    <!-- Menu -->
+    <sys:String x:Key="Menu.File">File</sys:String>
+    <sys:String x:Key="Menu.File.Open">Open</sys:String>
+    <sys:String x:Key="Menu.File.OpenFolder">Open Folder</sys:String>
+    <sys:String x:Key="Menu.File.Save">Save Selected</sys:String>
+    <sys:String x:Key="Menu.File.SaveAs">Save Selected As...</sys:String>
+    <sys:String x:Key="Menu.File.SaveAll">Save All</sys:String>
+    <sys:String x:Key="Menu.File.Close">Close All</sys:String>
+    <sys:String x:Key="Menu.File.Settings">Settings</sys:String>
+    <sys:String x:Key="App.Title">UABEAvalonia</sys:String>
+    <sys:String x:Key="EditExternal.Title">Edit External</sys:String>
+    <sys:String x:Key="EditExternal.FileName">File name</sys:String>
+    <sys:String x:Key="EditExternal.OriginalFileName">Original file name</sys:String>
+    <sys:String x:Key="EditExternal.DependencyType">Dependency type</sys:String>
+    <sys:String x:Key="EditExternal.Type.Normal">Normal</sys:String>
+    <sys:String x:Key="EditExternal.Type.Cached">Cached</sys:String>
+    <sys:String x:Key="EditExternal.Type.Serialized">Serialized</sys:String>
+    <sys:String x:Key="EditExternal.Type.Meta">Meta</sys:String>
+    <sys:String x:Key="EditExternal.Guid">GUID</sys:String>
+    <sys:String x:Key="EditExternal.InvalidGuid">GUID is invalid</sys:String>
+    <sys:String x:Key="Menu.Edit">Edit</sys:String>
+    <sys:String x:Key="Menu.View">View</sys:String>
+    <sys:String x:Key="Menu.View.DuplicateTab">Duplicate Tab</sys:String>
+    <sys:String x:Key="Menu.View.WorkspaceExplorer">Workspace Explorer</sys:String>
+    <sys:String x:Key="Menu.View.Hierarchy">Hierarchy</sys:String>
+    <sys:String x:Key="Menu.View.Inspector">Inspector</sys:String>
+    <sys:String x:Key="Menu.View.Previewer">Previewer</sys:String>
+    <sys:String x:Key="Menu.Tools">Tools</sys:String>
+    <sys:String x:Key="Menu.Tools.AssetInfo">Asset Info</sys:String>
+    <sys:String x:Key="Menu.Tools.SearchBytes">Search Bytes</sys:String>
+    <sys:String x:Key="Menu.Help">Help</sys:String>
+
+    <!-- Assets View -->
+    <sys:String x:Key="Assets.Title">Assets</sys:String>
+    <sys:String x:Key="Assets.Search">Search...</sys:String>
+    <sys:String x:Key="Assets.SearchWatermark">Asset name search</sys:String>
+    <sys:String x:Key="Assets.Name">Name</sys:String>
+    <sys:String x:Key="Assets.Type">Type</sys:String>
+    <sys:String x:Key="Assets.Container">Container</sys:String>
+    <sys:String x:Key="Assets.BundleName">Bundle Name</sys:String>
+    <sys:String x:Key="Assets.FileName">File Name</sys:String>
+    <sys:String x:Key="Assets.PathId">Path ID</sys:String>
+    <sys:String x:Key="Assets.Size">Size</sys:String>
+    <sys:String x:Key="Assets.Modified">Modified</sys:String>
+    <sys:String x:Key="Assets.File">File</sys:String>
+    <sys:String x:Key="Assets.LoadAll">Load All</sys:String>
+    <sys:String x:Key="Assets.Processing">Processing assets...</sys:String>
+    <sys:String x:Key="Assets.Filters">Filters</sys:String>
+    <sys:String x:Key="Assets.SetTypeFilter">Set type filter</sys:String>
+    <sys:String x:Key="Assets.CaseSensitive">Case sensitive</sys:String>
+    <sys:String x:Key="Assets.PlainSearch">Plain search</sys:String>
+    <sys:String x:Key="Assets.RegexSearch">Regex search</sys:String>
+    
+    <!-- Tools -->
+    <sys:String x:Key="Tools.WorkspaceExplorer">Workspace Explorer</sys:String>
+    <sys:String x:Key="Tools.Hierarchy">Hierarchy</sys:String>
+    <sys:String x:Key="Tools.Inspector">Inspector</sys:String>
+    <sys:String x:Key="Tools.Previewer">Previewer</sys:String>
+    <sys:String x:Key="Tools.ViewScene">View Scene</sys:String>
+    <sys:String x:Key="Tools.EditData">Edit Data</sys:String>
+    <sys:String x:Key="Tools.Plugins">Plugins</sys:String>
+    <sys:String x:Key="Tools.Add">Add</sys:String>
+    <sys:String x:Key="Tools.LoadAllTip">Load all items</sys:String>
+    <sys:String x:Key="Tools.Expand">Expand</sys:String>
+    <sys:String x:Key="Tools.Collapse">Collapse</sys:String>
+    <sys:String x:Key="Tools.SortAlphabetically">Sort root GameObjects alphabetically</sys:String>
+    <sys:String x:Key="Tools.WorkspaceExplorer.LoadAll">Load all</sys:String>
+    <sys:String x:Key="Tools.WorkspaceExplorer.Rename">Rename (F2)</sys:String>
+
+    
+    <!-- Asset Info -->
+    <sys:String x:Key="AssetInfo.Title">Asset Info</sys:String>
+    <sys:String x:Key="AssetInfo.General">General Info</sys:String>
+    <sys:String x:Key="AssetInfo.TypeTree">Type Tree</sys:String>
+    <sys:String x:Key="AssetInfo.Externals">Externals</sys:String>
+    <sys:String x:Key="AssetInfo.Scripts">Script Infos</sys:String>
+    <sys:String x:Key="AssetInfo.Header">Header Info</sys:String>
+    <sys:String x:Key="AssetInfo.Metadata">Metadata Info</sys:String>
+    <sys:String x:Key="AssetInfo.MetadataSize">Metadata Size</sys:String>
+    <sys:String x:Key="AssetInfo.FileSize">File Size</sys:String>
+    <sys:String x:Key="AssetInfo.Format">Format</sys:String>
+    <sys:String x:Key="AssetInfo.Offset">First File Offset</sys:String>
+    <sys:String x:Key="AssetInfo.Endianness">Endianness</sys:String>
+    <sys:String x:Key="AssetInfo.EngineVersion">Engine Version</sys:String>
+    <sys:String x:Key="AssetInfo.Platform">Platform</sys:String>
+    <sys:String x:Key="AssetInfo.TypeTreeEnabled">Type Tree Enabled</sys:String>
+    <sys:String x:Key="AssetInfo.Properties">Properties</sys:String>
+    <sys:String x:Key="AssetInfo.TypeName">Type Name</sys:String>
+    <sys:String x:Key="AssetInfo.TypeId">Type ID</sys:String>
+    <sys:String x:Key="AssetInfo.ScriptId">Script ID</sys:String>
+    <sys:String x:Key="AssetInfo.TypeHash">Type Hash</sys:String>
+    <sys:String x:Key="AssetInfo.ScriptHash">Script Hash</sys:String>
+    <sys:String x:Key="AssetInfo.Aligned">Aligned</sys:String>
+    <sys:String x:Key="AssetInfo.Add">Add</sys:String>
+    <sys:String x:Key="AssetInfo.Edit">Edit</sys:String>
+    <sys:String x:Key="AssetInfo.Remove">Remove</sys:String>
+    <sys:String x:Key="AssetInfo.MoveUp">Move Up</sys:String>
+    <sys:String x:Key="AssetInfo.MoveDown">Move Down</sys:String>
+    <sys:String x:Key="AssetInfo.SelectedAsset">Selected asset:</sys:String>
+    
+    <!-- Search -->
+    <sys:String x:Key="Search.Title">Search Bytes</sys:String>
+    <sys:String x:Key="Search.Watermark">Enter value to search...</sys:String>
+    <sys:String x:Key="Search.Types">Types</sys:String>
+    <sys:String x:Key="Search.Kind.Bytes">Bytes</sys:String>
+    <sys:String x:Key="Search.Kind.Text">Text</sys:String>
+    <sys:String x:Key="Search.Kind.Int32">Signed 4-byte</sys:String>
+    <sys:String x:Key="Search.Kind.Int64">Signed 8-byte</sys:String>
+    <sys:String x:Key="Search.Kind.UInt32">Unsigned 4-byte</sys:String>
+    <sys:String x:Key="Search.Kind.UInt64">Unsigned 8-byte</sys:String>
+    <sys:String x:Key="Search.Button.Search">Search</sys:String>
+    <sys:String x:Key="Search.Button.Close">Close</sys:String>
+    <sys:String x:Key="Search.Column.File">File</sys:String>
+    <sys:String x:Key="Search.Column.AssetName">Asset Name</sys:String>
+    <sys:String x:Key="Search.Column.Type">Type</sys:String>
+    <sys:String x:Key="Search.Column.PathId">Path ID</sys:String>
+    <sys:String x:Key="Search.Column.Offset">Offset</sys:String>
+
+    <!-- Blank View -->
+    <sys:String x:Key="Blank.Hint">Open an assets file or bundle file and select it in the Workspace Explorer to load it here</sys:String>
+
+    <!-- Context Menu -->
+    <sys:String x:Key="ContextMenu.EditData">Edit Data</sys:String>
+    <sys:String x:Key="ContextMenu.Plugins">Plugins</sys:String>
+    <sys:String x:Key="ContextMenu.NoPlugins">No plugins available</sys:String>
+    <sys:String x:Key="ContextMenu.Copy">Copy</sys:String>
+    <sys:String x:Key="ContextMenu.Copy.Name">Name</sys:String>
+    <sys:String x:Key="ContextMenu.Copy.PathId">Path ID</sys:String>
+    <sys:String x:Key="ContextMenu.Remove">Remove</sys:String>
+    <sys:String x:Key="Inspector.EditAsset">Edit Asset</sys:String>
+    <sys:String x:Key="Inspector.VisitAsset">Visit Asset</sys:String>
+    <sys:String x:Key="Inspector.ExpandSelection">Expand Selection</sys:String>
+    <sys:String x:Key="Inspector.CollapseSelection">Collapse Selection</sys:String>
+    <sys:String x:Key="Inspector.DeserializeError">Asset failed to deserialize. Some possibilities:</sys:String>
+    <sys:String x:Key="Inspector.VersionTooNew">The game version is too new for this version of UABEA</sys:String>
+    <sys:String x:Key="Inspector.UpdateFix">Try updating UABEA to see if it fixes the problem.</sys:String>
+    <sys:String x:Key="Inspector.MonoError">The asset was a MonoBehaviour that wasn't read correctly</sys:String>
+    <sys:String x:Key="Inspector.DisableCpp2IL">Try disabling Cpp2IL and dumping the dlls manually into a folder named Managed.</sys:String>
+    <sys:String x:Key="Inspector.CustomEngine">The game uses a custom engine</sys:String>
+    <sys:String x:Key="Inspector.CustomEngineInfo">I can't help with custom/encrypted engines. You are on your own.</sys:String>
+    <sys:String x:Key="Inspector.NullAsset">[null asset]</sys:String>
+    <sys:String x:Key="Inspector.FailedToLoad">[failed to load]</sys:String>
+    <sys:String x:Key="Inspector.ViewAsset">[view asset]</sys:String>
+
+    <!-- MessageBox / Dialogs -->
+    <sys:String x:Key="Dialog.RemoveAsset.Title">Remove asset</sys:String>
+    <sys:String x:Key="Dialog.RemoveAsset.Message">Are you sure you want to remove this asset? Remaining references to this asset will not be fixed.</sys:String>
+    <sys:String x:Key="Dialog.RemoveAssets.Message">Are you sure you want to remove these assets? Remaining references to these assets will not be fixed.</sys:String>
+    <sys:String x:Key="Dialog.Import.Title">Choose files to import</sys:String>
+    <sys:String x:Key="Dialog.Export.Title">Choose files to export</sys:String>
+    <sys:String x:Key="Dialog.ImportBatch.Title">Batch Import</sys:String>
+    <sys:String x:Key="Dialog.ImportFolder.Title">Choose folder to import</sys:String>
+    <sys:String x:Key="Dialog.ExportFolder.Title">Choose folder to export to</sys:String>
+    <sys:String x:Key="Batch.Title">Batch Import</sys:String>
+    <sys:String x:Key="RenameFile.Title">Rename File</sys:String>
+    <sys:String x:Key="RenameFile.Watermark">Enter new name...</sys:String>
+    <sys:String x:Key="EditData.Title">Edit Data</sys:String>
+    <sys:String x:Key="EditData.ExportError">Error exporting asset</sys:String>
+    <sys:String x:Key="EditData.CompileError">Compile Error</sys:String>
+    <sys:String x:Key="EditData.ImportProblem">Problem with import</sys:String>
+    <sys:String x:Key="VersionSelect.Title">Version Selection</sys:String>
+    <sys:String x:Key="VersionSelect.Info">This bundle has a doubly-stripped version. Please provide the engine version for this file. Cancelling this dialog may cause some features to fail.</sys:String>
+    <sys:String x:Key="SelectDump.Title">Select Dump Type</sys:String>
+    <sys:String x:Key="SelectDump.Json">UABEA json dump</sys:String>
+    <sys:String x:Key="SelectDump.Txt">UABE txt dump</sys:String>
+    <sys:String x:Key="SelectDump.Raw">Raw dump</sys:String>
+
+    <!-- Add Asset -->
+    <sys:String x:Key="AddAsset.Title">Add Asset</sys:String>
+    <sys:String x:Key="AddAsset.File">File</sys:String>
+    <sys:String x:Key="AddAsset.PathId">Path ID</sys:String>
+    <sys:String x:Key="AddAsset.TypeNameId">Type name/ID</sys:String>
+    <sys:String x:Key="AddAsset.Script">Script</sys:String>
+    <sys:String x:Key="AddAsset.InvalidOptions">Invalid options provided.</sys:String>
+
+    <!-- Type Filter -->
+    <sys:String x:Key="TypeFilter.Title">Select Type Filter</sys:String>
+    <sys:String x:Key="TypeFilter.SelectAll">Select all</sys:String>
+    <sys:String x:Key="TypeFilter.DeselectAll">Deselect all</sys:String>
+    <sys:String x:Key="TypeFilter.NoPreview">No preview available.</sys:String>
+
+    <!-- Status Messages -->
+    <sys:String x:Key="Status.Done">Done</sys:String>
+    <sys:String x:Key="Status.LoadingFiles">Loading files...</sys:String>
+    <sys:String x:Key="Status.Importing">Importing {0}/{1}...</sys:String>
+    <sys:String x:Key="Status.Exporting">Exporting {0}/{1}...</sys:String>
+    <sys:String x:Key="Status.Scanning">Scanning directory...</sys:String>
+    <sys:String x:Key="Status.Indexing">Indexing {0} files...</sys:String>
+    <sys:String x:Key="Status.ReadyMatched">Ready: {0} assets matched</sys:String>
+    <sys:String x:Key="Status.NotAGameObject">Not a GameObject or component</sys:String>
+    <sys:String x:Key="Status.SelectedAssetMustBeGO">The selected asset must be a GameObject or GameObject component.</sys:String>
+    <sys:String x:Key="Status.Skipping">Skipping</sys:String>
+    <sys:String x:Key="Status.Saved">Saved</sys:String>
+    <sys:String x:Key="Status.SaveFailedAll">All files failed to save (check if you have write access?)</sys:String>
+    <sys:String x:Key="Status.NoFilesToSave">No open files to save</sys:String>
+    <sys:String x:Key="Status.SavedSomeFailed">Saved (some failed), with saved open files reloaded</sys:String>
+    <sys:String x:Key="Status.SavedAndReloaded">Saved, with saved open files reloaded</sys:String>
+    <sys:String x:Key="Status.AndOtherFiles">{0} and {1} other files</sys:String>
+    <sys:String x:Key="Status.ErrorFindAssetDoc">Could not find asset document to show this asset.</sys:String>
+    <sys:String x:Key="Previewer.TypeNotSupported">Preview type {0} not supported.</sys:String>
+
+    <!-- Settings (Config) -->
+    <sys:String x:Key="Config.Title.AppLanguage">Language</sys:String>
+    <sys:String x:Key="Config.Desc.AppLanguage">The language to use.</sys:String>
+    <sys:String x:Key="Config.Title.ThemeType">Theme Type</sys:String>
+    <sys:String x:Key="Config.Desc.ThemeType">The theme to use.</sys:String>
+    <sys:String x:Key="Config.Title.UseManagedOverIl2cpp">Use Managed over IL2CPP</sys:String>
+    <sys:String x:Key="Config.Desc.UseManagedOverIl2cpp">Use the Managed folder if it exists, rather than use CPP2IL.</sys:String>
+    <sys:String x:Key="Config.Title.ListingNameLength">Listing Filename Length Limit</sys:String>
+    <sys:String x:Key="Config.Desc.ListingNameLength">Maximum length for the asset name when generating asset list.</sys:String>
+    <sys:String x:Key="Config.Title.ExportNameLength">Export Filename Length Limit</sys:String>
+    <sys:String x:Key="Config.Desc.ExportNameLength">Maximum length for the asset name when exporting assets.</sys:String>
+    <sys:String x:Key="Config.Title.LoadContainerPaths">Load Container Paths</sys:String>
+    <sys:String x:Key="Config.Desc.LoadContainerPaths">Load container paths, which may take a while when loading many assets.</sys:String>
+    <sys:String x:Key="Settings.Info">All changes in this dialog are saved immediately.</sys:String>
+    <sys:String x:Key="Settings.Enabled">Enabled</sys:String>
+    <sys:String x:Key="Settings.Disabled">Disabled</sys:String>
+
+    <!-- Buttons / Common -->
+    <sys:String x:Key="Button.Import">Import</sys:String>
+    <sys:String x:Key="Button.Export">Export</sys:String>
+    <sys:String x:Key="Button.Remove">Remove</sys:String>
+    <sys:String x:Key="Button.Ok">OK</sys:String>
+    <sys:String x:Key="Button.Cancel">Cancel</sys:String>
+    <sys:String x:Key="Button.Yes">Yes</sys:String>
+    <sys:String x:Key="Button.No">No</sys:String>
+    <sys:String x:Key="Button.Add">Add</sys:String>
+    <sys:String x:Key="Button.Edit">Edit</sys:String>
+    <sys:String x:Key="Button.Save">Save</sys:String>
+    <sys:String x:Key="Button.MoveUp">Move Up</sys:String>
+    <sys:String x:Key="Button.MoveDown">Move Down</sys:String>
+    <sys:String x:Key="Button.OK">OK</sys:String>
+    <sys:String x:Key="Common.Error">Error</sys:String>
+    <sys:String x:Key="Common.Loading">Loading...</sys:String>
+    <sys:String x:Key="Common.UnexpectedError">An unexpected error occurred</sys:String>
+    <sys:String x:Key="Common.NullError">[null error]</sys:String>
+    <sys:String x:Key="Common.AllFiles">All files (*.*)</sys:String>
+    <sys:String x:Key="Common.Any">Any</sys:String>
+    <sys:String x:Key="Common.Expand">Expand</sys:String>
+    <sys:String x:Key="Common.Collapse">Collapse</sys:String>
+    <sys:String x:Key="Common.BigEndian">Big endian</sys:String>
+    <sys:String x:Key="Common.LittleEndian">Little endian</sys:String>
+    <sys:String x:Key="Status.IndexingFiles">Indexing files...</sys:String>
+    <sys:String x:Key="Status.Matching">Matching {0} assets...</sys:String>
+    <sys:String x:Key="Status.MatchingProgress">Matching assets... {0}/{1}</sys:String>
+    <sys:String x:Key="ContextMenu.NoAssetsSelected">No assets selected</sys:String>
+    <sys:String x:Key="Common.NewTab">New Tab</sys:String>
+
+    <!-- Settings -->
+    <sys:String x:Key="Settings.Title">Settings</sys:String>
+    <sys:String x:Key="Settings.Language">Language</sys:String>
+    <sys:String x:Key="Settings.Theme">Theme</sys:String>
+
+    <!-- Plugins -->
+    <sys:String x:Key="Plugins.TextAsset.Export">Export TextAsset</sys:String>
+    <sys:String x:Key="Plugins.TextAsset.Import">Import TextAsset</sys:String>
+    <sys:String x:Key="Plugins.Texture.Edit">Edit Texture2D</sys:String>
+    <sys:String x:Key="Plugins.Texture.Export">Export Texture2D/Sprite</sys:String>
+    <sys:String x:Key="Plugins.Texture.Import">Import Texture2D</sys:String>
+    <sys:String x:Key="Plugins.Texture.SelectExportDir">Select export directory</sys:String>
+    <sys:String x:Key="Plugins.Texture.SaveTexture">Save texture</sys:String>
+    <sys:String x:Key="Plugins.TextAsset.SelectExportDir">Select export directory</sys:String>
+    <sys:String x:Key="Plugins.TextAsset.SaveText">Save text asset</sys:String>
+
+    <!-- Docking (Avalonia.Dock) -->
+    <sys:String x:Key="Dock.Menu.Float">Float</sys:String>
+    <sys:String x:Key="Dock.Menu.Dock">Dock</sys:String>
+    <sys:String x:Key="Dock.Menu.AutoHide">Auto Hide</sys:String>
+    <sys:String x:Key="Dock.Menu.Close">Close</sys:String>
+    <sys:String x:Key="Dock.Menu.DockAsTabbedDocument">Dock as Tabbed Document</sys:String>
+
+    <!-- Alternative Docking Strings (Some versions use these) -->
+    <sys:String x:Key="STRING_FLOAT">Float</sys:String>
+    <sys:String x:Key="STRING_DOCK">Dock</sys:String>
+    <sys:String x:Key="STRING_AUTO_HIDE">Auto Hide</sys:String>
+    <sys:String x:Key="STRING_CLOSE">Close</sys:String>
+    <sys:String x:Key="STRING_DOCK_AS_TABBED_DOCUMENT">Dock as Tabbed Document</sys:String>
+    <sys:String x:Key="STRING_NEW_TAB">New Tab</sys:String>
+
+    <!-- Even more redundant Docking Strings -->
+    <sys:String x:Key="Inspector">Inspector</sys:String>
+    <sys:String x:Key="Hierarchy">Hierarchy</sys:String>
+    <sys:String x:Key="Previewer">Previewer</sys:String>
+
+    <!-- Docking keys for different versions -->
+    <sys:String x:Key="STRING_DOCK_FLOAT">Float</sys:String>
+    <sys:String x:Key="STRING_DOCK_DOCK">Dock</sys:String>
+    <sys:String x:Key="STRING_DOCK_AUTO_HIDE">Auto Hide</sys:String>
+    <sys:String x:Key="STRING_DOCK_CLOSE">Close</sys:String>
+    <sys:String x:Key="STRING_DOCK_DOCK_AS_TABBED_DOCUMENT">Dock as Tabbed Document</sys:String>
+
+    <!-- Additional Search Kinds -->
+    <sys:String x:Key="Search.Kind.Float">Float</sys:String>
+    <sys:String x:Key="Search.Kind.Double">Double</sys:String>
+
+</ResourceDictionary>

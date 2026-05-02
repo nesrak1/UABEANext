@@ -1,4 +1,4 @@
-﻿using AssetsTools.NET;
+using AssetsTools.NET;
 using AssetsTools.NET.Extra;
 using AssetsTools.NET.Texture;
 using Avalonia;
@@ -12,13 +12,14 @@ using UABEANext4.Logic.Mesh;
 namespace TexturePlugin.Helpers;
 public class TextureLoader
 {
+    private readonly object _lock = new();
     private readonly Dictionary<AssetInst, SKImage> _spriteImageCache = [];
     private readonly Queue<AssetInst> _spriteImageQueue = new();
     private readonly SpriteAtlasLookup _spriteAtlasLookup = new();
     private readonly Dictionary<AssetsFileInstance, Dictionary<string, AssetInst>> _nameToSpriteAtlasLookup = [];
 
-    // todo: this should be configurable
-    public const int DEFAULT_MAX_SPRITE_IMAGE_CACHE_SIZE = 10;
+    // Increase cache size for batch operations to avoid thrashing
+    public const int DEFAULT_MAX_SPRITE_IMAGE_CACHE_SIZE = 50;
 
     public Bitmap? GetSpriteAvaloniaBitmap(
         Workspace workspace, AssetInst asset,
@@ -78,14 +79,23 @@ public class TextureLoader
     {
         format = 0;
 
-        var spriteBf = workspace.GetBaseField(asset);
+        AssetTypeValueField? spriteBf;
+        lock (_lock)
+        {
+            spriteBf = workspace.GetBaseField(asset);
+        }
+        
         if (spriteBf == null)
         {
             return null;
         }
 
         var renderData = spriteBf["m_RD"];
-        var spriteAtlas = GetSpriteAtlas(workspace, asset, spriteBf);
+        SpriteAtlasData? spriteAtlas;
+        lock (_lock)
+        {
+            spriteAtlas = GetSpriteAtlas(workspace, asset, spriteBf);
+        }
 
         AssetPPtr texturePtr;
         if (spriteAtlas != null)
@@ -108,20 +118,32 @@ public class TextureLoader
         }
 
         // we use skia so we can crop, then convert to avalonia bitmap at the end
+        SKImage? cachedBitmap;
         SKImage baseImage;
-        if (_spriteImageCache.TryGetValue(textureAsset, out var cachedBitmap))
+        bool inCache;
+        lock (_lock)
         {
-            baseImage = cachedBitmap;
+            inCache = _spriteImageCache.TryGetValue(textureAsset, out cachedBitmap);
+            baseImage = cachedBitmap!;
         }
-        else
+
+        if (!inCache)
         {
-            var textureEditBf = TextureHelper.GetByteArrayTexture(workspace, textureAsset);
-            var texture = TextureFile.ReadTextureFile(textureEditBf);
+            AssetTypeValueField? textureEditBf;
+            byte[]? encTextureData;
+            TextureFile texture;
+
+            lock (textureAsset.FileInstance.LockReader)
+            {
+                textureEditBf = TextureHelper.GetByteArrayTexture(workspace, textureAsset);
+                if (textureEditBf == null) return null;
+                
+                texture = TextureFile.ReadTextureFile(textureEditBf);
+                TextureHelper.SwizzleOptIn(texture, textureAsset.FileInstance.file);
+                encTextureData = texture.FillPictureData(textureAsset.FileInstance);
+            }
+
             format = (TextureFormat)texture.m_TextureFormat;
-
-            TextureHelper.SwizzleOptIn(texture, textureAsset.FileInstance.file);
-
-            var encTextureData = texture.FillPictureData(textureAsset.FileInstance);
             var textureData = texture.DecodeTextureRaw(encTextureData);
             if (textureData == null)
             {
@@ -135,19 +157,28 @@ public class TextureLoader
 
             baseImage = SKImage.FromBitmap(baseBitmap);
 
-            // just like the lz4 block decoder, this only pulls whichever item
-            // was added earliest since we can't reset the position of elements
-            // with a stock .net queue
-            if (_spriteImageQueue.Count >= DEFAULT_MAX_SPRITE_IMAGE_CACHE_SIZE)
+            lock (_lock)
             {
-                var lastKey = _spriteImageQueue.Dequeue();
-                var lastValue = _spriteImageCache[lastKey];
-                lastValue.Dispose();
-                _spriteImageCache.Remove(lastKey);
-            }
+                // check cache again in case another thread populated it
+                if (_spriteImageCache.TryGetValue(textureAsset, out var existingImage))
+                {
+                    baseImage.Dispose();
+                    baseImage = existingImage;
+                }
+                else
+                {
+                    if (_spriteImageQueue.Count >= DEFAULT_MAX_SPRITE_IMAGE_CACHE_SIZE)
+                    {
+                        var lastKey = _spriteImageQueue.Dequeue();
+                        var lastValue = _spriteImageCache[lastKey];
+                        lastValue.Dispose();
+                        _spriteImageCache.Remove(lastKey);
+                    }
 
-            _spriteImageCache[textureAsset] = baseImage;
-            _spriteImageQueue.Enqueue(textureAsset);
+                    _spriteImageCache[textureAsset] = baseImage;
+                    _spriteImageQueue.Enqueue(textureAsset);
+                }
+            }
         }
 
         var pixelsToUnits = spriteBf["m_PixelsToUnits"].AsFloat;

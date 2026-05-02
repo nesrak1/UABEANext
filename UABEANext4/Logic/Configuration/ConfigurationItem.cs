@@ -3,8 +3,10 @@ using DynamicData;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
+using UABEANext4.Util;
 
 namespace UABEANext4.Logic.Configuration;
 public abstract class ConfigurationItemBase : ObservableObject
@@ -20,10 +22,12 @@ public abstract class ConfigurationItemBase : ObservableObject
         {
             throw new Exception("Missing title for settings property");
         }
-        
+        string titleKey = $"Config.Title.{property.Name}";
+        string descKey = $"Config.Desc.{property.Name}";
+
         return (
-            titleAttr.Title,
-            descAttr?.Description
+            LocalizationHelper.GetString(titleKey, titleAttr.Title),
+            LocalizationHelper.GetString(descKey, descAttr?.Description ?? "")
         );
     }
 }
@@ -93,6 +97,8 @@ public partial class ConfigurationEnumItem : ConfigurationItemBase
 {
     private readonly PropertyInfo _property;
     private readonly Type _enumType;
+    private readonly Dictionary<string, string> _nameToDescription = new();
+    private readonly Dictionary<string, string> _descriptionToName = new();
     
     [ObservableProperty] private IReadOnlyList<string> _enumValues;
 
@@ -100,11 +106,23 @@ public partial class ConfigurationEnumItem : ConfigurationItemBase
     {   
         _property = property;
         _enumType = property.PropertyType;
-        _enumValues = Enum.GetNames(_enumType).ToList().AsReadOnly();
+
+        var names = Enum.GetNames(_enumType);
+        foreach (var name in names)
+        {
+            var fieldInfo = _enumType.GetField(name);
+            var descAttr = fieldInfo?.GetCustomAttribute<DescriptionAttribute>();
+            var desc = descAttr?.Description ?? name;
+            
+            _nameToDescription[name] = desc;
+            _descriptionToName[desc] = name;
+        }
+
+        _enumValues = _nameToDescription.Values.ToList().AsReadOnly();
         
-        var (title, desc) = GetBaseAttrs(property);
+        var (title, descTitle) = GetBaseAttrs(property);
         Title = title;
-        Description = desc ?? "No description.";
+        Description = descTitle ?? "No description.";
         
         ConfigurationManager.Settings.PropertyChanged += (s, e) => {
             if (e.PropertyName == _property.Name)
@@ -116,11 +134,19 @@ public partial class ConfigurationEnumItem : ConfigurationItemBase
 
     public string Value
     {
-        get => Enum.GetName(_enumType, _property.GetValue(ConfigurationManager.Settings)!)
-            ?? "Unknown enum value";
+        get
+        {
+            var enumVal = _property.GetValue(ConfigurationManager.Settings);
+            var name = Enum.GetName(_enumType, enumVal!);
+            return name != null && _nameToDescription.TryGetValue(name, out var desc) 
+                ? desc 
+                : "Unknown enum value";
+        }
         set
         {
-            if (Enum.TryParse(_enumType, value, out var enumValue))
+            var name = _descriptionToName.TryGetValue(value, out var matchedName) ? matchedName : value;
+
+            if (Enum.TryParse(_enumType, name, out var enumValue))
             {
                 _property.SetValue(ConfigurationManager.Settings, enumValue);
             }

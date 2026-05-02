@@ -19,8 +19,7 @@
             FontSize="14"
             MaxWidth="400"
             Foreground="{DynamicResource DockThemeForegroundBrush}"
-            Opacity="0.5">
-            Open an assets file or bundle file and select it in the Workspace Explorer to load it here.
-        </TextBlock>
+            Opacity="0.5"
+            Text="{DynamicResource Blank.Hint}" />
     </Grid>
 </UserControl>

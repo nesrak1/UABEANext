@@ -20,7 +20,7 @@
             <TextBox
                 Text="{Binding SearchText}"
                 Name="defaultBox"
-                Watermark="Enter value to search..."
+                Watermark="{DynamicResource Search.Watermark}"
                 VerticalContentAlignment="Center"
                 Margin="0,0,8,0"/>
             <Button Grid.Column="1"
@@ -28,16 +28,18 @@
                     Margin="0,0,8,0">
                 <StackPanel Orientation="Horizontal" Spacing="5">
                     <Image Source="avares://UABEANext4/Assets/Icons/action-filter.png" Width="14" Height="14"/>
-                    <TextBlock Text="Types"/>
+                    <TextBlock Text="{DynamicResource Search.Types}"/>
                 </StackPanel>
             </Button>
             <ComboBox SelectedIndex="{Binding SearchKind}" Width="130" Grid.Column="2">
-                <ComboBoxItem Content="Bytes" />
-                <ComboBoxItem Content="Text" />
-                <ComboBoxItem Content="Signed 4-byte" />
-                <ComboBoxItem Content="Signed 8-byte" />
-                <ComboBoxItem Content="Unsigned 4-byte" />
-                <ComboBoxItem Content="Unsigned 8-byte" />
+                <ComboBoxItem Content="{DynamicResource Search.Kind.Bytes}" />
+                <ComboBoxItem Content="{DynamicResource Search.Kind.Text}" />
+                <ComboBoxItem Content="{DynamicResource Search.Kind.Int32}" />
+                <ComboBoxItem Content="{DynamicResource Search.Kind.Int64}" />
+                <ComboBoxItem Content="{DynamicResource Search.Kind.UInt32}" />
+                <ComboBoxItem Content="{DynamicResource Search.Kind.UInt64}" />
+                <ComboBoxItem Content="{DynamicResource Search.Kind.Float}" />
+                <ComboBoxItem Content="{DynamicResource Search.Kind.Double}" />
             </ComboBox>
         </Grid>
 
@@ -52,11 +54,11 @@
                   DoubleTapped="DataGrid_DoubleTapped"
                   Background="{DynamicResource DockThemeListBackgroundBrush}">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="File" Binding="{Binding FileName, Mode=OneTime}" Width="150" />
-                <DataGridTextColumn Header="Asset Name" Binding="{Binding AssetName, Mode=OneTime}" Width="200" MinWidth="150" />
-                <DataGridTextColumn Header="Type" Width="120" Binding="{Binding Type, Converter={StaticResource AssetClassIDConverter}}" />
-                <DataGridTextColumn Header="Path ID" Binding="{Binding PathId, Mode=OneTime}" Width="160" />
-                <DataGridTextColumn Header="Offset" Binding="{Binding Offset, Mode=OneTime}" Width="100" />
+                <DataGridTextColumn Header="{DynamicResource Search.Column.File}" Binding="{Binding FileName, Mode=OneTime}" Width="150" />
+                <DataGridTextColumn Header="{DynamicResource Search.Column.AssetName}" Binding="{Binding AssetName, Mode=OneTime}" Width="200" MinWidth="150" />
+                <DataGridTextColumn Header="{DynamicResource Search.Column.Type}" Width="120" Binding="{Binding Type, Converter={StaticResource AssetClassIDConverter}}" />
+                <DataGridTextColumn Header="{DynamicResource Search.Column.PathId}" Binding="{Binding PathId, Mode=OneTime}" Width="160" />
+                <DataGridTextColumn Header="{DynamicResource Search.Column.Offset}" Binding="{Binding Offset, Mode=OneTime}" Width="100" />
             </DataGrid.Columns>
         </DataGrid>
 
@@ -83,12 +85,12 @@
                     Margin="0,12,0,0">
             <Button Command="{Binding BtnSearch_Click}"
                     IsEnabled="{Binding !IsBusy}"
-                    Content="Search"
+                    Content="{DynamicResource Search.Button.Search}"
                     Width="90"
                     Height="28"
                     IsDefault="True" />
             <Button Command="{Binding BtnCancel_Click}"
-                    Content="Close"
+                    Content="{DynamicResource Search.Button.Close}"
                     Width="90"
                     Height="28"
                     IsCancel="True" />

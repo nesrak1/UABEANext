@@ -31,23 +31,23 @@
 
             <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="4">
                 <Button Command="{Binding SelectAll}"
-                        Content="Select all"
+                        Content="{DynamicResource TypeFilter.SelectAll}"
                         Padding="8,4"
                         FontSize="12"/>
                 <Button Command="{Binding DeselectAll}"
-                        Content="Deselect all"
+                        Content="{DynamicResource TypeFilter.DeselectAll}"
                         Padding="8,4"
                         FontSize="12"/>
             </StackPanel>
 
             <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8">
                 <Button Command="{Binding Accept}"
-                        Content="OK"
+                        Content="{DynamicResource Button.Ok}"
                         Width="85"
                         Height="28"
                         IsDefault="True" />
                 <Button Command="{Binding Cancel}"
-                        Content="Cancel"
+                        Content="{DynamicResource Button.Cancel}"
                         Width="85"
                         Height="28"
                         IsCancel="True" />

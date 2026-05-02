@@ -12,38 +12,38 @@
     </Design.DataContext>
     <Grid RowDefinitions="Auto,*,22" Margin="4">
         <Menu Grid.Row="0" Padding="0,6">
-            <MenuItem Header="File">
+            <MenuItem Header="{DynamicResource Menu.File}">
                 <MenuItem
-                    Header="Open" Command="{Binding FileOpen}"
+                    Header="{DynamicResource Menu.File.Open}" Command="{Binding FileOpen}"
                     HotKey="Ctrl+O" InputGesture="Ctrl+O" />
                 <MenuItem
-                    Header="Open Folder" Command="{Binding FileOpenFolder}"
+                    Header="{DynamicResource Menu.File.OpenFolder}" Command="{Binding FileOpenFolder}"
                     HotKey="Ctrl+Shift+O" InputGesture="Ctrl+Shift+O" />
                 <MenuItem
-                    Header="Save Selected" Command="{Binding FileSave}"
+                    Header="{DynamicResource Menu.File.Save}" Command="{Binding FileSave}"
                     HotKey="Ctrl+S" InputGesture="Ctrl+S" IsEnabled="{Binding Workspace.RootItems.Count}" />
                 <MenuItem
-                    Header="Save Selected As..." Command="{Binding FileSaveAs}"
+                    Header="{DynamicResource Menu.File.SaveAs}" Command="{Binding FileSaveAs}"
                     HotKey="Ctrl+Shift+S" InputGesture="Ctrl+Shift+S" IsEnabled="{Binding Workspace.RootItems.Count}" />
                 <MenuItem
-                    Header="Save All" Command="{Binding FileSaveAll}"
+                    Header="{DynamicResource Menu.File.SaveAll}" Command="{Binding FileSaveAll}"
                     HotKey="Ctrl+Alt+S" InputGesture="Ctrl+Alt+S" IsEnabled="{Binding Workspace.RootItems.Count}" />
                 <MenuItem
-                    Header="Close All" Command="{Binding FileCloseAll}"
+                    Header="{DynamicResource Menu.File.Close}" Command="{Binding FileCloseAll}"
                     HotKey="Ctrl+Shift+W" InputGesture="Ctrl+Shift+W" IsEnabled="{Binding Workspace.RootItems.Count}" />
             </MenuItem>
-            <MenuItem Header="View">
-                <MenuItem Header="Duplicate Tab" Command="{Binding ViewDuplicateTab}" />
+            <MenuItem Header="{DynamicResource Menu.View}">
+                <MenuItem Header="{DynamicResource Menu.View.DuplicateTab}" Command="{Binding ViewDuplicateTab}" />
                 <MenuItem Header="-" />
-                <MenuItem Header="Workspace Explorer" ToggleType="CheckBox" IsChecked="{Binding DockWorkspaceExplorerVisible, Mode=TwoWay}" />
-                <MenuItem Header="Hierarchy" ToggleType="CheckBox" IsChecked="{Binding DockHierarchyVisible, Mode=TwoWay}" />
-                <MenuItem Header="Inspector" ToggleType="CheckBox" IsChecked="{Binding DockInspectorVisible, Mode=TwoWay}" />
-                <MenuItem Header="Previewer" ToggleType="CheckBox" IsChecked="{Binding DockPreviewerVisible, Mode=TwoWay}" />
+                <MenuItem Header="{DynamicResource Menu.View.WorkspaceExplorer}" ToggleType="CheckBox" IsChecked="{Binding DockWorkspaceExplorerVisible, Mode=TwoWay}" />
+                <MenuItem Header="{DynamicResource Menu.View.Hierarchy}" ToggleType="CheckBox" IsChecked="{Binding DockHierarchyVisible, Mode=TwoWay}" />
+                <MenuItem Header="{DynamicResource Menu.View.Inspector}" ToggleType="CheckBox" IsChecked="{Binding DockInspectorVisible, Mode=TwoWay}" />
+                <MenuItem Header="{DynamicResource Menu.View.Previewer}" ToggleType="CheckBox" IsChecked="{Binding DockPreviewerVisible, Mode=TwoWay}" />
             </MenuItem>
-            <MenuItem Header="Tools">
-                <MenuItem Header="Asset Info" Command="{Binding ShowAssetInfoDialog}" IsEnabled="{Binding Workspace.RootItems.Count}" />
-                <MenuItem Header="Search Bytes" Command="{Binding ShowSearchBytesDialog}" IsEnabled="{Binding Workspace.RootItems.Count}" />
-                <MenuItem Header="Options" Command="{Binding ShowOptionsDialog}" />
+            <MenuItem Header="{DynamicResource Menu.Tools}">
+                <MenuItem Header="{DynamicResource Menu.Tools.AssetInfo}" Command="{Binding ShowAssetInfoDialog}" IsEnabled="{Binding Workspace.RootItems.Count}" />
+                <MenuItem Header="{DynamicResource Menu.Tools.SearchBytes}" Command="{Binding ShowSearchBytesDialog}" IsEnabled="{Binding Workspace.RootItems.Count}" />
+                <MenuItem Header="{DynamicResource Menu.File.Settings}" Command="{Binding ShowOptionsDialog}" />
             </MenuItem>
         </Menu>
         <DockControl Layout="{Binding Layout}" Margin="4" Grid.Row="1" Name="dockControl" />

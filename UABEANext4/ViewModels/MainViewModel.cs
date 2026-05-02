@@ -1,4 +1,4 @@
-﻿using AssetsTools.NET.Extra;
+using AssetsTools.NET.Extra;
 using Avalonia.Platform;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -212,7 +212,7 @@ public partial class MainViewModel : ViewModelBase
             MaxDegreeOfParallelism = Math.Min(Environment.ProcessorCount - 1, 4)
         };
 
-        Workspace.SetProgressThreadSafe(0f, "Loading files...");
+        Workspace.SetProgressThreadSafe(0f, LocalizationHelper.GetString("Status.LoadingFiles", "Loading files..."));
         await Task.Run(() =>
         {
             Workspace.ModifyMutex.WaitOne();
@@ -235,11 +235,11 @@ public partial class MainViewModel : ViewModelBase
                     {
                         var currentCountNow = Interlocked.Increment(ref currentCount);
                         var currentProgress = currentCountNow / (float)totalCount;
-                        Workspace.SetProgressThreadSafe(currentProgress, "Skipping " + Path.GetFileName(fileName));
+                        Workspace.SetProgressThreadSafe(currentProgress, string.Format(LocalizationHelper.GetString("Status.Skipping", "Skipping {0}"), Path.GetFileName(fileName)));
                     }
                 }
             });
-            Workspace.SetProgressThreadSafe(1f, "Done");
+            Workspace.SetProgressThreadSafe(1f, LocalizationHelper.GetString("Status.Done", "Done"));
             Workspace.ModifyMutex.ReleaseMutex();
         });
 
@@ -372,17 +372,17 @@ public partial class MainViewModel : ViewModelBase
             if (fileInstsToReload.Count == 0)
             {
                 if (someFailed)
-                    Workspace.SetProgressThreadSafe(1f, "All files failed to save (check if you have write access?)");
+                    Workspace.SetProgressThreadSafe(1f, LocalizationHelper.GetString("Status.SaveFailedAll", "All files failed to save (check if you have write access?)"));
                 else
-                    Workspace.SetProgressThreadSafe(1f, "No files open to save");
+                    Workspace.SetProgressThreadSafe(1f, LocalizationHelper.GetString("Status.NoFilesToSave", "No files open to save"));
             }
             else
             {
                 await ReloadAssetDocuments(fileInstsToReload);
                 if (someFailed)
-                    Workspace.SetProgressThreadSafe(1f, "Saved (some failed), with open saved files reloaded");
+                    Workspace.SetProgressThreadSafe(1f, LocalizationHelper.GetString("Status.SavedSomeFailed", "Saved (some failed), with open saved files reloaded"));
                 else
-                    Workspace.SetProgressThreadSafe(1f, "Saved, with open saved files reloaded");
+                    Workspace.SetProgressThreadSafe(1f, LocalizationHelper.GetString("Status.SavedAndReloaded", "Saved, with open saved files reloaded"));
             }
         }
         finally
@@ -412,7 +412,7 @@ public partial class MainViewModel : ViewModelBase
                 await Workspace.SaveAs(item);
             }
 
-            Workspace.SetProgressThreadSafe(1f, "Saved");
+            Workspace.SetProgressThreadSafe(1f, LocalizationHelper.GetString("Status.Saved", "Saved"));
         }
         finally
         {
@@ -565,7 +565,7 @@ public partial class MainViewModel : ViewModelBase
 
             document = new AssetDocumentViewModel(Workspace, loadContainers)
             {
-                Title = $"{mainFileInst.name} and {assetsFileItems.Count - 1} other files"
+                Title = string.Format(LocalizationHelper.GetString("Status.AndOtherFiles", "{0} and {1} other files"), mainFileInst.name, assetsFileItems.Count - 1)
             };
 
             _lastLoadedFiles = assetsFileItems!;
@@ -654,7 +654,7 @@ public partial class MainViewModel : ViewModelBase
         }
 
         // give up
-        await MessageBoxUtil.ShowDialog("Error", "Couldn't find asset document to show this asset in.");
+        await MessageBoxUtil.ShowDialog(LocalizationHelper.GetString("Common.Error", "Error"), LocalizationHelper.GetString("Status.ErrorFindAssetDoc", "Couldn't find asset document to show this asset in."));
         return;
 
     finish:

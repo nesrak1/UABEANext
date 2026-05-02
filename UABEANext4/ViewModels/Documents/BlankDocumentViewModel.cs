@@ -1,4 +1,5 @@
-﻿using Dock.Model.Mvvm.Controls;
+using Dock.Model.Mvvm.Controls;
+using UABEANext4.Util;
 
 namespace UABEANext4.ViewModels.Documents;
 public partial class BlankDocumentViewModel : Document
@@ -8,6 +9,6 @@ public partial class BlankDocumentViewModel : Document
     public BlankDocumentViewModel()
     {
         Id = TOOL_TITLE.Replace(" ", "");
-        Title = TOOL_TITLE;
+        Title = LocalizationHelper.GetString("Common.NewTab", TOOL_TITLE);
     }
 }

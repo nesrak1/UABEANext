@@ -1,4 +1,4 @@
-﻿using AssetsTools.NET;
+using AssetsTools.NET;
 using AssetsTools.NET.Extra;
 using System.ComponentModel;
 using UABEANext4.Logic.Configuration;
@@ -58,6 +58,34 @@ public class AssetInst : AssetFileInfo, INotifyPropertyChanged
         Update(nameof(ByteSizeModified));
         Update(nameof(ModifiedString));
         workspace.Dirty(workspace.ItemLookup[FileInstance.name]);
+    }
+
+    public void UpdateAssetDataSilent(Workspace workspace, AssetTypeValueField baseField)
+    {
+        UpdateAssetDataSilent(workspace, baseField.WriteToByteArray());
+    }
+
+    /// <summary>
+    /// Updates asset data without firing PropertyChanged events or marking dirty.
+    /// Used during batch import to avoid 3× UI notifications per asset (which freezes UI with 26K+ files).
+    /// Call RefreshRow() and Workspace.Dirty() separately after all batch updates are complete.
+    /// </summary>
+    public void UpdateAssetDataSilent(Workspace workspace, byte[] data)
+    {
+        SetNewData(data);
+        
+        var maxNameLen = ConfigurationManager.Settings.ListingNameLength;
+        AssetName = workspace.Namer.GetAssetName(this, true, maxNameLen);
+    }
+
+    /// <summary>
+    /// Fires PropertyChanged for display properties. Call once after batch updates.
+    /// </summary>
+    public void RefreshRow()
+    {
+        Update(nameof(DisplayName));
+        Update(nameof(ByteSizeModified));
+        Update(nameof(ModifiedString));
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;

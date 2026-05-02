@@ -1,4 +1,4 @@
-﻿using AssetsTools.NET;
+using AssetsTools.NET;
 using AssetsTools.NET.Extra;
 using CommunityToolkit.Mvvm.ComponentModel;
 using DynamicData;
@@ -16,7 +16,7 @@ public partial class SelectTypeFilterViewModel : ViewModelBase, IDialogAware<IEn
     [ObservableProperty]
     public ObservableCollection<TypeFilterTypeEntry> _filterTypes = [];
 
-    public string Title => "Select Type Filter";
+    public string Title => UABEANext4.Util.LocalizationHelper.GetString("TypeFilter.Title", "Select Type Filter");
     public int Width => 400;
     public int Height => 500;
 

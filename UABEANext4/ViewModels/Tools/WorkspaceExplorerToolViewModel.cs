@@ -1,4 +1,4 @@
-﻿using Avalonia.Collections;
+using Avalonia.Collections;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using CommunityToolkit.Mvvm.Messaging;
@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using UABEANext4.AssetWorkspace;
 using UABEANext4.Logic;
 using UABEANext4.Services;
+using UABEANext4.Util;
 using UABEANext4.ViewModels.Dialogs;
 
 namespace UABEANext4.ViewModels.Tools
@@ -30,7 +31,7 @@ namespace UABEANext4.ViewModels.Tools
             SelectedItems = new();
 
             Id = TOOL_TITLE.Replace(" ", "");
-            Title = TOOL_TITLE;
+            Title = LocalizationHelper.GetString("Tools.WorkspaceExplorer", TOOL_TITLE);
         }
 
         public WorkspaceExplorerToolViewModel(Workspace workspace)
@@ -39,7 +40,7 @@ namespace UABEANext4.ViewModels.Tools
             SelectedItems = new();
 
             Id = TOOL_TITLE.Replace(" ", "");
-            Title = TOOL_TITLE;
+            Title = LocalizationHelper.GetString("Tools.WorkspaceExplorer", TOOL_TITLE);
         }
 
         public void SelectedItemsChanged(List<WorkspaceItem> value)

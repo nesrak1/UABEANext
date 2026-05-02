@@ -1,16 +1,18 @@
-﻿using AssetsTools.NET.Extra;
+using AssetsTools.NET;
+using AssetsTools.NET.Extra;
 using AssetsTools.NET.Texture;
 using Avalonia.Platform.Storage;
 using System.Text;
 using UABEANext4.AssetWorkspace;
 using UABEANext4.Plugins;
 using UABEANext4.ViewModels.Dialogs;
+using UABEANext4.Util;
 
 namespace TexturePlugin;
 
 public class ImportBatchTextureOption : IUavPluginOption
 {
-    public string Name => "Import Texture2D";
+    public string Name => LocalizationHelper.GetString("Plugins.Texture.Import", "Import Texture2D");
 
     public string Description => "Imports a folder of png/tga/bmp/jpgs into Texture2Ds";
 
@@ -36,7 +38,7 @@ public class ImportBatchTextureOption : IUavPluginOption
     {
         var dir = await funcs.ShowOpenFolderDialog(new FolderPickerOpenOptions()
         {
-            Title = "Select import directory"
+            Title = LocalizationHelper.GetString("Plugins.Texture.SelectExportDir", "Select import directory")
         });
 
         if (dir == null)
@@ -65,40 +67,99 @@ public class ImportBatchTextureOption : IUavPluginOption
     private async Task<bool> ImportTextures(Workspace workspace, IUavPluginFunctions funcs, List<ImportBatchInfo> infos)
     {
         var errorBuilder = new StringBuilder();
-        foreach (var info in infos)
+        var fileNamesToDirty = new HashSet<string>();
+        var updatedAssets = new List<AssetInst>();
+        int totalCount = infos.Count;
+        int processed = 0;
+        object lockObj = new object();
+
+        workspace.SetProgressThreadSafe(0f, "Starting import...");
+
+        await Task.Run(() =>
         {
-            var asset = info.Asset;
-            var errorAssetName = $"{Path.GetFileName(asset.FileInstance.path)}/{asset.PathId}";
+            // Leave one core free for the UI thread to keep the app responsive
+            var parallelOptions = new ParallelOptions 
+            { 
+                MaxDegreeOfParallelism = Math.Max(1, Environment.ProcessorCount - 1) 
+            };
 
-            var baseField = workspace.GetBaseField(asset);
-            if (baseField == null)
+            Parallel.ForEach(infos, parallelOptions, info =>
             {
-                errorBuilder.AppendLine($"[{errorAssetName}]: failed to read");
-                continue;
-            }
+                var asset = info.Asset;
+                var errorAssetName = $"{Path.GetFileName(asset.FileInstance.path)}/{asset.PathId}";
 
-            var tex = TextureFile.ReadTextureFile(baseField);
-            if (info.ImportFile == null || !File.Exists(info.ImportFile))
-            {
-                errorBuilder.AppendLine($"[{errorAssetName}]: failed to import because {info.ImportFile ?? "[null]"} does not exist.");
-                continue;
-            }
+                if (info.ImportFile == null || !File.Exists(info.ImportFile))
+                {
+                    lock (lockObj) errorBuilder.AppendLine($"[{errorAssetName}]: failed to import because {info.ImportFile ?? "[null]"} does not exist.");
+                    return;
+                }
 
-            try
-            {
-                // disable mips until we can support them
-                tex.m_MipCount = 1;
-                tex.m_MipMap = false;
+                AssetTypeValueField? baseField;
+                // 1. Read metadata (locked)
+                lock (asset.FileInstance.LockReader)
+                {
+                    baseField = workspace.GetBaseField(asset);
+                }
 
-                tex.EncodeTextureImage(info.ImportFile);
-                tex.WriteTo(baseField);
-                asset.UpdateAssetDataAndRow(workspace, baseField);
-            }
-            catch (Exception e)
+                if (baseField == null)
+                {
+                    lock (lockObj) errorBuilder.AppendLine($"[{errorAssetName}]: failed to read");
+                    return;
+                }
+
+                // 2. Parse and encode (not locked - CPU intensive)
+                var tex = TextureFile.ReadTextureFile(baseField);
+
+                try
+                {
+                    // disable mips until we can support them
+                    tex.m_MipCount = 1;
+                    tex.m_MipMap = false;
+
+                    // EncodeTextureImage reads the file and encodes it to the target format (slow, parallelizable)
+                    tex.EncodeTextureImage(info.ImportFile);
+
+                    // Writing back to the base field and byte array
+                    tex.WriteTo(baseField);
+                    
+                    // 3. Update asset data (silent, not locked as it only affects this asset)
+                    asset.UpdateAssetDataSilent(workspace, baseField);
+
+                    lock (lockObj)
+                    {
+                        updatedAssets.Add(asset);
+                        fileNamesToDirty.Add(asset.FileInstance.name);
+                    }
+                }
+                catch (Exception e)
+                {
+                    lock (lockObj) errorBuilder.AppendLine($"[{errorAssetName}]: failed to import: {e}");
+                }
+
+                int curr = Interlocked.Increment(ref processed);
+                if (curr % 20 == 0 || curr == totalCount)
+                {
+                    workspace.SetProgressThreadSafe((float)curr / totalCount, $"Importing {curr:N0}/{totalCount:N0}...");
+                }
+            });
+        });
+
+        // Batch refresh: fire PropertyChanged for all updated assets at once
+        foreach (var asset in updatedAssets)
+        {
+            asset.RefreshRow();
+        }
+
+        // Batch dirty: mark files as dirty only once per file, not per asset
+        foreach (var fileName in fileNamesToDirty)
+        {
+            if (workspace.ItemLookup.TryGetValue(fileName, out var fileToDirty))
             {
-                errorBuilder.AppendLine($"[{errorAssetName}]: failed to import: {e}");
+                workspace.Dirty(fileToDirty);
             }
         }
+
+        workspace.SetProgressThreadSafe(0f, "");
 
         if (errorBuilder.Length > 0)
         {

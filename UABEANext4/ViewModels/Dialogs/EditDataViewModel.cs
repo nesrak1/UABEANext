@@ -1,4 +1,4 @@
-﻿using AssetsTools.NET;
+using AssetsTools.NET;
 using AvaloniaEdit.Document;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -21,7 +21,7 @@ public partial class EditDataViewModel : ViewModelBase, IDialogAware<byte[]?>
     private readonly AssetTypeValueField _baseField;
     private readonly RefTypeManager _refMan;
 
-    public string Title => "Edit Data";
+    public string Title => LocalizationHelper.GetString("EditData.Title", "Edit Data");
     public int Width => 700;
     public int Height => 550;
     public bool IsModal => false;
@@ -60,7 +60,7 @@ public partial class EditDataViewModel : ViewModelBase, IDialogAware<byte[]?>
         }
         catch (Exception ex)
         {
-            await MessageBoxUtil.ShowDialog("Error", "Failed to export asset: " + ex.Message);
+            await MessageBoxUtil.ShowDialog(LocalizationHelper.GetString("Common.Error", "Error"), LocalizationHelper.GetString("EditData.ExportError", "Failed to export asset: ") + ex.Message);
         }
         finally
         {
@@ -89,7 +89,7 @@ public partial class EditDataViewModel : ViewModelBase, IDialogAware<byte[]?>
 
             if (data == null)
             {
-                await MessageBoxUtil.ShowDialog("Compile Error", "Problem with import:\n" + error);
+                await MessageBoxUtil.ShowDialog(LocalizationHelper.GetString("EditData.CompileError", "Compile Error"), "Problem with import:\n" + error);
                 return;
             }
 

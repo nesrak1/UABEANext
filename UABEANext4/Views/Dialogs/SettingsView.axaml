@@ -13,7 +13,7 @@
         <DataTemplate DataType="{x:Type cnf:ConfigurationBooleanItem}">
             <StackPanel Margin="0,0,0,16" ToolTip.Tip="{Binding Description}">
                 <TextBlock Text="{Binding Title}" FontWeight="SemiBold" Margin="0,0,0,4" FontSize="13" />
-                <CheckBox IsChecked="{Binding Value}" Content="Enabled" Margin="4,0,0,0" />
+                <CheckBox IsChecked="{Binding Value}" Content="{DynamicResource Settings.Enabled}" Margin="4,0,0,0" />
             </StackPanel>
         </DataTemplate>
 
@@ -60,7 +60,7 @@
                       Height="14"
                       Opacity="0.6"
                       VerticalAlignment="Center" />
-                <TextBlock Text="All changes in this dialog save immediately."
+                <TextBlock Text="{DynamicResource Settings.Info}"
                            FontSize="12"
                            FontStyle="Italic"
                            Opacity="0.6"

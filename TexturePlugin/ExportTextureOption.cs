@@ -1,4 +1,4 @@
-﻿using AssetsTools.NET;
+using AssetsTools.NET;
 using AssetsTools.NET.Extra;
 using AssetsTools.NET.Texture;
 using Avalonia.Platform.Storage;
@@ -13,7 +13,7 @@ namespace TexturePlugin;
 
 public class ExportTextureOption : IUavPluginOption
 {
-    public string Name => "Export Texture2D/Sprite";
+    public string Name => LocalizationHelper.GetString("Plugins.Texture.Export", "Export Texture2D/Sprite");
     public string Description => "Exports Texture2D/Sprites to png/tga/bmp/jpg";
     public UavPluginMode Options => UavPluginMode.Export;
 
@@ -59,7 +59,7 @@ public class ExportTextureOption : IUavPluginOption
 
         var dir = await funcs.ShowOpenFolderDialog(new FolderPickerOpenOptions()
         {
-            Title = "Select export directory"
+            Title = LocalizationHelper.GetString("Plugins.Texture.SelectExportDir", "Select export directory")
         });
 
         if (dir == null)
@@ -67,73 +67,117 @@ public class ExportTextureOption : IUavPluginOption
             return false;
         }
 
-        TextureLoader texLoader = new TextureLoader();
+        TextureLoader sharedTexLoader = new TextureLoader();
         StringBuilder errorBuilder = new StringBuilder();
         int emptyTextureCount = 0;
+        int processed = 0;
+        int totalCount = selection.Count;
+        object lockObj = new object();
 
-        foreach (AssetInst asset in selection)
+        workspace.SetProgressThreadSafe(0f, "Starting export...");
+
+        await Task.Run(() =>
         {
-            var errorAssetName = $"{Path.GetFileName(asset.FileInstance.path)}/{asset.PathId}";
-            if (asset.Type == AssetClassID.Texture2D)
+            var parallelOptions = new ParallelOptions 
+            { 
+                MaxDegreeOfParallelism = Math.Max(1, Environment.ProcessorCount - 1) 
+            };
+
+            Parallel.ForEach(selection, parallelOptions, asset =>
             {
-                // we don't need any processing, use assetstools.net.texture to export
-
-                var texBaseField = TextureHelper.GetByteArrayTexture(workspace, asset);
-                if (texBaseField == null)
+                var errorAssetName = $"{Path.GetFileName(asset.FileInstance.path)}/{asset.PathId}";
+                try
                 {
-                    errorBuilder.AppendLine($"[{errorAssetName}]: failed to read");
-                    continue;
+                    if (asset.Type == AssetClassID.Texture2D)
+                    {
+                        AssetTypeValueField? texBaseField;
+                        // 1. Read metadata (locked)
+                        lock (asset.FileInstance.LockReader)
+                        {
+                            texBaseField = TextureHelper.GetByteArrayTexture(workspace, asset);
+                        }
+
+                        if (texBaseField == null)
+                        {
+                            lock (lockObj) errorBuilder.AppendLine($"[{errorAssetName}]: failed to read");
+                            return;
+                        }
+
+                        // 2. Parse metadata (not locked)
+                        TextureFile texFile = TextureFile.ReadTextureFile(texBaseField);
+                        TextureHelper.SwizzleOptIn(texFile, asset.FileInstance.file);
+
+                        if (texFile.m_Width == 0 && texFile.m_Height == 0)
+                        {
+                            Interlocked.Increment(ref emptyTextureCount);
+                            return;
+                        }
+
+                        // 3. Read pixel data (locked)
+                        byte[] encTextureData;
+                        lock (asset.FileInstance.LockReader)
+                        {
+                            encTextureData = texFile.FillPictureData(asset.FileInstance);
+                        }
+
+                        if (encTextureData == null || encTextureData.Length == 0)
+                        {
+                            lock (lockObj) errorBuilder.AppendLine($"[{errorAssetName}]: failed to find texture data (missing resS file?)");
+                            return;
+                        }
+
+                        string assetName = PathUtils.ReplaceInvalidPathChars(asset.AssetName ?? "Texture2D");
+                        string filePath = AssetNamer.GetAssetFileName(asset, assetName, fileExtension);
+
+                        // 4. Decode and save to disk (not locked - CPU intensive)
+                        using FileStream outputStream = File.OpenWrite(Path.Combine(dir, filePath));
+                        bool success = texFile.DecodeTextureImage(encTextureData, outputStream, exportType);
+                        if (!success)
+                        {
+                            lock (lockObj) errorBuilder.AppendLine($"[{errorAssetName}]: failed to decode or write image to disk (invalid texture format, etc.)");
+                        }
+                    }
+                    else if (asset.Type == AssetClassID.Sprite)
+                    {
+                        byte[]? decTextureData;
+                        int width, height;
+
+                        // Use shared thread-safe TextureLoader to benefit from cache
+                        decTextureData = sharedTexLoader.GetSpriteRawBytes(workspace, asset, true, out var _, out width, out height);
+
+                        if (decTextureData == null)
+                        {
+                            lock (lockObj) errorBuilder.AppendLine($"[{errorAssetName}]: failed to decode (missing resS, invalid texture format, invalid sprite, etc.)");
+                            return;
+                        }
+
+                        string assetName = PathUtils.ReplaceInvalidPathChars(asset.AssetName ?? "Sprite");
+                        string filePath = AssetNamer.GetAssetFileName(asset, assetName, fileExtension);
+
+                        TextureOperations.SwapRBComponents(decTextureData);
+                        TextureOperations.FlipBGRA32Vertically(decTextureData, width, height);
+
+                        using FileStream outputStream = File.OpenWrite(Path.Combine(dir, filePath));
+                        if (!TextureOperations.WriteRawImage(decTextureData, width, height, outputStream, exportType))
+                        {
+                            lock (lockObj) errorBuilder.AppendLine($"[{errorAssetName}]: failed to write image to disk");
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    lock (lockObj) errorBuilder.AppendLine($"[{errorAssetName}]: Exception: {ex.Message}");
                 }
 
-                var texFile = TextureFile.ReadTextureFile(texBaseField);
-
-                TextureHelper.SwizzleOptIn(texFile, asset.FileInstance.file);
-
-                // 0x0 texture, usually called like Font Texture or something
-                if (texFile.m_Width == 0 && texFile.m_Height == 0)
+                int curr = Interlocked.Increment(ref processed);
+                if (curr % 20 == 0 || curr == totalCount)
                 {
-                    emptyTextureCount++;
-                    continue;
+                    workspace.SetProgressThreadSafe((float)curr / totalCount, $"Exporting {curr:N0}/{totalCount:N0}...");
                 }
+            });
+        });
 
-                string assetName = PathUtils.ReplaceInvalidPathChars(asset.AssetName ?? "Texture2D");
-                string filePath = AssetNamer.GetAssetFileName(asset, assetName, fileExtension);
-
-                using FileStream outputStream = File.OpenWrite(Path.Combine(dir, filePath));
-                byte[] encTextureData = texFile.FillPictureData(asset.FileInstance);
-                bool success = texFile.DecodeTextureImage(encTextureData, outputStream, exportType);
-                if (!success)
-                {
-                    errorBuilder.AppendLine($"[{errorAssetName}]: failed to decode or write image to disk (missing resS, invalid texture format, etc.)");
-                }
-            }
-            else if (asset.Type == AssetClassID.Sprite)
-            {
-                // need to do crop processing, use TextureLoader
-
-                byte[]? decTextureData = texLoader.GetSpriteRawBytes(workspace, asset, true, out var _, out var width, out var height);
-                if (decTextureData == null)
-                {
-                    errorBuilder.AppendLine($"[{errorAssetName}]: failed to decode (missing resS, invalid texture format, invalid sprite, etc.)");
-                    continue;
-                }
-
-                string assetName = PathUtils.ReplaceInvalidPathChars(asset.AssetName ?? "Sprite");
-                string filePath = AssetNamer.GetAssetFileName(asset, assetName, fileExtension);
-
-                // SKBitmap is RGBA32 but StbIws expects BGRA32. swap R and B.
-                TextureOperations.SwapRBComponents(decTextureData);
-
-                // image is also upside down. flip it (normally assetstools.net.texture handles this)
-                TextureOperations.FlipBGRA32Vertically(decTextureData, width, height);
-
-                using FileStream outputStream = File.OpenWrite(Path.Combine(dir, filePath));
-                if (!TextureOperations.WriteRawImage(decTextureData, width, height, outputStream, exportType))
-                {
-                    errorBuilder.AppendLine($"[{errorAssetName}]: failed to write image to disk");
-                }
-            }
-        }
+        workspace.SetProgressThreadSafe(0f, "");
 
         if (emptyTextureCount == selection.Count)
         {
@@ -237,7 +281,7 @@ public class ExportTextureOption : IUavPluginOption
     {
         return funcs.ShowSaveFileDialog(new FilePickerSaveOptions()
         {
-            Title = "Save texture",
+            Title = LocalizationHelper.GetString("Plugins.Texture.SaveTexture", "Save texture"),
             FileTypeChoices =
             [
                 new("PNG file") { Patterns = ["*.png"] },

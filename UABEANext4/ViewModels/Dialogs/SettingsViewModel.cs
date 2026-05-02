@@ -1,4 +1,4 @@
-﻿using AssetsTools.NET;
+using AssetsTools.NET;
 using AvaloniaEdit.Document;
 using CommunityToolkit.Mvvm.ComponentModel;
 using System;
@@ -18,7 +18,7 @@ public partial class SettingsViewModel : ViewModelBase, IDialogAware
     [ObservableProperty]
     private ObservableCollection<ConfigurationItemBase> _configItems = [];
     
-    public string Title => "Settings";
+    public string Title => LocalizationHelper.GetString("Settings.Title", "Settings");
     public int Width => 350;
     public int Height => 550;
     public bool IsModal => true;

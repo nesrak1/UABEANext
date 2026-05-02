@@ -1,16 +1,17 @@
-﻿using AssetsTools.NET.Extra;
+using AssetsTools.NET.Extra;
 using AssetsTools.NET.Texture;
 using System.Text;
 using TexturePlugin.Helpers;
 using TexturePlugin.ViewModels;
 using UABEANext4.AssetWorkspace;
 using UABEANext4.Plugins;
+using UABEANext4.Util;
 
 namespace TexturePlugin;
 
 public class EditTextureOption : IUavPluginOption
 {
-    public string Name => "Edit Texture2D";
+    public string Name => LocalizationHelper.GetString("Plugins.Texture.Edit", "Edit Texture2D");
     public string Description => "Edits Texture2D settings";
     public UavPluginMode Options => UavPluginMode.Export;
 

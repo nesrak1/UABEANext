@@ -1,4 +1,4 @@
-﻿using Avalonia.Media.Imaging;
+using Avalonia.Media.Imaging;
 using AvaloniaEdit.Document;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
@@ -8,6 +8,7 @@ using UABEANext4.AssetWorkspace;
 using UABEANext4.Logic;
 using UABEANext4.Logic.Mesh;
 using UABEANext4.Plugins;
+using UABEANext4.Util;
 
 namespace UABEANext4.ViewModels.Tools;
 public partial class PreviewerToolViewModel : Tool
@@ -35,7 +36,7 @@ public partial class PreviewerToolViewModel : Tool
         Workspace = new();
 
         Id = TOOL_TITLE.Replace(" ", "");
-        Title = TOOL_TITLE;
+        Title = LocalizationHelper.GetString("Tools.Previewer", TOOL_TITLE);
 
         _activeDocument = new TextDocument();
         _activeMesh = new MeshObj();
@@ -46,9 +47,9 @@ public partial class PreviewerToolViewModel : Tool
         Workspace = workspace;
 
         Id = TOOL_TITLE.Replace(" ", "");
-        Title = TOOL_TITLE;
+        Title = LocalizationHelper.GetString("Tools.Previewer", TOOL_TITLE);
 
-        _activeDocument = new TextDocument("No preview available.");
+        _activeDocument = new TextDocument(LocalizationHelper.GetString("TypeFilter.NoPreview", "No preview available."));
 
         WeakReferenceMessenger.Default.Register<AssetsSelectedMessage>(this, OnAssetsSelected);
         WeakReferenceMessenger.Default.Register<WorkspaceClosingMessage>(this, OnWorkspaceClosing);
@@ -82,7 +83,7 @@ public partial class PreviewerToolViewModel : Tool
         var pluginsList = Workspace.Plugins.GetPreviewersThatSupport(Workspace, asset);
         if (pluginsList == null || pluginsList.Count == 0)
         {
-            SetDisplayText("No preview available.");
+            SetDisplayText(LocalizationHelper.GetString("TypeFilter.NoPreview", "No preview available."));
             return;
         }
 
@@ -139,7 +140,7 @@ public partial class PreviewerToolViewModel : Tool
             }
             default:
             {
-                SetDisplayText($"Preview type {prevType} not supported.");
+                SetDisplayText(string.Format(LocalizationHelper.GetString("Previewer.TypeNotSupported", "Preview type {0} not supported."), prevType));
                 break;
             }
         }

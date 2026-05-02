@@ -48,13 +48,13 @@
                     Width="85"
                     Height="28"
                     IsDefault="True"
-                    Content="OK" />
+                    Content="{DynamicResource Button.Ok}" />
 
             <Button Command="{Binding BtnCancel_ClickCommand}"
                     Width="85"
                     Height="28"
                     IsCancel="True"
-                    Content="Cancel" />
+                    Content="{DynamicResource Button.Cancel}" />
 
         </StackPanel>
     </Grid>

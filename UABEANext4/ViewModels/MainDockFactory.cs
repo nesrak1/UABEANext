@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Input;
 using Dock.Avalonia.Controls;
 using Dock.Model.Controls;
 using Dock.Model.Core;
@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using UABEANext4.AssetWorkspace;
 using UABEANext4.Logic.Documents;
+using UABEANext4.Util;
 using UABEANext4.ViewModels.Documents;
 using UABEANext4.ViewModels.Tools;
 
@@ -69,8 +70,10 @@ internal class MainDockFactory : Factory
             ),
             Alignment = Alignment.Left,
             GripMode = GripMode.Visible,
-            Proportion = 0.25
+            Proportion = 0.25,
+            Title = LocalizationHelper.GetString("Tools.WorkspaceExplorer", "Workspace Explorer")
         };
+
 
         var inspectorDock = new ToolDock
         {
@@ -82,8 +85,10 @@ internal class MainDockFactory : Factory
             ),
             Alignment = Alignment.Left,
             GripMode = GripMode.Visible,
-            Proportion = 0.25
+            Proportion = 0.25,
+            Title = LocalizationHelper.GetString("Tools.Inspector", "Inspector")
         };
+
 
         MainPane = new ProportionalDock
         {

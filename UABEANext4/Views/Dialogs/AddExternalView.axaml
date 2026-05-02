@@ -16,31 +16,31 @@
               RowDefinitions="Auto, Auto, Auto, Auto"
               VerticalAlignment="Top">
 
-            <Label Grid.Row="0" Grid.Column="0" Content="File name" VerticalAlignment="Center" Margin="0,0,0,8"/>
+            <Label Grid.Row="0" Grid.Column="0" Content="{DynamicResource EditExternal.FileName}" VerticalAlignment="Center" Margin="0,0,0,8"/>
             <TextBox Grid.Row="0" Grid.Column="1"
                      Text="{Binding FileName}"
                      Margin="0,0,0,8"
                      VerticalContentAlignment="Center" />
 
-            <Label Grid.Row="1" Grid.Column="0" Content="Original file name" VerticalAlignment="Center" Margin="0,0,0,8"/>
+            <Label Grid.Row="1" Grid.Column="0" Content="{DynamicResource EditExternal.OriginalFileName}" VerticalAlignment="Center" Margin="0,0,0,8"/>
             <TextBox Grid.Row="1" Grid.Column="1"
                      IsEnabled="{Binding HasOriginalName}"
                      Text="{Binding OriginalFileName}"
                      Margin="0,0,0,8"
                      VerticalContentAlignment="Center" />
 
-            <Label Grid.Row="2" Grid.Column="0" Content="Dependency type" VerticalAlignment="Center" Margin="0,0,0,8"/>
+            <Label Grid.Row="2" Grid.Column="0" Content="{DynamicResource EditExternal.DependencyType}" VerticalAlignment="Center" Margin="0,0,0,8"/>
             <ComboBox Grid.Row="2" Grid.Column="1"
                       HorizontalAlignment="Stretch"
                       SelectedIndex="{Binding ExternalType}"
                       Margin="0,0,0,8">
-                <ComboBoxItem Content="Normal" />
-                <ComboBoxItem Content="Cached" />
-                <ComboBoxItem Content="Serialized" />
-                <ComboBoxItem Content="Meta" />
+                <ComboBoxItem Content="{DynamicResource EditExternal.Type.Normal}" />
+                <ComboBoxItem Content="{DynamicResource EditExternal.Type.Cached}" />
+                <ComboBoxItem Content="{DynamicResource EditExternal.Type.Serialized}" />
+                <ComboBoxItem Content="{DynamicResource EditExternal.Type.Meta}" />
             </ComboBox>
 
-            <Label Grid.Row="3" Grid.Column="0" Content="GUID" VerticalAlignment="Center"/>
+            <Label Grid.Row="3" Grid.Column="0" Content="{DynamicResource EditExternal.Guid}" VerticalAlignment="Center"/>
             <TextBox Grid.Row="3" Grid.Column="1"
                      IsEnabled="{Binding HasGuid}"
                      Text="{Binding GuidString}"
@@ -53,13 +53,13 @@
                     Margin="0,16,0,0">
 
             <Button Command="{Binding BtnOk_Click}"
-                    Content="OK"
+                    Content="{DynamicResource Button.Ok}"
                     Width="85"
                     Height="28"
                     IsDefault="True" />
 
             <Button Command="{Binding BtnCancel_Click}"
-                    Content="Cancel"
+                    Content="{DynamicResource Button.Cancel}"
                     Width="85"
                     Height="28"
                     IsCancel="True" />

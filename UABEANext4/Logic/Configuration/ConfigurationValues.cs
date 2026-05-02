@@ -1,14 +1,21 @@
 using Avalonia;
+using Avalonia.Markup.Xaml.Styling;
 using Avalonia.Styling;
 using CommunityToolkit.Mvvm.ComponentModel;
 using System;
 using System.ComponentModel;
+using System.Linq;
 using UABEANext4.Util;
 
 namespace UABEANext4.Logic.Configuration;
 
 public partial class ConfigurationValues : ObservableObject
 {
+    [ObservableProperty]
+    [property: ConfigTitle("App Language")]
+    [property: ConfigDesc("The language to use.")]
+    private ConfigurationLanguage _appLanguage = ConfigurationLanguage.EnUs;
+
     [ObservableProperty]
     [property: ConfigTitle("Theme Type")]
     [property: ConfigDesc("The theme to use.")]
@@ -53,6 +60,12 @@ public partial class ConfigurationValues : ObservableObject
                 ConfigurationThemeType.Dark => ThemeVariant.Dark,
                 _ => ThemeVariant.Default // shouldn't happen
             };
+        }
+
+        // special case: language updates immediately
+        if (e.PropertyName == nameof(AppLanguage) && Application.Current is not null)
+        {
+            LocalizationHelper.ApplyLanguage(AppLanguage);
         }
 
         _saveDebounceFunc(0);

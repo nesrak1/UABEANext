@@ -1,10 +1,11 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
 using Dock.Model.Mvvm.Controls;
 using System;
 using System.Collections.ObjectModel;
 using UABEANext4.AssetWorkspace;
 using UABEANext4.Logic;
+using UABEANext4.Util;
 
 namespace UABEANext4.ViewModels.Tools;
 public partial class InspectorToolViewModel : Tool
@@ -23,7 +24,7 @@ public partial class InspectorToolViewModel : Tool
         ActiveAssets = new();
 
         Id = TOOL_TITLE.Replace(" ", "");
-        Title = TOOL_TITLE;
+        Title = LocalizationHelper.GetString("Tools.Inspector", TOOL_TITLE);
     }
 
     public InspectorToolViewModel(Workspace workspace)
@@ -32,7 +33,7 @@ public partial class InspectorToolViewModel : Tool
         ActiveAssets = new();
 
         Id = TOOL_TITLE.Replace(" ", "");
-        Title = TOOL_TITLE;
+        Title = LocalizationHelper.GetString("Tools.Inspector", TOOL_TITLE);
 
         WeakReferenceMessenger.Default.Register<AssetsSelectedMessage>(this, OnAssetsSelected);
         WeakReferenceMessenger.Default.Register<AssetsUpdatedMessage>(this, OnAssetsUpdated);

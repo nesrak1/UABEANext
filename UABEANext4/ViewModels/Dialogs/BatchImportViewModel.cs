@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -25,7 +25,7 @@ public partial class BatchImportViewModel : ViewModelBase, IDialogAware<List<Imp
     [ObservableProperty]
     public int _matchingFilesSelectedIndex;
 
-    public string Title => "Batch Import";
+    public string Title => LocalizationHelper.GetString("Dialog.ImportBatch.Title", "Batch Import");
     public int Width => 700;
     public int Height => 350;
     public bool IsModal => false;

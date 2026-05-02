@@ -1,4 +1,4 @@
-﻿using AssetsTools.NET;
+using AssetsTools.NET;
 using AssetsTools.NET.Extra;
 using Avalonia;
 using Avalonia.Collections;
@@ -30,10 +30,10 @@ public class AssetDataTreeView : TreeView
 
     public AssetDataTreeView() : base()
     {
-        menuEditAsset = new MenuItem() { Header = "Edit Asset" };
-        menuVisitAsset = new MenuItem() { Header = "Visit Asset" };
-        menuExpandSel = new MenuItem() { Header = "Expand Selection" };
-        menuCollapseSel = new MenuItem() { Header = "Collapse Selection" };
+        menuEditAsset = new MenuItem() { [!MenuItem.HeaderProperty] = new DynamicResourceExtension("Inspector.EditAsset") };
+        menuVisitAsset = new MenuItem() { [!MenuItem.HeaderProperty] = new DynamicResourceExtension("Inspector.VisitAsset") };
+        menuExpandSel = new MenuItem() { [!MenuItem.HeaderProperty] = new DynamicResourceExtension("Inspector.ExpandSelection") };
+        menuCollapseSel = new MenuItem() { [!MenuItem.HeaderProperty] = new DynamicResourceExtension("Inspector.CollapseSelection") };
 
         DoubleTapped += AssetDataTreeView_DoubleTapped;
         menuEditAsset.Click += MenuEditAsset_Click;
@@ -150,13 +150,13 @@ public class AssetDataTreeView : TreeView
         AssetTypeValueField? baseField = _workspace.GetBaseField(asset);
         if (baseField == null)
         {
-            TreeViewItem errorItem0 = CreateTreeItem("Asset failed to deserialize. A few possibilities:");
-            TreeViewItem errorItem1 = CreateTreeItem("The game's version is too new for this version of UABEA");
-            TreeViewItem errorItem1I = CreateTreeItem("Try updating UABEA to see if it fixes the problem.");
-            TreeViewItem errorItem2 = CreateTreeItem("The asset was a MonoBehaviour that didn't read correctly");
-            TreeViewItem errorItem2I = CreateTreeItem("Try disabling Cpp2IL and dumping dlls manually into a (new) folder called Managed.");
-            TreeViewItem errorItem3 = CreateTreeItem("The game uses a custom engine");
-            TreeViewItem errorItem3I = CreateTreeItem("I can't help with custom/encrypted engines. You're on your own.");
+            TreeViewItem errorItem0 = CreateTreeItemBinding("Inspector.DeserializeError");
+            TreeViewItem errorItem1 = CreateTreeItemBinding("Inspector.VersionTooNew");
+            TreeViewItem errorItem1I = CreateTreeItemBinding("Inspector.UpdateFix");
+            TreeViewItem errorItem2 = CreateTreeItemBinding("Inspector.MonoError");
+            TreeViewItem errorItem2I = CreateTreeItemBinding("Inspector.DisableCpp2IL");
+            TreeViewItem errorItem3 = CreateTreeItemBinding("Inspector.CustomEngine");
+            TreeViewItem errorItem3I = CreateTreeItemBinding("Inspector.CustomEngineInfo");
             errorItem0.ItemsSource = new List<TreeViewItem>() { errorItem1, errorItem2, errorItem3 };
             errorItem1.ItemsSource = new List<TreeViewItem>() { errorItem1I };
             errorItem2.ItemsSource = new List<TreeViewItem>() { errorItem2I };
@@ -246,6 +246,11 @@ public class AssetDataTreeView : TreeView
     private TreeViewItem CreateTreeItem(string text)
     {
         return new TreeViewItem() { Header = text };
+    }
+
+    private TreeViewItem CreateTreeItemBinding(string resourceKey)
+    {
+        return new TreeViewItem() { [!TreeViewItem.HeaderProperty] = new DynamicResourceExtension(resourceKey) };
     }
 
     private TreeViewItem CreateColorTreeItem(string typeName, string fieldName)
@@ -349,14 +354,14 @@ public class AssetDataTreeView : TreeView
 
                 if (asset == null)
                 {
-                    item.ItemsSource = new AvaloniaList<TreeViewItem>() { CreateTreeItem("[null asset]") };
+                    item.ItemsSource = new AvaloniaList<TreeViewItem>() { CreateTreeItemBinding("Inspector.NullAsset") };
                     return;
                 }
 
                 AssetTypeValueField? baseField = _workspace!.GetBaseField(asset);
                 if (baseField == null)
                 {
-                    item.ItemsSource = new AvaloniaList<TreeViewItem>() { CreateTreeItem("[failed to load]") };
+                    item.ItemsSource = new AvaloniaList<TreeViewItem>() { CreateTreeItemBinding("Inspector.FailedToLoad") };
                     return;
                 }
 
@@ -547,7 +552,7 @@ public class AssetDataTreeView : TreeView
 
                 AssetInst? cont = _workspace!.GetAssetInst(fromFile, fileId, pathId);
 
-                TreeViewItem childTreeItem = CreateTreeItem("[view asset]");
+                TreeViewItem childTreeItem = CreateTreeItemBinding("Inspector.ViewAsset");
                 items.Add(childTreeItem);
 
                 TreeViewItem dummyItem = CreateTreeItem("Loading...");

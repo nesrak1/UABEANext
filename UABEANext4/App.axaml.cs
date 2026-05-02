@@ -1,4 +1,4 @@
-﻿using Avalonia;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using UABEANext4.Logic.Configuration;
 using UABEANext4.Services;
+using UABEANext4.Util;
 using UABEANext4.ViewModels;
 using UABEANext4.Views;
 
@@ -25,13 +26,26 @@ public partial class App : Application
         // Without this line you will get duplicate validations from both Avalonia and CT
         //BindingPlugins.DataValidators.RemoveAt(0);
 
+        // do literally anything with configman so
+        // it loads and runs the constructor
+        if (!ConfigurationManager.IsInitialized)
+            throw new Exception("Expected config man to initialize");
+
+        // Apply saved language on startup
+        LocalizationHelper.ApplyLanguage(ConfigurationManager.Settings.AppLanguage);
+
         Window? mainWindow = null;
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            mainWindow = desktop.MainWindow = new MainWindow
-            {
-                DataContext = new MainViewModel()
-            };
+            mainWindow = desktop.MainWindow = new MainWindow();
+        }
+
+        var provider = ConfigureServices(mainWindow);
+        Ioc.Default.ConfigureServices(provider);
+
+        if (mainWindow != null)
+        {
+            mainWindow.DataContext = new MainViewModel();
         }
         else if (ApplicationLifetime is ISingleViewApplicationLifetime singleViewPlatform)
         {
@@ -41,13 +55,6 @@ public partial class App : Application
             };
         }
 
-        var provider = ConfigureServices(mainWindow);
-        Ioc.Default.ConfigureServices(provider);
-
-        // do literally anything with configman so
-        // it loads and runs the constructor
-        if (!ConfigurationManager.IsInitialized)
-            throw new Exception("Expected config man to initialize");
 
         base.OnFrameworkInitializationCompleted();
     }
