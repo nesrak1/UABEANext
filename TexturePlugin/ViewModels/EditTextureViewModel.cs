@@ -1,9 +1,11 @@
 ﻿using AssetsTools.NET;
 using AssetsTools.NET.Texture;
+using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using UABEANext4.AssetWorkspace;
 using UABEANext4.Interfaces;
+using UABEANext4.Plugins;
 using UABEANext4.Util;
 using UABEANext4.ViewModels;
 using ColorSpaceEnm = TexturePlugin.Logic.EditTexture.ColorSpace;
@@ -13,6 +15,7 @@ using WrapModeEnm = TexturePlugin.Logic.EditTexture.WrapMode;
 
 // this could be uh... improved... but it'll work for now :D
 namespace TexturePlugin.ViewModels;
+
 public partial class EditTextureViewModel : ViewModelBaseValidator, IDialogAware<EditTextureResult?>
 {
     [ObservableProperty]
@@ -61,6 +64,12 @@ public partial class EditTextureViewModel : ViewModelBaseValidator, IDialogAware
     [ObservableProperty]
     public ColorSpaceEnm? _colorSpace = ColorSpaceEnm.Gamma;
 
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(LoadTextureCaption))]
+    public string? _loadTexturePath;
+
+    private IUavPluginFunctions _pluginFuncs;
+
     // default fields
     private string? _defaultName;
     private TextureFormatEnm? _defaultTextureFormat;
@@ -90,6 +99,9 @@ public partial class EditTextureViewModel : ViewModelBaseValidator, IDialogAware
     public static WrapModeEnm[] WrapModes => Enum.GetValues<WrapModeEnm>();
     public static ColorSpaceEnm[] ColorSpaces => Enum.GetValues<ColorSpaceEnm>();
 
+    // load texture button caption
+    public string LoadTextureCaption => LoadTexturePath is null ? "" : $" ({Path.GetFileName(LoadTexturePath)})";
+
     public string Title => "Texture Edit";
     public int Width => 450;
     public int Height => 500;
@@ -100,8 +112,10 @@ public partial class EditTextureViewModel : ViewModelBaseValidator, IDialogAware
 
     private readonly List<(AssetInst, AssetTypeValueField, TextureFile)> _textures = [];
 
-    public EditTextureViewModel(Workspace workspace, IList<AssetInst> assets)
+    public EditTextureViewModel(Workspace workspace, IUavPluginFunctions funcs, IList<AssetInst> assets)
     {
+        _pluginFuncs = funcs;
+
         IsSingleTexture = assets.Count == 1;
 
         foreach (var asset in assets)
@@ -194,6 +208,7 @@ public partial class EditTextureViewModel : ViewModelBaseValidator, IDialogAware
         _defaultWrapModeV = WrapModeV = wrapModeV;
         _defaultLightMapFormatString = LightMapFormatString = lightMapFormat?.ToString();
         _defaultColorSpace = ColorSpace = colorSpace;
+        LoadTexturePath = null;
     }
 
     public void ResetToDefault(object param)
@@ -214,7 +229,25 @@ public partial class EditTextureViewModel : ViewModelBaseValidator, IDialogAware
             case 8: WrapModeV = _defaultWrapModeV; break;
             case 9: LightMapFormatString = _defaultLightMapFormatString; break;
             case 10: ColorSpace = _defaultColorSpace; break;
+            case 11: LoadTexturePath = null; break;
         }
+    }
+
+    public async void LoadSingleTexture()
+    {
+        var files = await _pluginFuncs.ShowOpenFileDialog(new FilePickerOpenOptions()
+        {
+            AllowMultiple = false
+        });
+
+        if (files.Length == 0)
+            return;
+
+        var file = files[0];
+        if (!File.Exists(file))
+            return;
+
+        LoadTexturePath = file;
     }
 
     public async void SaveChanges()
@@ -276,7 +309,8 @@ public partial class EditTextureViewModel : ViewModelBaseValidator, IDialogAware
                 WrapModeU,
                 WrapModeV,
                 lightMapFormat,
-                ColorSpace
+                ColorSpace,
+                LoadTexturePath
             )
         );
     }
@@ -313,7 +347,8 @@ public readonly struct EditTextureResult(
     WrapModeEnm? wrapModeU,
     WrapModeEnm? wrapModeV,
     int? lightMapFormat,
-    ColorSpaceEnm? colorSpace)
+    ColorSpaceEnm? colorSpace,
+    string? loadTexturePath)
 {
     public readonly string? Name = name;
     public readonly TextureFormatEnm? TextureFormat = textureFormat;
@@ -326,4 +361,5 @@ public readonly struct EditTextureResult(
     public readonly WrapModeEnm? WrapModeV = wrapModeV;
     public readonly int? LightMapFormat = lightMapFormat;
     public readonly ColorSpaceEnm? ColorSpace = colorSpace;
+    public readonly string? LoadTexturePath = loadTexturePath;
 }

@@ -2,6 +2,7 @@
 using AssetsTools.NET.Texture;
 using Avalonia.Platform.Storage;
 using System.Text;
+using TexturePlugin.Helpers;
 using UABEANext4.AssetWorkspace;
 using UABEANext4.Plugins;
 using UABEANext4.ViewModels.Dialogs;
@@ -78,19 +79,23 @@ public class ImportBatchTextureOption : IUavPluginOption
             }
 
             var tex = TextureFile.ReadTextureFile(baseField);
+            if (tex.m_PlatformBlob.Length != 0)
+            {
+                TextureHelper.SwizzleOptIn(tex, asset.FileInstance.file);
+            }
+
             if (info.ImportFile == null || !File.Exists(info.ImportFile))
             {
                 errorBuilder.AppendLine($"[{errorAssetName}]: failed to import because {info.ImportFile ?? "[null]"} does not exist.");
                 continue;
             }
 
+            var singleMip = tex.m_MipCount == 1;
+            var mipCount = singleMip ? 1 : int.MinValue;
+
             try
             {
-                // disable mips until we can support them
-                tex.m_MipCount = 1;
-                tex.m_MipMap = false;
-
-                tex.EncodeTextureImage(info.ImportFile);
+                tex.EncodeTextureImage(info.ImportFile, mipCount: mipCount);
                 tex.WriteTo(baseField);
                 asset.UpdateAssetDataAndRow(workspace, baseField);
             }

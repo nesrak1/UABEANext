@@ -86,8 +86,10 @@ public class ExportTextureOption : IUavPluginOption
                 }
 
                 var texFile = TextureFile.ReadTextureFile(texBaseField);
-
-                TextureHelper.SwizzleOptIn(texFile, asset.FileInstance.file);
+                if (texFile.m_PlatformBlob.Length != 0)
+                {
+                    TextureHelper.SwizzleOptIn(texFile, asset.FileInstance.file);
+                }
 
                 // 0x0 texture, usually called like Font Texture or something
                 if (texFile.m_Width == 0 && texFile.m_Height == 0)
@@ -122,10 +124,10 @@ public class ExportTextureOption : IUavPluginOption
                 string filePath = AssetNamer.GetAssetFileName(asset, assetName, fileExtension);
 
                 // SKBitmap is RGBA32 but StbIws expects BGRA32. swap R and B.
-                TextureOperations.SwapRBComponents(decTextureData);
+                TextureOperations.SwapRBComponentsInplace(decTextureData);
 
                 // image is also upside down. flip it (normally assetstools.net.texture handles this)
-                TextureOperations.FlipBGRA32Vertically(decTextureData, width, height);
+                TextureOperations.FlipBGRA32VerticallyInplace(decTextureData, width, height);
 
                 using FileStream outputStream = File.OpenWrite(Path.Combine(dir, filePath));
                 if (!TextureOperations.WriteRawImage(decTextureData, width, height, outputStream, exportType))
@@ -166,8 +168,10 @@ public class ExportTextureOption : IUavPluginOption
     {
         AssetTypeValueField? texBaseField = TextureHelper.GetByteArrayTexture(workspace, asset);
         TextureFile texFile = TextureFile.ReadTextureFile(texBaseField);
-
-        TextureHelper.SwizzleOptIn(texFile, asset.FileInstance.file);
+        if (texFile.m_PlatformBlob.Length != 0)
+        {
+            TextureHelper.SwizzleOptIn(texFile, asset.FileInstance.file);
+        }
 
         // 0x0 texture, usually called like Font Texture or something
         if (texFile.m_Width == 0 && texFile.m_Height == 0)
@@ -218,10 +222,10 @@ public class ExportTextureOption : IUavPluginOption
         }
 
         // SKBitmap is RGBA32 but StbIws expects BGRA32. swap R and B.
-        TextureOperations.SwapRBComponents(decTextureData);
+        TextureOperations.SwapRBComponentsInplace(decTextureData);
 
         // image is also upside down. flip it (normally assetstools.net.texture handles this)
-        TextureOperations.FlipBGRA32Vertically(decTextureData, width, height);
+        TextureOperations.FlipBGRA32VerticallyInplace(decTextureData, width, height);
 
         using FileStream outputStream = File.OpenWrite(filePath);
         if (!TextureOperations.WriteRawImage(decTextureData, width, height, outputStream, exportType))

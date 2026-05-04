@@ -27,7 +27,7 @@ public class EditTextureOption : IUavPluginOption
 
     public async Task<bool> Execute(Workspace workspace, IUavPluginFunctions funcs, UavPluginMode mode, IList<AssetInst> selection)
     {
-        var editTextureVm = new EditTextureViewModel(workspace, selection);
+        var editTextureVm = new EditTextureViewModel(workspace, funcs, selection);
         var result = await funcs.ShowDialog(editTextureVm);
         if (!result.HasValue)
         {
@@ -36,7 +36,7 @@ public class EditTextureOption : IUavPluginOption
 
         var editTexSettings = result.Value;
 
-        // todo: need to support single image import as well
+        var singleTextureEdit = selection.Count == 1 && editTexSettings.LoadTexturePath is not null;
 
         var errorBuilder = new StringBuilder();
         foreach (var asset in selection)
@@ -51,36 +51,47 @@ public class EditTextureOption : IUavPluginOption
             }
 
             var tex = TextureFile.ReadTextureFile(baseField);
-
-            var needToReencode = false;
-            if (editTexSettings.TextureFormat is not null)
+            if (tex.m_PlatformBlob.Length != 0)
             {
-                needToReencode |= tex.m_TextureFormat != (int)editTexSettings.TextureFormat;
+                TextureHelper.SwizzleOptIn(tex, asset.FileInstance.file);
             }
-            //if (editTexSettings.UsingMips is not null)
-            //{
-            //    // if we've toggled mips on, only make a change if the current
-            //    // mipcount is different from what we would change it to.
-            //    var usingMips = editTexSettings.UsingMips.Value;
-            //    if (usingMips)
-            //        needToReencode |= tex.m_MipCount == TextureHelper.GetMaxMipCount(tex.m_Width, tex.m_Height);
-            //    else
-            //        needToReencode |= tex.m_MipCount == 1;
-            //}
 
             byte[]? texOrigDecBytes = null;
-            if (needToReencode)
+            // single texture edit _replaces_ the original, so no
+            // need to try and decompress the original texture.
+            if (!singleTextureEdit)
             {
-                // decode the texture so we can reencode it in the next step
-                var texOrigEncBytes = tex.FillPictureData(asset.FileInstance);
-                if (texOrigEncBytes is null)
+                var needToReencode = false;
+                if (editTexSettings.TextureFormat is not null)
                 {
-                    errorBuilder.AppendLine($"[{errorAssetName}]: failed to decode for reencoding");
-                    continue;
+                    needToReencode |= tex.m_TextureFormat != (int)editTexSettings.TextureFormat;
                 }
-                else
+                if (editTexSettings.UsingMips is not null)
                 {
-                    texOrigDecBytes = tex.DecodeTextureRaw(texOrigEncBytes, true);
+                    // if we've toggled mips on, only make a change if the current
+                    // mipcount is different from what we would change it to.
+                    var usingMips = editTexSettings.UsingMips.Value;
+                    if (usingMips)
+                        needToReencode |= tex.m_MipCount != 1;
+                    else
+                        needToReencode |= tex.m_MipCount == 1;
+                }
+
+                if (needToReencode)
+                {
+                    // decode the texture so we can reencode it in the next step
+                    var texOrigEncBytes = tex.FillPictureData(asset.FileInstance);
+                    if (texOrigEncBytes is null)
+                    {
+                        errorBuilder.AppendLine($"[{errorAssetName}]: failed to decode for reencoding");
+                        continue;
+                    }
+                    else
+                    {
+                        texOrigDecBytes = tex.DecodeTextureRaw(texOrigEncBytes, true);
+                        // flip now because encoder will flip but raw doesn't flip
+                        TextureOperations.FlipBGRA32VerticallyInplace(texOrigDecBytes, tex.m_Width, tex.m_Height);
+                    }
                 }
             }
 
@@ -88,8 +99,11 @@ public class EditTextureOption : IUavPluginOption
                 tex.m_Name = editTexSettings.Name;
             if (editTexSettings.TextureFormat is not null)
                 tex.m_TextureFormat = (int)editTexSettings.TextureFormat.Value;
-            //if (editTexSettings.UsingMips is not null)
-            //    tex.m_MipMap = editTexSettings.UsingMips.Value;
+            if (editTexSettings.UsingMips is not null)
+            {
+                tex.m_MipMap = editTexSettings.UsingMips.Value;
+                tex.m_MipCount = int.MaxValue; // will get lowered to correct mip count later
+            }
             if (editTexSettings.IsReadable is not null)
                 tex.m_IsReadable = editTexSettings.IsReadable.Value;
             if (editTexSettings.FilterMode is not null)
@@ -107,15 +121,26 @@ public class EditTextureOption : IUavPluginOption
             if (editTexSettings.ColorSpace is not null)
                 tex.m_ColorSpace = (int)editTexSettings.ColorSpace.Value;
 
-            if (needToReencode && texOrigDecBytes is not null)
+            const int EncodingQualityLevel = 3; // should be configurable at some point
+            if (texOrigDecBytes is not null)
             {
                 try
                 {
-                    // disable mips until we can support them
-                    tex.m_MipCount = 1;
-                    tex.m_MipMap = false;
-
-                    tex.EncodeTextureRaw(texOrigDecBytes, tex.m_Width, tex.m_Height, 3, true);
+                    tex.EncodeTextureRaw(
+                        texOrigDecBytes, tex.m_Width, tex.m_Height,
+                        mipCount: tex.m_MipCount, quality: EncodingQualityLevel, useBgra: true);
+                }
+                catch (Exception e)
+                {
+                    errorBuilder.AppendLine($"[{errorAssetName}]: failed to import: {e}");
+                }
+            }
+            else if (singleTextureEdit)
+            {
+                try
+                {
+                    tex.EncodeTextureImage(
+                        editTexSettings.LoadTexturePath, mipCount: tex.m_MipCount, quality: EncodingQualityLevel);
                 }
                 catch (Exception e)
                 {

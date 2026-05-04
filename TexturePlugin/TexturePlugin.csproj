@@ -70,7 +70,6 @@
     </PropertyGroup>
 
     <!-- copy texture encoder and deps -->
-    <Copy SourceFiles="$(SolutionDir)Libs\AssetsTools.NET.Texture.dll" DestinationFolder="$(UABEABinDir)plugins" ContinueOnError="true" />
     <Copy SourceFiles="$(TextureEncoderBinPath)" DestinationFolder="$(UABEABinDir)runtimes\$(UABEANativeConfig)\native" ContinueOnError="true" />
     <Copy SourceFiles="$(CuttlefishBinPath)" DestinationFolder="$(UABEABinDir)runtimes\$(UABEANativeConfig)\native" ContinueOnError="true" />
     <Copy SourceFiles="$(PVRTexToolBinDir)" DestinationFolder="$(UABEABinDir)runtimes\$(UABEANativeConfig)\native" ContinueOnError="true" />
@@ -86,7 +85,6 @@
     </PropertyGroup>
 
     <!-- copy textoolwrap and deps -->
-    <Copy SourceFiles="$(SolutionDir)Libs\AssetsTools.NET.Texture.dll" DestinationFolder="$(UABEABinDir)plugins" ContinueOnError="true" />
     <Copy SourceFiles="$(TextureEncoderBinPath)" DestinationFolder="$(UABEABinDir)runtimes\$(UABEANativeConfig)\native" ContinueOnError="true" />
     <Copy SourceFiles="$(CuttlefishBinPath)" DestinationFolder="$(UABEABinDir)runtimes\$(UABEANativeConfig)\native" ContinueOnError="true" />
     <Copy SourceFiles="$(PVRTexToolBinDir)" DestinationFolder="$(UABEABinDir)runtimes\$(UABEANativeConfig)\native" ContinueOnError="true" />

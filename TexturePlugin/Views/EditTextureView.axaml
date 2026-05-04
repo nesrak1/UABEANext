@@ -118,7 +118,9 @@
                 </Button>
 
                 <Label Grid.Row="11" Grid.Column="0">Texture</Label>
-                <Button Grid.Row="11" Grid.Column="1" Content="Load texture..." IsEnabled="{Binding IsSingleTexture}" HorizontalAlignment="Stretch" Padding="5,0" Height="26" />
+                <Button Grid.Row="11" Grid.Column="1" IsEnabled="{Binding IsSingleTexture}"
+                        Content="{Binding LoadTextureCaption, StringFormat='Load texture...{0}'}"
+                        Command="{Binding LoadSingleTexture}" HorizontalAlignment="Stretch" Padding="5,0" Height="26" />
                 <Button Grid.Row="11" Grid.Column="2" Classes="reset" Command="{Binding ResetToDefault}" CommandParameter="11" IsEnabled="{Binding IsSingleTexture}">
                     <PathIcon Data="{DynamicResource DockToolIconCloseGeometry}" />
                 </Button>
