@@ -12,13 +12,14 @@ using UABEANext4.ViewModels;
 using UABEANext4.ViewModels.Dialogs;
 
 namespace UABEANext4.Logic.AssetInfo;
+
 public partial class ExternalInfo : ViewModelBase
 {
     public ObservableCollection<AssetsFileExternal> Externals { get; set; } = [];
     public ReadOnlyObservableCollection<string> ExternalsDisplay { get; init; }
 
     private Workspace _workspace;
-    private AssetsFileInstance _fileInst;
+    private AssetsFileInstance? _fileInst;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsAssetSelected))]
@@ -54,6 +55,9 @@ public partial class ExternalInfo : ViewModelBase
 
     private string ExternalsNameTransFac(AssetsFileExternal dep, int idx)
     {
+        if (_fileInst is null)
+            return "";
+
         var origNameStr = "";
         if (_fileInst.parentBundle is not null)
         {
@@ -137,6 +141,7 @@ public partial class ExternalInfo : ViewModelBase
 
     private ExternalInfo()
     {
+        _workspace = new Workspace();
         ExternalsDisplay = new ReadOnlyObservableCollection<string>(new ObservableCollection<string>());
     }
 
