@@ -2,12 +2,10 @@
 using AssetsTools.NET.Extra;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.IO;
 using System.Linq;
-using UABEANext4.Util;
 
 namespace UABEANext4.AssetWorkspace;
+
 // from UABEA. probably needs some editing/cleanup.
 public class ContainerTool
 {
@@ -86,80 +84,6 @@ public class ContainerTool
     public ContainerAssetInfo GetContainerInfo(string path)
     {
         return AssetMap.FirstOrDefault(i => i.Value.Equals(path, StringComparison.InvariantCultureIgnoreCase)).Key;
-    }
-
-    // if an assets file, file can be any opened file. if a bundle file, it should be _that_ bundle file.
-    public static bool TryGetBundleContainerBaseField(
-        Workspace workspace, AssetsFileInstance file,
-        [MaybeNullWhen(false)] out AssetsFileInstance actualFile,
-        [MaybeNullWhen(false)] out AssetTypeValueField baseField
-    )
-    {
-        actualFile = null;
-        baseField = null;
-
-        List<AssetFileInfo> assetBundleInfos = file.file.GetAssetsOfType(AssetClassID.AssetBundle);
-        if (assetBundleInfos.Count == 0)
-            return false;
-
-        baseField = workspace.GetBaseField(file, assetBundleInfos[0].PathId);
-        if (baseField == null)
-            return false;
-
-        actualFile = file;
-        return true;
-    }
-
-    public static bool TryGetRsrcManContainerBaseField(
-        Workspace workspace, AssetsFileInstance file,
-        [MaybeNullWhen(false)] out AssetsFileInstance actualFile,
-        [MaybeNullWhen(false)] out AssetTypeValueField baseField
-    )
-    {
-        actualFile = null;
-        baseField = null;
-
-        string gameDir = PathUtils.GetAssetsFileDirectory(file);
-        if (gameDir == null)
-        {
-            return false;
-        }
-
-        // todo: what about mainData?
-        string ggmPath = Path.Combine(gameDir, "globalgamemanagers");
-        if (!File.Exists(ggmPath))
-        {
-            return false;
-        }
-
-        // this intentionally does not add to the workspace file list
-        // if the user loads this file themselves, it will reuse the
-        // currently open ggm file+stream.
-        AssetsFileInstance ggmInst;
-        int ggmIndex = workspace.Manager.Files.FindIndex(f => f.path == ggmPath);
-        if (ggmIndex != -1)
-        {
-            ggmInst = workspace.Manager.Files[ggmIndex];
-        }
-        else
-        {
-            ggmInst = workspace.Manager.LoadAssetsFile(ggmPath, true);
-        }
-
-        List<AssetFileInfo> resourceManagerInfos = ggmInst.file.GetAssetsOfType(AssetClassID.ResourceManager);
-        if (resourceManagerInfos.Count == 0)
-        {
-            return false;
-        }
-
-        baseField = workspace.GetBaseField(ggmInst, 0, resourceManagerInfos[0].PathId);
-        if (baseField != null)
-        {
-            actualFile = ggmInst;
-            return true;
-        }
-
-        return false;
     }
 }
 

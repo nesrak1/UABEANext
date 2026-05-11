@@ -288,6 +288,7 @@ public partial class AssetDocumentViewModel : Document
         {
             await Task.Run(() =>
             {
+                var contToolMan = new ContainerToolManager(Workspace);
                 foreach (var fileInst in fileInsts)
                 {
                     if (loadCt.IsCancellationRequested)
@@ -297,10 +298,9 @@ public partial class AssetDocumentViewModel : Document
                     sourceList.Add(infosObsCol);
 
                     if (LoadContainers)
-                        LoadContainersIntoInfos(fileInst, infosObsCol);
+                        LoadContainersIntoInfos(fileInst, infosObsCol, contToolMan);
                 }
             }, loadCt);
-
 
             var observableList = sourceList
                 .Connect()
@@ -328,27 +328,16 @@ public partial class AssetDocumentViewModel : Document
         }
     }
 
-    private void LoadContainersIntoInfos(AssetsFileInstance fileInst, IList<AssetFileInfo> fileInfos)
+    private void LoadContainersIntoInfos(
+        AssetsFileInstance fileInst, IList<AssetFileInfo> fileInfos, ContainerToolManager contToolMan)
     {
-        ContainerTool? contToolRes = null;
-        AssetsFileInstance? contFile; // file that stores container mapping for this file
-        AssetTypeValueField? contBf; // base field that stores container mapping
-        if (ContainerTool.TryGetBundleContainerBaseField(Workspace, fileInst, out contFile, out contBf))
-        {
-            contToolRes = ContainerTool.FromAssetBundle(Workspace.Manager, contFile, contBf);
-        }
-        else if (ContainerTool.TryGetRsrcManContainerBaseField(Workspace, fileInst, out contFile, out contBf))
-        {
-            contToolRes = ContainerTool.FromResourceManager(Workspace.Manager, contFile, contBf);
-        }
-
-        if (contToolRes is null)
+        if (!contToolMan.TryGetContainerTool(fileInst, out var contTool))
             return;
 
         foreach (var assetInf in fileInfos)
         {
             var assetPtr = new AssetPPtr(fileInst.path, assetInf.PathId);
-            var path = contToolRes.GetContainerPath(assetPtr);
+            var path = contTool.GetContainerPath(assetPtr);
             if (path is not null && assetInf is AssetInst asset)
             {
                 asset.DisplayContainer = path;
