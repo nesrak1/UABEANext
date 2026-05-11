@@ -9,7 +9,7 @@
         x:DataType="vm:MainViewModel"
         x:CompileBindings="True"
         Icon="/Assets/logo-new.ico"
-        Title="UABEAvalonia"
+        Title="UABEANext"
         Name="MainWindowName"
         ExtendClientAreaToDecorationsHint="{Binding UsesChrome}"
         ExtendClientAreaChromeHints="{Binding ChromeHints}"
