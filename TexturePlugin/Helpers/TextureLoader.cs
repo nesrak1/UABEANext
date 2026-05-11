@@ -379,7 +379,7 @@ public class TextureLoader
 
         var encTextureData = texture.FillPictureData(asset.FileInstance);
         // rare, but sometimes we see large textures with 0 texture data size
-        if (encTextureData.Length == 0 || (texture.m_Width == 0 && texture.m_Height == 0))
+        if (encTextureData is null || encTextureData.Length == 0 || (texture.m_Width == 0 && texture.m_Height == 0))
         {
             return null;
         }
