@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using UABEANext4.AssetWorkspace;
 using UABEANext4.Logic;
 using UABEANext4.Services;
+using UABEANext4.Util;
 using UABEANext4.ViewModels.Dialogs;
 
 namespace UABEANext4.ViewModels.Tools
@@ -63,6 +64,24 @@ namespace UABEANext4.ViewModels.Tools
             }
 
             Workspace.RenameFile(wsItem, newName);
+        }
+
+        public async void UnloadItems()
+        {
+            var itemsToUnload = new List<object>(SelectedItems);
+            foreach (var item in itemsToUnload)
+            {
+                if (item is not WorkspaceItem wsItem || wsItem.Parent is not null)
+                    continue;
+
+                WeakReferenceMessenger.Default.Send(new RequestCloseFileMessage(wsItem));
+            }
+        }
+
+        public async void EditBundleFiles()
+        {
+            // do nothing for now
+            await MessageBoxUtil.ShowDialog("Not implemented", "Not implement yet, come back later!");
         }
 
         public void LoadAll()

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UABEANext4.AssetWorkspace;
 
 namespace UABEANext4.Logic;
+
 public class AssetsSelectedMessage(List<AssetInst> value)
     : ValueChangedMessage<List<AssetInst>>(value)
 {
@@ -30,6 +31,11 @@ public class AssetsUpdatedMessage(AssetInst value)
 
 public class SelectedWorkspaceItemChangedMessage(List<WorkspaceItem> value)
     : ValueChangedMessage<List<WorkspaceItem>>(value)
+{
+}
+
+public class RequestCloseFileMessage(WorkspaceItem value)
+    : ValueChangedMessage<WorkspaceItem>(value)
 {
 }
 

@@ -154,7 +154,7 @@ public partial class Workspace : ObservableObject
             {
                 var asset = new AssetInst(fileInst, info);
                 asset.AssetName = Namer.GetAssetName(asset, true, maxNameLen);
-                
+
                 tmp.Add(asset);
             }
             assetInsts.AddRange(tmp);
@@ -297,7 +297,7 @@ public partial class Workspace : ObservableObject
 
             bool managedExists = Directory.Exists(managedDir);
             bool il2cppExists = il2cppFiles.success;
-            
+
             if (managedExists && (!il2cppExists || ConfigurationManager.Settings.UseManagedOverIl2cpp))
             {
                 bool hasDll = Directory.GetFiles(managedDir, "*.dll").Length > 0;
@@ -409,6 +409,12 @@ public partial class Workspace : ObservableObject
         {
             return Manager.GetBaseField(fileInst, info, readFlags);
         }
+        catch (ObjectDisposedException)
+        {
+            // rethrow exceptions caused by file being closed. we want to know about
+            // these since they are different than just "asset failed to read".
+            throw;
+        }
         catch
         {
             return null;
@@ -425,14 +431,50 @@ public partial class Workspace : ObservableObject
         }
     }
 
+    public void Close(WorkspaceItem item)
+    {
+        if (!item.Loaded || !RootItems.Contains(item))
+            return;
+
+        var itemObj = item.Object;
+        if (item.ObjectType == WorkspaceItemType.ResourceFile)
+        {
+            var stream = (Stream)itemObj;
+            stream.Close();
+        }
+        else if (item.ObjectType == WorkspaceItemType.BundleFile)
+        {
+            var bunInst = (BundleFileInstance)itemObj;
+            Manager.UnloadBundleFile(bunInst);
+        }
+        else if (item.ObjectType == WorkspaceItemType.AssetsFile && item.Parent is null)
+        {
+            var fileInst = (AssetsFileInstance)itemObj;
+            Manager.UnloadAssetsFile(fileInst);
+        }
+
+        RootItems.Remove(item);
+        ItemLookup.Remove(item.Name);
+        UnsavedItems.Remove(item);
+        ModifiedItems.Remove(item);
+
+        // we currently don't support more than one level of children
+        foreach (var childItem in item.Children)
+        {
+            ItemLookup.Remove(item.Name);
+            UnsavedItems.Remove(childItem);
+            ModifiedItems.Remove(childItem);
+        }
+    }
+
     public void CloseAll()
     {
         foreach (var item in RootItems)
         {
             if (item.ObjectType == WorkspaceItemType.ResourceFile && item.Loaded)
             {
-                var stream = (Stream?)item.Object;
-                stream?.Close();
+                var stream = (Stream)item.Object;
+                stream.Close();
             }
         }
         Manager.UnloadAll();

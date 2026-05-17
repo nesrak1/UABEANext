@@ -15,6 +15,7 @@ using UABEANext4.Logic;
 using UABEANext4.Logic.Hierarchy;
 
 namespace UABEANext4.ViewModels.Tools;
+
 public partial class HierarchyToolViewModel : Tool
 {
     const string TOOL_TITLE = "Hierarchy";
@@ -35,7 +36,7 @@ public partial class HierarchyToolViewModel : Tool
     private List<WorkspaceItem>? _itemsToLoad = null;
     private readonly List<HierarchyItem> _pendingRootItems = new();
     private DispatcherTimer? _loadingNewItemsTimer = null;
-    private CancellationTokenSource? _loadingNewItemsCts = null;
+    private CancellationTokenSource? _stopLoadingItemsCts = null;
 
     [Obsolete("This constructor is for the designer only and should not be used directly.", true)]
     public HierarchyToolViewModel()
@@ -81,7 +82,7 @@ public partial class HierarchyToolViewModel : Tool
 
     private void OnWorkspaceClosing(object recipient, WorkspaceClosingMessage message)
     {
-        _loadingNewItemsCts?.Cancel();
+        _stopLoadingItemsCts?.Cancel();
         _itemsToLoad = null;
         IsLoadingNewItems = false;
         ActiveAssets.Clear();
@@ -115,9 +116,9 @@ public partial class HierarchyToolViewModel : Tool
         if (IsLoadingNewItems)
         {
             _loadingNewItemsTimer?.Stop();
-            if (_loadingNewItemsCts != null)
+            if (_stopLoadingItemsCts != null)
             {
-                await _loadingNewItemsCts.CancelAsync();
+                await _stopLoadingItemsCts.CancelAsync();
             }
         }
 
@@ -132,7 +133,7 @@ public partial class HierarchyToolViewModel : Tool
 
         IsLoadingNewItems = true;
         RootItems.Clear();
-        _loadingNewItemsCts = new CancellationTokenSource();
+        _stopLoadingItemsCts = new CancellationTokenSource();
         _pendingRootItems.Clear();
         _loadingNewItemsTimer.Start();
 
@@ -140,7 +141,7 @@ public partial class HierarchyToolViewModel : Tool
         {
             foreach (var file in items)
             {
-                _loadingNewItemsCts.Token.ThrowIfCancellationRequested();
+                _stopLoadingItemsCts.Token.ThrowIfCancellationRequested();
 
                 if (file.ObjectType != WorkspaceItemType.AssetsFile || file.Object is not AssetsFileInstance fileInst)
                     continue;
@@ -158,11 +159,11 @@ public partial class HierarchyToolViewModel : Tool
                     _pendingRootItems.Add(item);
                 }
             }
-        }, _loadingNewItemsCts.Token);
+        }, _stopLoadingItemsCts.Token);
 
         // don't try to load the rest of the items if this method
         // is being called again for a different list of items.
-        if (!_loadingNewItemsCts.IsCancellationRequested)
+        if (!_stopLoadingItemsCts.IsCancellationRequested)
         {
             AddPendingRootItems();
             _loadingNewItemsTimer.Stop();

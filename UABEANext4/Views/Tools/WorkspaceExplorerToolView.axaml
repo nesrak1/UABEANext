@@ -14,6 +14,23 @@
 
     <UserControl.Resources>
         <uac:WsItemColorConverter x:Key="WsItemColorConverter" />
+      
+        <ContextMenu DataContext="{Binding $parent[UserControl].((tools:WorkspaceExplorerToolViewModel)DataContext)}"
+                     x:Key="AddRemoveUnloadCm">
+            <MenuItem Header="Add/remove files" Command="{Binding EditBundleFiles}" />
+            <MenuItem Header="Unload" Command="{Binding UnloadItems}" />
+        </ContextMenu>
+        <ContextMenu DataContext="{Binding $parent[UserControl].((tools:WorkspaceExplorerToolViewModel)DataContext)}"
+                     x:Key="UnloadCm">
+            <MenuItem Header="Unload" Command="{Binding UnloadItems}" />
+        </ContextMenu>
+        <ContextMenu DataContext="{Binding $parent[UserControl].((tools:WorkspaceExplorerToolViewModel)DataContext)}"
+                     x:Key="RenameCm">
+            <MenuItem Header="Rename" Command="{Binding RenameItem}" />
+        </ContextMenu>
+        <ContextMenu x:Key="DefaultCm">
+            <MenuItem Header="No options available" />
+        </ContextMenu>
     </UserControl.Resources>
 
     <Grid RowDefinitions="*,26">

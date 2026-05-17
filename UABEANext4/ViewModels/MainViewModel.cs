@@ -28,8 +28,11 @@ namespace UABEANext4.ViewModels;
 
 public partial class MainViewModel : ViewModelBase
 {
+    // dock properties
     [ObservableProperty]
     public IRootDock? _layout;
+
+    private readonly MainDockFactory _factory;
 
     [ObservableProperty]
     public bool _dockWorkspaceExplorerVisible = true;
@@ -42,13 +45,18 @@ public partial class MainViewModel : ViewModelBase
 
     public Workspace Workspace { get; }
 
-    public bool UsesChrome => OperatingSystem.IsWindows();
+    // window properties
+    private const string DefaultWindowTitle = "UABEANext";
 
+    [ObservableProperty]
+    private string _windowTitle = DefaultWindowTitle;
+
+    public bool UsesChrome => OperatingSystem.IsWindows();
     public ExtendClientAreaChromeHints ChromeHints => UsesChrome
         ? ExtendClientAreaChromeHints.PreferSystemChrome
         : ExtendClientAreaChromeHints.Default;
 
-    private readonly MainDockFactory _factory;
+    // state
     private List<AssetsFileInstance> _lastLoadedFiles = [];
 
     public MainViewModel()
@@ -62,7 +70,8 @@ public partial class MainViewModel : ViewModelBase
         }
 
         WeakReferenceMessenger.Default.Register<SelectedWorkspaceItemChangedMessage>(this, (r, h) => _ = OnSelectedWorkspaceItemsChanged(r, h));
-        WeakReferenceMessenger.Default.Register<RequestEditAssetMessage>(this, OnRequestEditAsset);
+        WeakReferenceMessenger.Default.Register<RequestEditAssetMessage>(this, (r, h) => ShowEditAssetDialog(h.Value));
+        WeakReferenceMessenger.Default.Register<RequestCloseFileMessage>(this, OnRequestCloseFile);
         WeakReferenceMessenger.Default.Register<RequestVisitAssetMessage>(this, (r, h) => _ = OnRequestVisitAsset(r, h));
 
         _factory.DockableAdded += FactoryDockableAdded;
@@ -192,6 +201,8 @@ public partial class MainViewModel : ViewModelBase
     #region Menu items
     public async Task OpenFiles(IEnumerable<string?> paths)
     {
+        var databaseStartedUnloaded = Workspace.Manager.ClassDatabase == null;
+
         var filePaths = new List<string>();
         foreach (var path in paths)
         {
@@ -201,7 +212,7 @@ public partial class MainViewModel : ViewModelBase
                 filePaths.AddRange(Directory.GetFiles(path, "*", SearchOption.AllDirectories));
         }
 
-        int totalCount = filePaths.Count;
+        var totalCount = filePaths.Count;
         if (totalCount == 0)
         {
             return;
@@ -217,8 +228,9 @@ public partial class MainViewModel : ViewModelBase
         {
             Workspace.ModifyMutex.WaitOne();
             Workspace.ProgressValue = 0;
-            int startLoadOrder = Workspace.NextLoadIndex;
-            int currentCount = 0;
+            var startLoadOrder = Workspace.NextLoadIndex;
+            var currentCount = 0;
+            var anyLoaded = false;
             Parallel.ForEach(filePaths, options, (fileName, state, index) =>
             {
                 if (fileName is not null)
@@ -229,6 +241,7 @@ public partial class MainViewModel : ViewModelBase
                         var file = Workspace.LoadAnyFile(fileStream, startLoadOrder + (int)index);
                         var currentCountNow = Interlocked.Increment(ref currentCount);
                         var currentProgress = currentCountNow / (float)totalCount;
+                        anyLoaded = true;
                         Workspace.SetProgressThreadSafe(currentProgress, "Loaded " + Path.GetFileName(fileName));
                     }
                     catch
@@ -239,11 +252,16 @@ public partial class MainViewModel : ViewModelBase
                     }
                 }
             });
-            Workspace.SetProgressThreadSafe(1f, "Done");
+
+            if (anyLoaded)
+                Workspace.SetProgressThreadSafe(1f, "Done");
+            else
+                Workspace.SetProgressThreadSafe(1f, "All files skipped, nothing loaded");
+
             Workspace.ModifyMutex.ReleaseMutex();
         });
 
-        if (Workspace.Manager.ClassDatabase == null)
+        if (Workspace.Manager.ClassDatabase is null)
         {
             var anySerializedItems = false;
             foreach (var rootItem in Workspace.RootItems)
@@ -280,6 +298,12 @@ public partial class MainViewModel : ViewModelBase
                     Workspace.Manager.LoadClassDatabaseFromPackage(version);
                 }
             }
+        }
+
+        if (Workspace.Manager.ClassDatabase is not null && databaseStartedUnloaded)
+        {
+            var cldbVersion = Workspace.Manager.ClassDatabase.Header.Version.ToString();
+            WindowTitle = $"{DefaultWindowTitle} (workspace ver {cldbVersion})";
         }
     }
 
@@ -456,14 +480,14 @@ public partial class MainViewModel : ViewModelBase
         Workspace.CloseAll();
         WeakReferenceMessenger.Default.Send(new WorkspaceClosingMessage());
 
-        var files = _factory.GetDockable<IDocumentDock>("Files");
-        if (files is not null && files.VisibleDockables != null && files.VisibleDockables.Count > 0)
+        foreach (var dockable in _factory.DocMan.Documents)
         {
-            // lol you have to pass in a child
-            _factory.CloseAllDockables(files.VisibleDockables[0]);
-
-            _factory.DocMan.Clear();
+            _factory.CloseDockable(dockable);
         }
+
+        _factory.DocMan.Documents.Clear();
+
+        WindowTitle = DefaultWindowTitle;
     }
 
     public void ViewDuplicateTab()
@@ -602,9 +626,67 @@ public partial class MainViewModel : ViewModelBase
         return document;
     }
 
-    private void OnRequestEditAsset(object recipient, RequestEditAssetMessage message)
+    private async void ShowEditAssetDialog(AssetInst asset)
     {
-        _ = ShowEditAssetDialog(message.Value);
+        var dialogService = Ioc.Default.GetRequiredService<IDialogService>();
+        var baseField = Workspace.GetBaseField(asset);
+        if (baseField == null)
+        {
+            return;
+        }
+
+        var refMan = Workspace.Manager.GetRefTypeManager(asset.FileInstance);
+        Workspace.CheckAndSetMonoTempGenerators(asset.FileInstance, asset);
+        var newData = await dialogService.ShowDialog(new EditDataViewModel(baseField, refMan));
+        if (newData != null)
+        {
+            asset.UpdateAssetDataAndRow(Workspace, newData);
+            WeakReferenceMessenger.Default.Send(new AssetsUpdatedMessage(asset));
+        }
+    }
+
+    private async void OnRequestCloseFile(object recipient, RequestCloseFileMessage message)
+    {
+        var wsItem = message.Value;
+        if (wsItem.Parent is not null)
+            return;
+
+        List<AssetsFileInstance> fileInsts;
+        if (wsItem.Object is BundleFileInstance bunInst)
+        {
+            fileInsts = wsItem.Children.Select(i => i.Object).OfType<AssetsFileInstance>().ToList();
+        }
+        else if (wsItem.Object is AssetsFileInstance fileInst)
+        {
+            fileInsts = [fileInst];
+        }
+        else
+        {
+            fileInsts = [];
+        }
+
+        foreach (var dockable in _factory.DocMan.Documents)
+        {
+            if (dockable is not AssetDocumentViewModel document)
+                continue;
+
+            var intersectCount = document.FileInsts.Intersect(fileInsts).Count();
+            var matchesAny = intersectCount > 0;
+            var matchesAll = intersectCount == document.FileInsts.Count;
+            if (matchesAll)
+            {
+                // todo: reload the dockable without the closed items
+                // or just delete only the closed items
+                _factory.CloseDockable(dockable);
+            }
+            else if (matchesAny)
+            {
+                var newFileInsts = document.FileInsts.Except(fileInsts).ToList();
+                await document.Load(newFileInsts);
+            }
+        }
+
+        Workspace.Close(wsItem);
     }
 
     private async Task OnRequestVisitAsset(object recipient, RequestVisitAssetMessage message)
@@ -670,25 +752,6 @@ public partial class MainViewModel : ViewModelBase
                 // to bring forward a window if it's popped out.
                 _factory.SetFocusedDockable(files, foundAssetDocVm);
             }
-        }
-    }
-
-    private async Task ShowEditAssetDialog(AssetInst asset)
-    {
-        var dialogService = Ioc.Default.GetRequiredService<IDialogService>();
-        var baseField = Workspace.GetBaseField(asset);
-        if (baseField == null)
-        {
-            return;
-        }
-
-        var refMan = Workspace.Manager.GetRefTypeManager(asset.FileInstance);
-        Workspace.CheckAndSetMonoTempGenerators(asset.FileInstance, asset);
-        var newData = await dialogService.ShowDialog(new EditDataViewModel(baseField, refMan));
-        if (newData != null)
-        {
-            asset.UpdateAssetDataAndRow(Workspace, newData);
-            WeakReferenceMessenger.Default.Send(new AssetsUpdatedMessage(asset));
         }
     }
 

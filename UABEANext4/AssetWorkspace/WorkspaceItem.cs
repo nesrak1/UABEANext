@@ -2,6 +2,7 @@
 using AssetsTools.NET.Extra;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace UABEANext4.AssetWorkspace;
@@ -16,6 +17,7 @@ public class WorkspaceItem : INotifyPropertyChanged
     public WorkspaceItemType ObjectType { get; }
     public int LoadIndex { get; }
 
+    [MemberNotNullWhen(true, nameof(Object))]
     public bool Loaded => Object != null;
 
     public WorkspaceItem(AssetsFileInstance fileInst, int loadOrder)
