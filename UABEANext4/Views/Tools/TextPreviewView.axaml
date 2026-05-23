@@ -17,5 +17,6 @@
         FontSize="13"
         Foreground="{DynamicResource DockThemeForegroundBrush}"
         IsReadOnly="True"
-        WordWrap="True" />
+        WordWrap="True"
+        ShowLineNumbers="True" />
 </UserControl>

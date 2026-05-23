@@ -4,5 +4,6 @@ public enum UavPluginPreviewerType
     None,
     Text,
     Image,
-    Mesh
+    Mesh,
+    Font
 }

@@ -12,6 +12,10 @@
     <UserControl.DataTemplates>
         <toolsv:PreviewerTemplateSelector>
 
+            <DataTemplate x:Key="None" DataType="tools:PreviewerToolPreviewType">
+                <toolsv:NoPreviewView DataContext="{Binding $parent[UserControl].DataContext}" />
+            </DataTemplate>
+
             <DataTemplate x:Key="Image" DataType="tools:PreviewerToolPreviewType">
                 <toolsv:ImagePreviewView DataContext="{Binding $parent[UserControl].DataContext}" />
             </DataTemplate>
@@ -22,6 +26,10 @@
 
             <DataTemplate x:Key="Mesh" DataType="tools:PreviewerToolPreviewType">
                 <toolsv:MeshPreviewView DataContext="{Binding $parent[UserControl].DataContext}" />
+            </DataTemplate>
+
+            <DataTemplate x:Key="Font" DataType="tools:PreviewerToolPreviewType">
+                <toolsv:FontPreviewView DataContext="{Binding $parent[UserControl].DataContext}" />
             </DataTemplate>
         </toolsv:PreviewerTemplateSelector>
     </UserControl.DataTemplates>
