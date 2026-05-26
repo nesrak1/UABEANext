@@ -583,6 +583,7 @@ public partial class AssetDocumentViewModel : Document
         }
 
         var maxNameLen = ConfigurationManager.Settings.ExportNameLength;
+        var exportJustNames = ConfigurationManager.Settings.ExportImportJustNames;
         var filesToWrite = new List<(AssetInst Asset, string Path)>();
 
         if (SelectedItems.Count > 1)
@@ -619,7 +620,7 @@ public partial class AssetDocumentViewModel : Document
             var folder = folders[0];
             foreach (var asset in SelectedItems)
             {
-                var exportFileName = AssetNamer.GetAssetFileName(Workspace, asset, exportExt, maxNameLen);
+                var exportFileName = AssetNamer.GetAssetFileName(Workspace, asset, exportExt, maxNameLen, exportJustNames);
                 var exportFilePath = Path.Combine(folder, exportFileName);
                 filesToWrite.Add((asset, exportFilePath));
             }
@@ -627,7 +628,7 @@ public partial class AssetDocumentViewModel : Document
         else if (SelectedItems.Count == 1)
         {
             var asset = SelectedItems.First();
-            var exportFileName = AssetNamer.GetAssetFileName(Workspace, asset, string.Empty, maxNameLen);
+            var exportFileName = AssetNamer.GetAssetFileName(Workspace, asset, string.Empty, maxNameLen, exportJustNames);
 
             var result = await storageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
             {

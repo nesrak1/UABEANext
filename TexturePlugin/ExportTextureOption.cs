@@ -6,6 +6,7 @@ using System.Text;
 using TexturePlugin.Helpers;
 using TexturePlugin.ViewModels;
 using UABEANext4.AssetWorkspace;
+using UABEANext4.Logic.Configuration;
 using UABEANext4.Plugins;
 using UABEANext4.Util;
 
@@ -71,6 +72,7 @@ public class ExportTextureOption : IUavPluginOption
         StringBuilder errorBuilder = new StringBuilder();
         int emptyTextureCount = 0;
 
+        bool exportJustNames = ConfigurationManager.Settings.ExportImportJustNames;
         foreach (AssetInst asset in selection)
         {
             var errorAssetName = $"{Path.GetFileName(asset.FileInstance.path)}/{asset.PathId}";
@@ -99,7 +101,7 @@ public class ExportTextureOption : IUavPluginOption
                 }
 
                 string assetName = PathUtils.ReplaceInvalidPathChars(asset.AssetName ?? "Texture2D");
-                string filePath = AssetNamer.GetAssetFileName(asset, assetName, fileExtension);
+                string filePath = AssetNamer.GetAssetFileName(asset, assetName, fileExtension, exportJustNames);
 
                 using FileStream outputStream = File.OpenWrite(Path.Combine(dir, filePath));
                 byte[] encTextureData = texFile.FillPictureData(asset.FileInstance);
@@ -113,7 +115,8 @@ public class ExportTextureOption : IUavPluginOption
             {
                 // need to do crop processing, use TextureLoader
 
-                byte[]? decTextureData = texLoader.GetSpriteRawBytes(workspace, asset, true, out var _, out var width, out var height);
+                bool fullCrop = ConfigurationManager.Settings.FullCropSprites;
+                byte[]? decTextureData = texLoader.GetSpriteRawBytes(workspace, asset, fullCrop, out var _, out var width, out var height);
                 if (decTextureData == null)
                 {
                     errorBuilder.AppendLine($"[{errorAssetName}]: failed to decode (missing resS, invalid texture format, invalid sprite, etc.)");
@@ -121,7 +124,7 @@ public class ExportTextureOption : IUavPluginOption
                 }
 
                 string assetName = PathUtils.ReplaceInvalidPathChars(asset.AssetName ?? "Sprite");
-                string filePath = AssetNamer.GetAssetFileName(asset, assetName, fileExtension);
+                string filePath = AssetNamer.GetAssetFileName(asset, assetName, fileExtension, exportJustNames);
 
                 // SKBitmap is RGBA32 but StbIws expects BGRA32. swap R and B.
                 TextureOperations.SwapRBComponentsInplace(decTextureData);
@@ -203,6 +206,8 @@ public class ExportTextureOption : IUavPluginOption
 
     private async Task<bool> SingleExportTextureSprite(Workspace workspace, IUavPluginFunctions funcs, AssetInst asset)
     {
+        bool fullCrop = ConfigurationManager.Settings.FullCropSprites;
+
         string assetName = PathUtils.ReplaceInvalidPathChars(asset.AssetName ?? "Sprite");
         var filePath = await ShowImageSaveFileDialog(funcs, asset, assetName);
         if (filePath == null)
@@ -214,7 +219,7 @@ public class ExportTextureOption : IUavPluginOption
         string errorAssetName = $"{Path.GetFileName(asset.FileInstance.path)}/{asset.PathId}";
 
         TextureLoader texLoader = new TextureLoader();
-        byte[]? decTextureData = texLoader.GetSpriteRawBytes(workspace, asset, true, out var _, out var width, out var height);
+        byte[]? decTextureData = texLoader.GetSpriteRawBytes(workspace, asset, fullCrop, out var _, out var width, out var height);
         if (decTextureData == null)
         {
             await funcs.ShowMessageDialog("Error", $"[{errorAssetName}]: failed to decode (missing resS, invalid texture format, invalid sprite, etc.)");
@@ -239,6 +244,7 @@ public class ExportTextureOption : IUavPluginOption
 
     private static Task<string?> ShowImageSaveFileDialog(IUavPluginFunctions funcs, AssetInst asset, string assetName)
     {
+        bool exportJustNames = ConfigurationManager.Settings.ExportImportJustNames;
         return funcs.ShowSaveFileDialog(new FilePickerSaveOptions()
         {
             Title = "Save texture",
@@ -249,7 +255,7 @@ public class ExportTextureOption : IUavPluginOption
                 new("JPG file") { Patterns = ["*.jpg", "*.jpeg"] },
                 new("TGA file") { Patterns = ["*.tga"] },
             ],
-            SuggestedFileName = AssetNamer.GetAssetFileName(asset, assetName, string.Empty),
+            SuggestedFileName = AssetNamer.GetAssetFileName(asset, assetName, string.Empty, exportJustNames),
             DefaultExtension = "png"
         });
     }

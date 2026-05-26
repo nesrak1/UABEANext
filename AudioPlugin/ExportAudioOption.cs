@@ -5,10 +5,12 @@ using Fmod5Sharp;
 using Fmod5Sharp.FmodTypes;
 using System.Text;
 using UABEANext4.AssetWorkspace;
+using UABEANext4.Logic.Configuration;
 using UABEANext4.Plugins;
 using UABEANext4.Util;
 
 namespace AudioPlugin;
+
 public class ExportAudioOption : IUavPluginOption
 {
     public string Name => "Export AudioClip";
@@ -122,6 +124,7 @@ public class ExportAudioOption : IUavPluginOption
 
         string assetName = PathUtils.ReplaceInvalidPathChars(baseField["m_Name"].AsString);
         string extension = GetExtension(compressionFormat);
+        bool exportJustNames = ConfigurationManager.Settings.ExportImportJustNames;
         var filePath = await funcs.ShowSaveFileDialog(new FilePickerSaveOptions()
         {
             Title = "Save audioclip",
@@ -129,7 +132,7 @@ public class ExportAudioOption : IUavPluginOption
             {
                 new FilePickerFileType($"{extension.ToUpper()} file (*.{extension})") { Patterns = new List<string>() { "*." + extension } }
             },
-            SuggestedFileName = AssetNamer.GetAssetFileName(asset, assetName, string.Empty),
+            SuggestedFileName = AssetNamer.GetAssetFileName(asset, assetName, string.Empty, exportJustNames),
             DefaultExtension = extension
         });
 

@@ -323,8 +323,8 @@ public class TextureLoader
         }
 
         spriteAtlasPtr.SetFilePathFromFile(workspace.Manager, asset.FileInstance);
-        var key = SpriteAtlasLookup.MakeRenderKeyGuid(spriteBf["m_RenderDataKey"]["first"]);
-        var atlasData = _spriteAtlasLookup.GetAtlasData(spriteAtlasPtr, key);
+        var renderDataKey = SpriteAtlasLookup.MakeRenderKeyGuid(spriteBf["m_RenderDataKey"]);
+        var atlasData = _spriteAtlasLookup.GetAtlasData(spriteAtlasPtr, renderDataKey);
         if (atlasData != null)
         {
             return atlasData;
@@ -337,7 +337,7 @@ public class TextureLoader
         }
 
         _spriteAtlasLookup.AddSpriteAtlas(spriteAtlasPtr, spriteAtlasBf);
-        return _spriteAtlasLookup.GetAtlasData(spriteAtlasPtr, key);
+        return _spriteAtlasLookup.GetAtlasData(spriteAtlasPtr, renderDataKey);
     }
 
     private Dictionary<string, AssetInst> GetSpriteAtlasNameLookup(Workspace workspace, AssetsFileInstance fileInstance)

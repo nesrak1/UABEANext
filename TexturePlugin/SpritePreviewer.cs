@@ -3,10 +3,12 @@ using AssetsTools.NET.Texture;
 using Avalonia.Media.Imaging;
 using TexturePlugin.Helpers;
 using UABEANext4.AssetWorkspace;
+using UABEANext4.Logic.Configuration;
 using UABEANext4.Logic.Mesh;
 using UABEANext4.Plugins;
 
 namespace TexturePlugin;
+
 public class SpritePreviewer : IUavPluginPreviewer
 {
     public string Name => "Preview Sprite";
@@ -25,7 +27,7 @@ public class SpritePreviewer : IUavPluginPreviewer
 
     public (Bitmap?, int) ExecuteImage(Workspace workspace, IUavPluginFunctions funcs, AssetInst selection, out string? error)
     {
-        var image = _textureLoader.GetSpriteAvaloniaBitmap(workspace, selection, true, out TextureFormat format);
+        var image = _textureLoader.GetSpriteAvaloniaBitmap(workspace, selection, ConfigurationManager.Settings.FullCropSprites, out TextureFormat format);
         if (image != null)
         {
             error = null;

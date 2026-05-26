@@ -2,10 +2,12 @@
 using Avalonia.Platform.Storage;
 using System.Text;
 using UABEANext4.AssetWorkspace;
+using UABEANext4.Logic.Configuration;
 using UABEANext4.Plugins;
 using UABEANext4.Util;
 
 namespace TextAssetPlugin;
+
 public class ExportTextAssetPlugin : IUavPluginOption
 {
     public string Name => "Export TextAsset";
@@ -48,6 +50,7 @@ public class ExportTextAssetPlugin : IUavPluginOption
         }
 
         var errorBuilder = new StringBuilder();
+        var exportJustNames = ConfigurationManager.Settings.ExportImportJustNames;
         foreach (var asset in selection)
         {
             var errorAssetName = $"{Path.GetFileName(asset.FileInstance.path)}/{asset.PathId}";
@@ -62,7 +65,7 @@ public class ExportTextAssetPlugin : IUavPluginOption
             var byteData = textBaseField["m_Script"].AsByteArray;
 
             var assetName = PathUtils.ReplaceInvalidPathChars(name);
-            var filePath = Path.Combine(dir, AssetNamer.GetAssetFileName(asset, assetName, ".txt"));
+            var filePath = Path.Combine(dir, AssetNamer.GetAssetFileName(asset, assetName, ".txt", exportJustNames));
 
             File.WriteAllBytes(filePath, byteData);
         }
@@ -90,7 +93,8 @@ public class ExportTextAssetPlugin : IUavPluginOption
         var name = textBaseField["m_Name"].AsString;
         var byteData = textBaseField["m_Script"].AsByteArray;
 
-        string assetName = PathUtils.ReplaceInvalidPathChars(name);
+        var assetName = PathUtils.ReplaceInvalidPathChars(name);
+        var exportJustNames = ConfigurationManager.Settings.ExportImportJustNames;
         var filePath = await funcs.ShowSaveFileDialog(new FilePickerSaveOptions()
         {
             Title = "Save text asset",
@@ -100,7 +104,7 @@ public class ExportTextAssetPlugin : IUavPluginOption
                 new("BYTES file (*.bytes)") { Patterns = ["*.bytes"] },
                 new("All types (*.*)") { Patterns = ["*"] },
             },
-            SuggestedFileName = AssetNamer.GetAssetFileName(asset, assetName, string.Empty),
+            SuggestedFileName = AssetNamer.GetAssetFileName(asset, assetName, string.Empty, exportJustNames),
             DefaultExtension = "txt"
         });
 

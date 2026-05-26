@@ -10,6 +10,7 @@ using UABEANext4.Logic.Configuration;
 using UABEANext4.Util;
 
 namespace UABEANext4.ViewModels.Dialogs;
+
 public partial class BatchImportViewModel : ViewModelBase, IDialogAware<List<ImportBatchInfo>?>
 {
     private string _directory;
@@ -56,7 +57,8 @@ public partial class BatchImportViewModel : ViewModelBase, IDialogAware<List<Imp
 
         List<ImportBatchDataGridItem> gridItems = new();
         int maxNameLen = ConfigurationManager.Settings.ExportNameLength;
-        
+        bool importJustNames = ConfigurationManager.Settings.ExportImportJustNames;
+
         foreach (var asset in selection)
         {
             var assetName = workspace.Namer.GetAssetName(asset, true, maxNameLen);
@@ -67,18 +69,40 @@ public partial class BatchImportViewModel : ViewModelBase, IDialogAware<List<Imp
                     asset, Path.GetFileName(asset.FileInstance.path), assetName, asset.PathId)
             );
 
+            // todo: is there a reason we are filtering with full paths?
+            // I'm too afraid to change it in case there was a good reason.
             List<string> matchingFiles;
-            if (!anyExtension)
+            if (!importJustNames)
             {
-                matchingFiles = filesInDir
-                    .Where(f => extensions.Any(x => f.EndsWith(gridItem.GetMatchName(x))))
-                    .Select(f => Path.GetFileName(f)!).ToList();
+                // compare file against *-filename-pathid.validextension
+                if (!anyExtension)
+                {
+                    matchingFiles = filesInDir
+                        .Where(f => extensions.Any(x => f.EndsWith(gridItem.GetMatchName(x))))
+                        .Select(f => Path.GetFileName(f)).ToList();
+                }
+                else
+                {
+                    matchingFiles = filesInDir
+                        .Where(f => PathUtils.GetFilePathWithoutExtension(f).EndsWith(gridItem.GetMatchName("*")))
+                        .Select(f => Path.GetFileName(f)).ToList();
+                }
             }
             else
             {
-                matchingFiles = filesInDir
-                    .Where(f => PathUtils.GetFilePathWithoutExtension(f).EndsWith(gridItem.GetMatchName("*")))
-                    .Select(f => Path.GetFileName(f)!).ToList();
+                // compare file against assetname.validextension
+                if (!anyExtension)
+                {
+                    matchingFiles = filesInDir
+                        .Where(f => extensions.Any(x => f.EndsWith(gridItem.Description + "." + x)))
+                        .Select(f => Path.GetFileName(f)).ToList();
+                }
+                else
+                {
+                    matchingFiles = filesInDir
+                        .Where(f => PathUtils.GetFilePathWithoutExtension(f).EndsWith(gridItem.Description))
+                        .Select(f => Path.GetFileName(f)).ToList();
+                }
             }
 
             gridItem.MatchingFiles = matchingFiles;

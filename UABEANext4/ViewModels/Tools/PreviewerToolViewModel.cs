@@ -1,5 +1,4 @@
-﻿using Avalonia.Media.Imaging;
-using AvaloniaEdit.Document;
+﻿using AvaloniaEdit.Document;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
 using Dock.Model.Mvvm.Controls;
@@ -10,11 +9,13 @@ using UABEANext4.Logic.Mesh;
 using UABEANext4.Plugins;
 
 namespace UABEANext4.ViewModels.Tools;
+
 public partial class PreviewerToolViewModel : Tool
 {
     const string TOOL_TITLE = "Previewer";
 
     public Workspace Workspace { get; }
+
     [ObservableProperty]
     public TextDocument? _activeDocument;
     [ObservableProperty]
@@ -24,7 +25,6 @@ public partial class PreviewerToolViewModel : Tool
 
     [ObservableProperty]
     public ImagePreviewViewModel _imagePreview = new();
-
 
     // defer this to first preview since dialogs won't exist until after initial load
     private readonly Lazy<UavPluginFunctions> _uavPluginFuncs = new(() => new UavPluginFunctions());
@@ -95,7 +95,7 @@ public partial class PreviewerToolViewModel : Tool
             case UavPluginPreviewerType.Image:
             {
                 ActivePreviewType = PreviewerToolPreviewType.Image;
-                
+
                 var (image, format) = prev.ExecuteImage(Workspace, _uavPluginFuncs.Value, asset, out string? error);
                 if (image != null)
                 {
