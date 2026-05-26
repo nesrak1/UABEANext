@@ -87,4 +87,30 @@
     <ProjectReference Include="..\Libraries\AssetsTools.NET\AssetsTools.NET.Texture\AssetsTools.NET.Texture.csproj" />
     <ProjectReference Include="..\Libraries\AssetsTools.NET\AssetTools.NET\AssetsTools.NET.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+  <EmbeddedResource Update="Resources.resx">
+    <Generator>PublicResXFileCodeGenerator</Generator>
+    <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+  </EmbeddedResource>
+  <EmbeddedResource Update="Localization\Localization.resx">
+    <Generator>PublicResXFileCodeGenerator</Generator>
+  </EmbeddedResource>
+  <EmbeddedResource Update="Localization\Localization.en-us.resx">
+    <Generator>PublicResXFileCodeGenerator</Generator>
+    <DependentUpon>Localization.resx</DependentUpon>
+  </EmbeddedResource>
+  <EmbeddedResource Update="Localization\Localization.zh-hans.resx">
+    <Generator>PublicResXFileCodeGenerator</Generator>
+    <DependentUpon>Localization.resx</DependentUpon>
+  </EmbeddedResource>
+</ItemGroup>
+
+<ItemGroup>
+  <Compile Update="Resources.Designer.cs">
+    <DesignTime>True</DesignTime>
+    <AutoGen>True</AutoGen>
+    <DependentUpon>Resources.resx</DependentUpon>
+  </Compile>
+</ItemGroup>
 </Project>

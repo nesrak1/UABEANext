@@ -5,6 +5,7 @@
              xmlns:um="using:UABEANext4.Controls"
              xmlns:tools="using:UABEANext4.ViewModels.Tools"
              xmlns:hier="using:UABEANext4.Logic.Hierarchy"
+             xmlns:lang="clr-namespace:UABEANext4.Assets.Localization"
              mc:Ignorable="d" d:DesignWidth="300" d:DesignHeight="450"
              x:Class="UABEANext4.Views.Tools.HierarchyToolView"
              x:DataType="tools:HierarchyToolViewModel"
@@ -40,8 +41,8 @@
             <CheckBox IsChecked="{Binding SortAlphabetically}"
                       IsEnabled="{Binding !IsLoadingNewItems}"
                       FontSize="11"
-                      Margin="0">
-                Sort root GameObjects alphabetically
+                      Margin="0"
+                      Content="{x:Static lang:Localization.HierarchyGameObjectSort}">
             </CheckBox>
         </Border>
 

@@ -3,16 +3,19 @@ using Avalonia.Styling;
 using CommunityToolkit.Mvvm.ComponentModel;
 using System;
 using System.ComponentModel;
+using System.Globalization;
+using UABEANext4.Services;
 using UABEANext4.Util;
 
 namespace UABEANext4.Logic.Configuration;
 
 public partial class ConfigurationValues : ObservableObject
 {
-    [ObservableProperty]
-    [property: ConfigTitle("Theme Type")]
-    [property: ConfigDesc("The theme to use.")]
+    [ObservableProperty] [property: ConfigTitle("Theme Type")] [property: ConfigDesc("The theme to use.")]
     private ConfigurationThemeType _themeType = ConfigurationThemeType.Auto;
+
+    [ObservableProperty] [property: ConfigTitle("Languages")] [property: ConfigDesc("The languages to use.")]
+    private ConfigurationLanguageType _language = ConfigurationLanguageType.FollowSystem;
 
     [ObservableProperty]
     [property: ConfigTitle("Use Managed over IL2CPP")]
@@ -63,6 +66,21 @@ public partial class ConfigurationValues : ObservableObject
                 ConfigurationThemeType.Dark => ThemeVariant.Dark,
                 _ => ThemeVariant.Default // shouldn't happen
             };
+        }
+
+        // special case: language updates immediately
+        if (e.PropertyName == nameof(Language))
+        {
+            string culture = Language switch
+            {
+                // I know reading "CurrentCulture" directly may be buggy, but I can't think of another method for now.
+                // ConfigurationLanguageType.FollowSystem => CultureInfo.CurrentCulture.Name,
+                ConfigurationLanguageType.English => "en-US",
+                ConfigurationLanguageType.SimplifiedChinese => "zh-Hans",
+                _ => "en-US" // shouldn't happen
+            };
+
+            LocalizationService.Instance.SetLanguage(culture);
         }
 
         _saveDebounceFunc(0);

@@ -15,6 +15,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using UABEANext4.Assets.Localization;
 using UABEANext4.AssetWorkspace;
 using UABEANext4.Logic;
 using UABEANext4.Logic.Configuration;
@@ -317,7 +318,7 @@ public partial class MainViewModel : ViewModelBase
 
         var result = await storageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
         {
-            Title = "Open a file",
+            Title = Localization.OpenAFile,
             FileTypeFilter = [
                 new FilePickerFileType("All files (*.*)") { Patterns = [ "*" ] }
             ],
