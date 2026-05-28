@@ -2,10 +2,12 @@
 using Avalonia.Platform.Storage;
 using System.Text;
 using UABEANext4.AssetWorkspace;
+using UABEANext4.Logic.Configuration;
 using UABEANext4.Plugins;
 using UABEANext4.Util;
 
 namespace FontPlugin;
+
 public class ExportFontOption : IUavPluginOption
 {
     public string Name => "Export Font";
@@ -48,6 +50,7 @@ public class ExportFontOption : IUavPluginOption
         }
 
         var errorBuilder = new StringBuilder();
+        var exportJustNames = ConfigurationManager.Settings.ExportImportJustNames;
         foreach (var asset in selection)
         {
             var errorAssetName = $"{Path.GetFileName(asset.FileInstance.path)}/{asset.PathId}";
@@ -69,7 +72,7 @@ public class ExportFontOption : IUavPluginOption
             var extension = isOtf ? ".otf" : ".ttf";
 
             var assetName = PathUtils.ReplaceInvalidPathChars(name);
-            var filePath = Path.Combine(dir, AssetNamer.GetAssetFileName(asset, assetName, extension));
+            var filePath = Path.Combine(dir, AssetNamer.GetAssetFileName(asset, assetName, extension, exportJustNames));
 
             File.WriteAllBytes(filePath, byteData);
         }
@@ -104,7 +107,8 @@ public class ExportFontOption : IUavPluginOption
         var isOtf = FontHelper.IsDataOtf(byteData);
         var extension = isOtf ? "otf" : "ttf";
 
-        string assetName = PathUtils.ReplaceInvalidPathChars(name);
+        var assetName = PathUtils.ReplaceInvalidPathChars(name);
+        var exportJustNames = ConfigurationManager.Settings.ExportImportJustNames;
         var filePath = await funcs.ShowSaveFileDialog(new FilePickerSaveOptions()
         {
             Title = "Save font",
@@ -112,7 +116,7 @@ public class ExportFontOption : IUavPluginOption
             {
                 new FilePickerFileType($"{extension.ToUpper()} file (*.{extension})") { Patterns = new List<string>() { "*." + extension } },
             },
-            SuggestedFileName = AssetNamer.GetAssetFileName(asset, assetName, string.Empty),
+            SuggestedFileName = AssetNamer.GetAssetFileName(asset, assetName, string.Empty, exportJustNames),
             DefaultExtension = extension
         });
 

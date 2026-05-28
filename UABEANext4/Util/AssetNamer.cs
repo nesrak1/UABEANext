@@ -272,18 +272,22 @@ public class AssetNamer
         return name ?? $"{asset.Type} #{asset.PathId}";
     }
 
-    public static string GetAssetFileName(Workspace workspace, AssetInst asset, string ext, int maxNameLen)
+    public static string GetAssetFileName(Workspace workspace, AssetInst asset, string ext, int maxNameLen, bool justName)
     {
         var assetName = workspace.Namer.GetAssetName(asset, false, maxNameLen);
         assetName = GetFallbackName(asset, assetName);
         assetName = PathUtils.ReplaceInvalidPathChars(assetName);
-        return $"{assetName}-{Path.GetFileName(asset.FileInstance.path)}-{asset.PathId}{ext}";
+        return justName
+            ? assetName + ext
+            : $"{assetName}-{Path.GetFileName(asset.FileInstance.path)}-{asset.PathId}{ext}";
     }
 
-    public static string GetAssetFileName(AssetInst asset, string assetNameOverride, string ext)
+    public static string GetAssetFileName(AssetInst asset, string assetNameOverride, string ext, bool justName)
     {
         string assetName = PathUtils.ReplaceInvalidPathChars(assetNameOverride);
-        return $"{assetName}-{Path.GetFileName(asset.FileInstance.path)}-{asset.PathId}{ext}";
+        return justName
+            ? assetName + ext
+            : $"{assetName}-{Path.GetFileName(asset.FileInstance.path)}-{asset.PathId}{ext}";
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

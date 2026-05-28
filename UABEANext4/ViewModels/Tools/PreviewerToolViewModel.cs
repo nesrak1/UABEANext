@@ -16,6 +16,7 @@ public partial class PreviewerToolViewModel : Tool
     const string TOOL_TITLE = "Previewer";
 
     public Workspace Workspace { get; }
+
     [ObservableProperty]
     public TextDocument? _activeDocument;
     [ObservableProperty]

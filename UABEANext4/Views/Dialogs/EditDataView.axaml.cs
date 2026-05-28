@@ -1,9 +1,11 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
+using Avalonia.Platform;
 using AvaloniaEdit.TextMate;
 using TextMateSharp.Grammars;
 
 namespace UABEANext4.Views.Dialogs;
+
 public partial class EditDataView : UserControl
 {
     public EditDataView()
@@ -15,7 +17,8 @@ public partial class EditDataView : UserControl
 
     private void EditDataView_Loaded(object? sender, RoutedEventArgs e)
     {
-        var registryOptions = new RegistryOptions(ThemeName.DarkPlus);
+        var isLightTheme = (PlatformThemeVariant?)ActualThemeVariant == PlatformThemeVariant.Light;
+        var registryOptions = new RegistryOptions(isLightTheme ? ThemeName.LightPlus : ThemeName.DarkPlus);
         var textMateInstallation = textEditor.InstallTextMate(registryOptions);
         textMateInstallation.SetGrammar(registryOptions.GetScopeByLanguageId(registryOptions.GetLanguageByExtension(".json").Id));
     }

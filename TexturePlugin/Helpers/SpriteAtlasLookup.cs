@@ -1,11 +1,12 @@
 ﻿using AssetsTools.NET;
 
 namespace TexturePlugin.Helpers;
+
 public class SpriteAtlasLookup
 {
-    public readonly Dictionary<AssetPPtr, Dictionary<GUID128, SpriteAtlasData>> _lookup = [];
+    public readonly Dictionary<AssetPPtr, Dictionary<SpriteRenderKey, SpriteAtlasData>> _lookup = [];
 
-    public SpriteAtlasData? GetAtlasData(AssetPPtr atlasPtr, GUID128 key)
+    public SpriteAtlasData? GetAtlasData(AssetPPtr atlasPtr, SpriteRenderKey key)
     {
         if (_lookup.TryGetValue(atlasPtr, out var atlasLookup))
         {
@@ -28,7 +29,7 @@ public class SpriteAtlasLookup
         _lookup[atlasPtr] = [];
         foreach (var pair in pairs)
         {
-            var guidField = pair["first.first"];
+            var guidField = pair["first"];
             var key = MakeRenderKeyGuid(guidField);
             var value = new SpriteAtlasData(pair["second"]);
             _lookup[atlasPtr][key] = value;
@@ -40,17 +41,21 @@ public class SpriteAtlasLookup
         _lookup.Clear();
     }
 
-    public static GUID128 MakeRenderKeyGuid(AssetTypeValueField field)
+    public static SpriteRenderKey MakeRenderKeyGuid(AssetTypeValueField field)
     {
-        return new GUID128()
+        var first = field["first"];
+        var second = field["second"];
+        return new SpriteRenderKey(new GUID128()
         {
-            data0 = field[0].AsUInt,
-            data1 = field[1].AsUInt,
-            data2 = field[2].AsUInt,
-            data3 = field[3].AsUInt,
-        };
+            data0 = first[0].AsUInt,
+            data1 = first[1].AsUInt,
+            data2 = first[2].AsUInt,
+            data3 = first[3].AsUInt,
+        }, second.AsLong);
     }
 }
+
+public record SpriteRenderKey(GUID128 First, long Second);
 
 public class SpriteAtlasData
 {

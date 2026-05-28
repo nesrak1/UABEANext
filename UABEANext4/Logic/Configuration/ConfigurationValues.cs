@@ -32,9 +32,19 @@ public partial class ConfigurationValues : ObservableObject
     private int _exportNameLength = 150;
 
     [ObservableProperty]
+    [property: ConfigTitle("Export/Import Plain Filenames")]
+    [property: ConfigDesc("Export as a name only, instead of a name + source file + path ID.\nTwo assets with the same name will cause issues, use at your own risk!")]
+    private bool _exportImportJustNames = false;
+
+    [ObservableProperty]
     [property: ConfigTitle("Load Container Paths")]
     [property: ConfigDesc("Load container paths, which may take a while when loading many assets.")]
     private bool _loadContainerPaths = true;
+
+    [ObservableProperty]
+    [property: ConfigTitle("Full Crop Sprites")]
+    [property: ConfigDesc("When unchecked, sprites are placed on a virtual canvas with padding. When checked, sprites are fully cropped.")]
+    private bool _fullCropSprites = true;
 
     private readonly Action<int> _saveDebounceFunc = DebounceUtils.Debounce(
         (int _) => ConfigurationManager.SaveConfig(), 500);
@@ -59,16 +69,19 @@ public partial class ConfigurationValues : ObservableObject
     }
 }
 
+[AttributeUsage(AttributeTargets.Property)]
 public class ConfigTitle(string title) : Attribute
 {
     public string Title { get; } = title;
 }
 
+[AttributeUsage(AttributeTargets.Property)]
 public class ConfigDesc(string description) : Attribute
 {
     public string Description { get; } = description;
 }
 
+[AttributeUsage(AttributeTargets.Property)]
 public class ConfigRange(int min, int max) : Attribute
 {
     public int Minimum { get; } = min;
