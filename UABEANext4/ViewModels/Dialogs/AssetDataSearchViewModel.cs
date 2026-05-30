@@ -258,7 +258,7 @@ public partial class AssetDataSearchViewModel : ViewModelBase, IDialogAware<stri
     private async Task SearchByContent()
     {
         byte[]? searchBytes = GetSearchBytes();
-        if (searchBytes is null)
+        if (searchBytes is null || searchBytes.Length == 0)
         {
             await MessageBoxUtil.ShowDialog("Invalid input", "Input is invalid for this search kind.");
             return;
@@ -413,6 +413,9 @@ public partial class AssetDataSearchViewModel : ViewModelBase, IDialogAware<stri
             int itemCount = _items.Count;
             const int maxResults = 40000;
 
+            float fontIndicator = 0.75f; // value from field boldStyle, always contains in TMP_FontAsset
+            byte[] fontIndicatorBytes = new byte[4];
+
             foreach (var fileInst in _items)
             {
                 if (IsExcludedFile(fileInst.name))
@@ -422,45 +425,70 @@ public partial class AssetDataSearchViewModel : ViewModelBase, IDialogAware<stri
                     continue;
                 }
                 var assetInfos = fileInst.file.AssetInfos;
+                var dataOffset = fileInst.file.Header.DataOffset;
+                var stream = fileInst.AssetsStream;
+
+                bool bigEndian = fileInst.file.Header.Endianness;
+                if (bigEndian)
+                {
+                    BinaryPrimitives.WriteSingleBigEndian(fontIndicatorBytes, fontIndicator);
+                }
+                else
+                {
+                    BinaryPrimitives.WriteSingleLittleEndian(fontIndicatorBytes, fontIndicator);
+                }
+
                 Dispatcher.UIThread.Post(() => ProgressStatus = $"Searching in {fileInst.name}...");
 
                 lock (fileInst.LockReader)
                 {
                     foreach (var info in assetInfos)
                     {
-                        if (info.TypeId == (int)AssetClassID.Font || info.TypeId == (int)AssetClassID.MonoBehaviour)
+                        if (info.TypeId == (int)AssetClassID.Font)
+                        {
+                            AssetInst? asset = info as AssetInst;
+                            if (hasFilter && asset != null)
+                            {
+                                string assetName = asset.DisplayName ?? "";
+                                if (!assetName.Contains(searchFilter, StringComparison.OrdinalIgnoreCase))
+                                    continue;
+                            }
+                            allFound.Add(CreateResult(fileInst, info));
+                        }
+                        else if (info.TypeId == (int)AssetClassID.MonoBehaviour)
                         {
                             AssetInst? asset = info as AssetInst;
 
-                            if (hasFilter)
+                            if (hasFilter && asset != null)
                             {
-                                string assetName = asset?.DisplayName ?? "";
+                                string assetName = asset.DisplayName ?? "";
                                 if (!assetName.Contains(searchFilter, StringComparison.OrdinalIgnoreCase))
-                                {
                                     continue;
-                                }
                             }
 
-                            if (info.TypeId == (int)AssetClassID.Font)
+                            bool mightBeFont = false;
+                            byte[] assetData = new byte[info.ByteSize];
+                            stream.Position = info.ByteOffset + dataOffset;
+                            stream.Read(assetData, 0, (int)info.ByteSize);
+
+                            int idx = 0;
+                            while ((idx = SearchLogic.IndexOfBytes(assetData, fontIndicatorBytes)) != -1)
+                            {
+                                mightBeFont = true;
+                                break;
+                            }
+
+                            if (!mightBeFont)
+                            {
+                                continue;
+                            }
+
+                            var baseField = _workspace.GetBaseField(asset);
+                            if (baseField != null && CheckFieldIsFont(baseField))
                             {
                                 allFound.Add(CreateResult(fileInst, info));
-                            }
-                            else if (info.TypeId == (int)AssetClassID.MonoBehaviour)
-                            {
-                                if (asset != null)
-                                {
-                                    var baseField = _workspace.GetBaseField(asset);
-                                    if (baseField != null)
-                                    {
-                                        if (CheckFieldIsFont(baseField))
-                                        {
-                                            allFound.Add(CreateResult(fileInst, info));
-
-                                            var textures = FindReferenceTextures(asset, baseField);
-                                            allFound.AddRange(textures);
-                                        }
-                                    }
-                                }
+                                var textures = FindReferenceTextures(asset, baseField);
+                                allFound.AddRange(textures);
                             }
                         }
 
