@@ -1,4 +1,5 @@
-﻿using AvaloniaEdit.Document;
+﻿using AssetsTools.NET.Texture;
+using AvaloniaEdit.Document;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
 using Dock.Model.Mvvm.Controls;
@@ -20,11 +21,15 @@ public partial class PreviewerToolViewModel : Tool
     public TextDocument? _activeDocument;
     [ObservableProperty]
     public MeshObj? _activeMesh;
+
     [ObservableProperty]
-    public PreviewerToolPreviewType _activePreviewType = PreviewerToolPreviewType.Text;
+    private PreviewerToolPreviewType _activePreviewType = PreviewerToolPreviewType.None;
 
     [ObservableProperty]
     public ImagePreviewViewModel _imagePreview = new();
+
+    [ObservableProperty]
+    public FontPreviewViewModel _fontPreview = new();
 
     // defer this to first preview since dialogs won't exist until after initial load
     private readonly Lazy<UavPluginFunctions> _uavPluginFuncs = new(() => new UavPluginFunctions());
@@ -39,6 +44,7 @@ public partial class PreviewerToolViewModel : Tool
 
         _activeDocument = new TextDocument();
         _activeMesh = new MeshObj();
+        ActivePreviewType = PreviewerToolPreviewType.None;
     }
 
     public PreviewerToolViewModel(Workspace workspace)
@@ -49,7 +55,7 @@ public partial class PreviewerToolViewModel : Tool
         Title = TOOL_TITLE;
 
         _activeDocument = new TextDocument("No preview available.");
-
+        
         WeakReferenceMessenger.Default.Register<AssetsSelectedMessage>(this, OnAssetsSelected);
         WeakReferenceMessenger.Default.Register<WorkspaceClosingMessage>(this, OnWorkspaceClosing);
     }
@@ -75,14 +81,14 @@ public partial class PreviewerToolViewModel : Tool
     {
         if (asset is null)
         {
-            SetDisplayText(string.Empty);
+            SetDisplayNone();
             return;
         }
 
         var pluginsList = Workspace.Plugins.GetPreviewersThatSupport(Workspace, asset);
         if (pluginsList == null || pluginsList.Count == 0)
         {
-            SetDisplayText("No preview available.");
+            SetDisplayNone();
             return;
         }
 
@@ -90,59 +96,49 @@ public partial class PreviewerToolViewModel : Tool
         var prevType = firstPrevPair.PreviewType;
         var prev = firstPrevPair.Previewer;
 
-        switch (prevType)
+        try
         {
-            case UavPluginPreviewerType.Image:
-            {
-                ActivePreviewType = PreviewerToolPreviewType.Image;
+            var result = prev.Execute(Workspace, _uavPluginFuncs.Value, asset);
 
-                var (image, format) = prev.ExecuteImage(Workspace, _uavPluginFuncs.Value, asset, out string? error);
-                if (image != null)
-                {
-                    ImagePreview.UpdateImage(image, (AssetsTools.NET.Texture.TextureFormat?)format);
-                }
-                else
-                {
-                    SetDisplayText(error ?? "[null error]");
-                }
-                break;
-            }
-            case UavPluginPreviewerType.Text:
+            switch (result)
             {
-                ActivePreviewType = PreviewerToolPreviewType.Text;
+                case PreviewResult.Text textResult:
+                    ActivePreviewType = PreviewerToolPreviewType.Text;
+                    ActiveDocument = new TextDocument(textResult.Content);
+                    break;
 
-                var textString = prev.ExecuteText(Workspace, _uavPluginFuncs.Value, asset, out string? error);
-                if (textString != null)
-                {
-                    ActiveDocument = new TextDocument(textString);
-                }
-                else
-                {
-                    SetDisplayText(error ?? "[null error]");
-                }
-                break;
-            }
-            case UavPluginPreviewerType.Mesh:
-            {
-                ActivePreviewType = PreviewerToolPreviewType.Mesh;
+                case PreviewResult.Image imgResult:
+                    ActivePreviewType = PreviewerToolPreviewType.Image;
+                    ImagePreview.UpdateImage(imgResult.Bitmap, (TextureFormat?)imgResult.Format);
+                    break;
 
-                var meshObj = prev.ExecuteMesh(Workspace, _uavPluginFuncs.Value, asset, out string? error);
-                if (meshObj != null)
-                {
-                    ActiveMesh = meshObj;
-                }
-                else
-                {
-                    SetDisplayText(error ?? "[null error]");
-                }
-                break;
-            }
-            default:
-            {
-                SetDisplayText($"Preview type {prevType} not supported.");
-                break;
+                case PreviewResult.Mesh meshResult:
+                    ActivePreviewType = PreviewerToolPreviewType.Mesh;
+                    ActiveMesh = meshResult.MeshObject;
+                    break;
+
+                case PreviewResult.Error errResult:
+                    SetDisplayText(errResult.Message);
+                    break;
+                case PreviewResult.Font fontResult:
+                    ActivePreviewType = PreviewerToolPreviewType.Font;
+                    FontPreview.SetFontData(fontResult.GlyphPages);
+                    break;
+                default:
+                    SetDisplayText($"Unsupported preview result type: {result?.GetType().Name}");
+                    break;
             }
         }
+        catch (Exception ex)
+        {
+            SetDisplayText($"Error generating preview: {ex.Message}\n{ex.StackTrace}");
+        }
+    }
+
+    private void SetDisplayNone()
+    {
+        ActivePreviewType = PreviewerToolPreviewType.None;
+        ActiveDocument = null;
     }
 
     private void SetDisplayText(string text)
@@ -154,7 +150,9 @@ public partial class PreviewerToolViewModel : Tool
 
 public enum PreviewerToolPreviewType
 {
+    None,
     Image,
     Text,
     Mesh,
+    Font
 }

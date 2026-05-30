@@ -772,7 +772,7 @@ public partial class MainViewModel : ViewModelBase
         dialogService.Show(new AssetInfoViewModel(Workspace, wsItems));
     }
 
-    public void ShowSearchBytesDialog()
+    public void ShowSearchContentDialog()
     {
         var dialogService = Ioc.Default.GetRequiredService<IDialogService>();
         var explorer = _factory.GetDockable<WorkspaceExplorerToolViewModel>("WorkspaceExplorer");

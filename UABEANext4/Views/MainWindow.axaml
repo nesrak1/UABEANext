@@ -13,25 +13,26 @@
         Name="MainWindowName"
         ExtendClientAreaToDecorationsHint="{Binding UsesChrome}"
         ExtendClientAreaChromeHints="{Binding ChromeHints}"
+        WindowStartupLocation="CenterScreen"
         DragDrop.AllowDrop="True">
-  <Design.DataContext>
-    <vm:MainViewModel/>
-  </Design.DataContext>
+    <Design.DataContext>
+        <vm:MainViewModel/>
+    </Design.DataContext>
 
-  <Panel Margin="{Binding #MainWindowName.OffScreenMargin}">
-    <Panel Height="30" HorizontalAlignment="Center" VerticalAlignment="Top">
-      <Label Content="{Binding Path=Title, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"
-             Margin="4,8,4,0"
-             FontSize="14"
-             FontWeight="Normal"
-             FontFamily="Consolas,Monospace,Courier,DejaVu Sans Mono,Roboto Mono"
-             VerticalAlignment="Center"
-             VerticalContentAlignment="Center"
-             IsHitTestVisible="False"
-             IsVisible="{Binding UsesChrome}"/>
-    </Panel>
+    <Panel Margin="{Binding #MainWindowName.OffScreenMargin}">
+        <Panel Height="30" HorizontalAlignment="Center" VerticalAlignment="Top">
+            <Label Content="{Binding Path=Title, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"
+                   Margin="4,8,4,0"
+                   FontSize="14"
+                   FontWeight="Normal"
+                   FontFamily="Consolas,Monospace,Courier,DejaVu Sans Mono,Roboto Mono"
+                   VerticalAlignment="Center"
+                   VerticalContentAlignment="Center"
+                   IsHitTestVisible="False"
+                   IsVisible="{Binding UsesChrome}"/>
+        </Panel>
     <Panel Margin="0,0,0,0">
-      <v:MainView/>
+            <v:MainView/>
+        </Panel>
     </Panel>
-  </Panel>
 </Window>

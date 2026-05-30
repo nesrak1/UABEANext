@@ -42,7 +42,7 @@
             </MenuItem>
             <MenuItem Header="Tools">
                 <MenuItem Header="Asset Info" Command="{Binding ShowAssetInfoDialog}" IsEnabled="{Binding Workspace.RootItems.Count}" />
-                <MenuItem Header="Search Bytes" Command="{Binding ShowSearchBytesDialog}" IsEnabled="{Binding Workspace.RootItems.Count}" />
+                <MenuItem Header="Search by Content" Command="{Binding ShowSearchContentDialog}" IsEnabled="{Binding Workspace.RootItems.Count}" />
                 <MenuItem Header="Options" Command="{Binding ShowOptionsDialog}" />
             </MenuItem>
         </Menu>

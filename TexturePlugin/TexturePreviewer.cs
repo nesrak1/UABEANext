@@ -1,10 +1,7 @@
 ﻿using AssetsTools.NET.Extra;
 using AssetsTools.NET.Texture;
-using AssetsTools.NET.Texture.TextureDecoders.CrnUnity;
-using Avalonia.Media.Imaging;
 using TexturePlugin.Helpers;
 using UABEANext4.AssetWorkspace;
-using UABEANext4.Logic.Mesh;
 using UABEANext4.Plugins;
 
 namespace TexturePlugin;
@@ -22,34 +19,28 @@ public class TexturePreviewer : IUavPluginPreviewer
         return previewType;
     }
 
-    public (Bitmap?, int) ExecuteImage(Workspace workspace, IUavPluginFunctions funcs, AssetInst selection, out string? error)
+    public PreviewResult Execute(Workspace workspace, IUavPluginFunctions funcs, AssetInst selection)
     {
         try
         {
             var image = TextureLoader.GetTexture2DBitmap(workspace, selection, out TextureFormat format);
             if (image != null)
             {
-                error = null;
-                return (image, (int)format);
+                return new PreviewResult.Image(image, (int)format);
             }
             else
             {
-                error = $"Texture failed to decode. The image format may not be supported or the texture is not valid. ({format})";
-                return (null, (int)format);
+                string error = $"Texture failed to decode. The image format may not be supported or the texture is not valid. ({format})";
+                return new PreviewResult.Error(error);
             }
         }
         catch (Exception ex)
         {
-            error = $"Texture failed to decode due to an error. Exception:\n{ex}";
-            return (null, -1);
+            string error = $"Texture failed to decode due to an error. Exception:\n{ex}";
+            return new PreviewResult.Error(error);
         }
     }
 
-    public MeshObj? ExecuteMesh(Workspace workspace, IUavPluginFunctions funcs, AssetInst selection, out string? error)
-        => throw new InvalidOperationException();
-
-    public string? ExecuteText(Workspace workspace, IUavPluginFunctions funcs, AssetInst selection, out string? error)
-        => throw new InvalidOperationException();
-
+   
     public void Cleanup() { }
 }

@@ -1,5 +1,4 @@
 ﻿using AssetsTools.NET.Extra;
-using Avalonia.Media.Imaging;
 using UABEANext4.AssetWorkspace;
 using UABEANext4.Logic.Mesh;
 using UABEANext4.Plugins;
@@ -73,7 +72,7 @@ public class MeshPreviewer : IUavPluginPreviewer
         return previewType;
     }
 
-    public MeshObj? ExecuteMesh(Workspace workspace, IUavPluginFunctions funcs, AssetInst selection, out string? error)
+    public PreviewResult Execute(Workspace workspace, IUavPluginFunctions funcs, AssetInst selection)
     {
         try
         {
@@ -84,8 +83,7 @@ public class MeshPreviewer : IUavPluginPreviewer
                 var maybeMeshAsset = GetMeshFromGameObject(workspace, selection);
                 if (maybeMeshAsset is null)
                 {
-                    error = "No preview available (mesh couldn't be loaded).";
-                    return null;
+                    return new PreviewResult.Error("No preview available (mesh couldn't be loaded).");
                 }
 
                 selection = maybeMeshAsset;
@@ -94,28 +92,21 @@ public class MeshPreviewer : IUavPluginPreviewer
             var meshBf = workspace.GetBaseField(selection);
             if (meshBf == null)
             {
-                error = "No preview available (mesh base field couldn't be loaded).";
-                return null;
+                return new PreviewResult.Error("No preview available (mesh base field couldn't be loaded).");
             }
 
             var version = new UnityVersion(selection.FileInstance.file.Metadata.UnityVersion);
             var meshObj = new MeshObj(selection.FileInstance, meshBf, version);
 
-            error = null;
-            return meshObj;
+            return new PreviewResult.Mesh(meshObj);
+
         }
         catch (Exception ex)
         {
-            error = $"Mesh failed to decode due to an error. Exception:\n{ex}";
-            return null;
+            string error = $"Mesh failed to decode due to an error. Exception:\n{ex}";
+            return new PreviewResult.Error(error);
         }
     }
-
-    public (Bitmap?, int) ExecuteImage(Workspace workspace, IUavPluginFunctions funcs, AssetInst selection, out string? error)
-        => throw new InvalidOperationException();
-
-    public string? ExecuteText(Workspace workspace, IUavPluginFunctions funcs, AssetInst selection, out string? error)
-        => throw new InvalidOperationException();
 
     public void Cleanup() { }
 }
