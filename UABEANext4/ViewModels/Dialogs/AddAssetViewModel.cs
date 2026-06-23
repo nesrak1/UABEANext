@@ -59,7 +59,7 @@ public partial class AddAssetViewModel : ViewModelBaseValidator, IDialogAware<Ad
             var scriptInfos = AssetHelper.GetAssetsFileScriptInfos(workspace.Manager, fileInst);
             foreach (var scriptInfo in scriptInfos)
             {
-                scriptList.Add($"{scriptInfo.Key} - {GetTypeRefFullName(scriptInfo.Value!)}");
+                scriptList.Add($"{scriptInfo.Key} - {GetTypeRefFullName(scriptInfo.Value)}");
             }
             _scriptLookup[fileInst] = scriptList;
         }

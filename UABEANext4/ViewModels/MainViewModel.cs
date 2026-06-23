@@ -13,6 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using UABEANext4.AssetWorkspace;
@@ -108,6 +109,9 @@ public partial class MainViewModel : ViewModelBase
             case "Inspector": DockInspectorVisible = false; break;
             case "Previewer": DockPreviewerVisible = false; break;
         }
+
+        if (e.Dockable is Document document && _factory.DocMan.LastFocusedDocument == document)
+            _factory.DocMan.LastFocusedDocument = null;
     }
 
     private void FactoryDockableFocused(object? sender, FocusedDockableChangedEventArgs e)
@@ -224,6 +228,7 @@ public partial class MainViewModel : ViewModelBase
         };
 
         Workspace.SetProgressThreadSafe(0f, "Loading files...");
+        var errorSb = new StringBuilder();
         await Task.Run(() =>
         {
             Workspace.ModifyMutex.WaitOne();
@@ -244,11 +249,15 @@ public partial class MainViewModel : ViewModelBase
                         anyLoaded = true;
                         Workspace.SetProgressThreadSafe(currentProgress, "Loaded " + Path.GetFileName(fileName));
                     }
-                    catch
+                    catch (Exception ex)
                     {
                         var currentCountNow = Interlocked.Increment(ref currentCount);
                         var currentProgress = currentCountNow / (float)totalCount;
                         Workspace.SetProgressThreadSafe(currentProgress, "Skipping " + Path.GetFileName(fileName));
+                        lock (errorSb)
+                        {
+                            errorSb.AppendLine(ex.ToString());
+                        }
                     }
                 }
             });
@@ -260,6 +269,11 @@ public partial class MainViewModel : ViewModelBase
 
             Workspace.ModifyMutex.ReleaseMutex();
         });
+
+        if (errorSb.Length > 0)
+        {
+            await MessageBoxUtil.ShowDialog("Failed to load some files", errorSb.ToString());
+        }
 
         if (Workspace.Manager.ClassDatabase is null)
         {
@@ -446,23 +460,21 @@ public partial class MainViewModel : ViewModelBase
 
     public async Task FileSave()
     {
-        var explorer = _factory.GetDockable<WorkspaceExplorerToolViewModel>("WorkspaceExplorer");
-        if (explorer == null)
+        var wsItems = GetSelectedDocWorkspaceItems();
+        if (wsItems is null)
             return;
 
-        var items = explorer.SelectedItems.Cast<WorkspaceItem>();
-        await DoSaveOverwrite(items);
+        await DoSaveOverwrite(wsItems);
     }
 
     // more like "save copy as"
     public async Task FileSaveAs()
     {
-        var explorer = _factory.GetDockable<WorkspaceExplorerToolViewModel>("WorkspaceExplorer");
-        if (explorer == null)
+        var wsItems = GetSelectedDocWorkspaceItems();
+        if (wsItems is null)
             return;
 
-        var items = explorer.SelectedItems.Cast<WorkspaceItem>();
-        await DoSaveCopy(items);
+        await DoSaveCopy(wsItems);
     }
 
     public async Task FileSaveAll()
@@ -548,6 +560,19 @@ public partial class MainViewModel : ViewModelBase
         }
 
         return fileInsts;
+    }
+
+    private IEnumerable<WorkspaceItem>? GetSelectedDocWorkspaceItems()
+    {
+        var lastFocusedDoc = _factory.DocMan.LastFocusedDocument;
+        if (lastFocusedDoc is not AssetDocumentViewModel assetDocVm)
+            return null;
+
+        var wsItems = assetDocVm.FileInsts
+            .Select(Workspace.FindWorkspaceItemByInstance)
+            .Where(i => i is not null) as IEnumerable<WorkspaceItem>;
+
+        return wsItems;
     }
 
     private async Task<AssetDocumentViewModel?> OpenAssetDocument(List<WorkspaceItem> workspaceItems, bool replaceDock)
