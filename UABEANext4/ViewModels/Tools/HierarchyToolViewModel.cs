@@ -10,15 +10,17 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using UABEANext4.Assets.Localization;
 using UABEANext4.AssetWorkspace;
 using UABEANext4.Logic;
 using UABEANext4.Logic.Hierarchy;
+using UABEANext4.Services;
 
 namespace UABEANext4.ViewModels.Tools;
 
 public partial class HierarchyToolViewModel : Tool
 {
-    const string TOOL_TITLE = "Hierarchy";
+    string TOOL_TITLE => Localization.Hierarchy;
 
     public Workspace Workspace { get; }
 
@@ -53,6 +55,11 @@ public partial class HierarchyToolViewModel : Tool
 
         Id = TOOL_TITLE.Replace(" ", "");
         Title = TOOL_TITLE;
+
+        LocalizationService.Instance.PropertyChanged += (_, _) =>
+        {
+            Title = TOOL_TITLE;
+        };
 
         WeakReferenceMessenger.Default.Register<AssetsSelectedMessage>(this, OnAssetsSelected);
         WeakReferenceMessenger.Default.Register<AssetsUpdatedMessage>(this, OnAssetsUpdated);
