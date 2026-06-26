@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:uac="using:UABEANext4.Converters"
              xmlns:uaw="using:UABEANext4.AssetWorkspace"
+             xmlns:menu="using:UABEANext4.ViewModels.Menu"
              xmlns:tools="using:UABEANext4.ViewModels.Tools"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="UABEANext4.Views.Tools.WorkspaceExplorerToolView"
@@ -14,23 +15,7 @@
 
     <UserControl.Resources>
         <uac:WsItemColorConverter x:Key="WsItemColorConverter" />
-      
-        <ContextMenu DataContext="{Binding $parent[UserControl].((tools:WorkspaceExplorerToolViewModel)DataContext)}"
-                     x:Key="AddRemoveUnloadCm">
-            <MenuItem Header="Add/remove files" Command="{Binding EditBundleFiles}" />
-            <MenuItem Header="Unload" Command="{Binding UnloadItems}" />
-        </ContextMenu>
-        <ContextMenu DataContext="{Binding $parent[UserControl].((tools:WorkspaceExplorerToolViewModel)DataContext)}"
-                     x:Key="UnloadCm">
-            <MenuItem Header="Unload" Command="{Binding UnloadItems}" />
-        </ContextMenu>
-        <ContextMenu DataContext="{Binding $parent[UserControl].((tools:WorkspaceExplorerToolViewModel)DataContext)}"
-                     x:Key="RenameCm">
-            <MenuItem Header="Rename" Command="{Binding RenameItem}" />
-        </ContextMenu>
-        <ContextMenu x:Key="DefaultCm">
-            <MenuItem Header="No options available" />
-        </ContextMenu>
+        <uac:BitmapAssetValueConverter x:Key="BitmapAssetValueConverter" />
     </UserControl.Resources>
 
     <Grid RowDefinitions="*,26">
@@ -49,6 +34,23 @@
                     </TextBlock>
                 </TreeDataTemplate>
             </TreeView.ItemTemplate>
+            <TreeView.ContextFlyout>
+                <MenuFlyout ItemsSource="{Binding ContextMenuItems}" Opening="MenuFlyout_Opening">
+                    <MenuFlyout.ItemContainerTheme>
+                        <ControlTheme TargetType="MenuItem" BasedOn="{StaticResource {x:Type MenuItem}}" x:DataType="menu:MenuOptionViewModel">
+                            <Setter Property="Header" Value="{Binding Header}"/>
+                            <Setter Property="Command" Value="{Binding Command}"/>
+                            <Setter Property="CommandParameter" Value="{Binding CommandParameter}"/>
+                            <Setter Property="ItemsSource" Value="{Binding Items}"/>
+                            <Setter Property="Icon">
+                                <Template>
+                                    <Image Source="{Binding IconPath, Converter={StaticResource BitmapAssetValueConverter}}" Width="16" Height="16" />
+                                </Template>
+                            </Setter>
+                        </ControlTheme>
+                    </MenuFlyout.ItemContainerTheme>
+                </MenuFlyout>
+            </TreeView.ContextFlyout>
         </TreeView>
         <Border Grid.Row="1"
                 Background="{DynamicResource DockThemeBackgroundBrush}"
@@ -76,6 +78,14 @@
                         IsEnabled="{Binding Workspace.RootItems.Count}">
                     <TextBlock>Collapse</TextBlock>
                 </Button>
+
+                <Rectangle Width="1" Height="14" Fill="{DynamicResource DockThemeBorderLowBrush}" Margin="2,0" />
+
+                <ToggleButton Classes="footer-btn"
+                              IsChecked="{Binding SelectOpensFiles}"
+                              IsEnabled="{Binding Workspace.RootItems.Count}">
+                    <TextBlock>Auto load</TextBlock>
+                </ToggleButton>
             </StackPanel>
         </Border>
     </Grid>

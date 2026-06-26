@@ -48,24 +48,25 @@ public partial class AssetDocumentViewModel : Document
     public Dictionary<AssetClassID, string> ClassIdToString { get; }
 
     [ObservableProperty]
-    public DataGridCollectionView _collectionView = new(new List<object>());
+    private DataGridCollectionView _collectionView = new(new List<object>());
     [ObservableProperty]
-    public string _searchText = "";
+    private string _searchText = "";
     [ObservableProperty]
-    public ObservableCollection<PluginItemInfo> _pluginsItems = [];
+    private ObservableCollection<PluginItemInfo> _pluginsItems = [];
 
     [ObservableProperty]
-    public bool _isSearchCaseSensitive = false;
+    private bool _isSearchCaseSensitive = false;
     [ObservableProperty]
-    public AssetTextSearchKind _searchKind = 0;
+    private AssetTextSearchKind _searchKind = 0;
 
     [ObservableProperty]
-    public ObservableCollection<MenuOptionViewModel> _contextMenuItems = [];
+    private ObservableCollection<MenuOptionViewModel> _contextMenuItems = [];
+
+    [ObservableProperty]
+    private bool _isBusy;
 
     public event Action? ShowPluginsContextMenuAction;
     public event Action<List<AssetInst>>? SetSelectedItemsAction;
-    [ObservableProperty]
-    private bool _isBusy;
 
     private List<TypeFilterTypeEntry>? _filterTypes = null;
     private HashSet<TypeFilterTypeEntry> _filterTypesFiltered = [];
@@ -888,6 +889,7 @@ public partial class AssetDocumentViewModel : Document
         ContextMenuItems.Clear();
         if (SelectedItems.Count == 0)
             return;
+
         var selected = SelectedItems;
         var first = selected[0];
 

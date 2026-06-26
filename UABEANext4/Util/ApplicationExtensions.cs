@@ -1,9 +1,9 @@
 ﻿using System.Threading.Tasks;
 
 namespace UABEANext4.Util;
+
 public static class ApplicationExtensions
 {
-
     public static async Task CopyToClipboard(string text)
     {
         var mainWindow = WindowUtils.GetMainWindow();

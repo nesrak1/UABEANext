@@ -31,6 +31,7 @@
             <Setter Property="Margin" Value="0,0,6,0" />
         </Style>
     </UserControl.Styles>
+
     <Grid RowDefinitions="Auto,Auto,*" Background="Transparent">
         <Grid.Resources>
             <uac:AssetTypeIconConverter x:Key="AssetTypeIconConverter" />
@@ -123,13 +124,16 @@
                 </Button.Flyout>
             </Button>
         </Grid>
+
         <Panel Grid.Row="2">
             <DataGrid
                 AutoGenerateColumns="False"
                 CanUserResizeColumns="True"
                 CanUserReorderColumns="True"
-                IsReadOnly="True" ItemsSource="{Binding CollectionView}"
-                SelectionChanged="DataGrid_SelectionChanged" Margin="0"
+                IsReadOnly="True"
+                ItemsSource="{Binding CollectionView}"
+                SelectionChanged="DataGrid_SelectionChanged"
+                Margin="0"
                 Name="dataGrid"
                 Background="Transparent"
                 RowBackground="Transparent"
@@ -161,14 +165,14 @@
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
-                    <DataGridTextColumn Header="Name" MinWidth ="150" Width="200" Binding="{Binding DisplayName}" x:DataType="ws:AssetInst"/>
-                    <DataGridTextColumn Header="Type" MinWidth ="120" Width="120" Binding="{Binding Type, Converter={StaticResource AssetClassIDConverter}}" x:DataType="ws:AssetInst"/>
-                    <DataGridTextColumn Header="Container" MinWidth ="100" Width="100" Binding="{Binding DisplayContainer}" x:DataType="ws:AssetInst" IsVisible="{Binding $parent[UserControl].((docs:AssetDocumentViewModel)DataContext).LoadContainers}"/>
-                    <DataGridTextColumn Header="Bundle Name" MinWidth ="120" Width="150" Binding="{Binding BundleName}" x:DataType="ws:AssetInst" IsVisible="False"/>
-                    <DataGridTextColumn Header="File Name"  MinWidth ="120" Width="150" Binding="{Binding FileName}" x:DataType="ws:AssetInst"/>
-                    <DataGridTextColumn Header="Path ID" MinWidth ="130" Width="160" Binding="{Binding PathId}" x:DataType="ws:AssetInst"/>
+                    <DataGridTextColumn Header="Name" MinWidth="150" Width="200" Binding="{Binding DisplayName}" x:DataType="ws:AssetInst"/>
+                    <DataGridTextColumn Header="Type" MinWidth="120" Width="120" Binding="{Binding Type, Converter={StaticResource AssetClassIDConverter}}" x:DataType="ws:AssetInst"/>
+                    <DataGridTextColumn Header="Container" MinWidth="100" Width="100" Binding="{Binding DisplayContainer}" x:DataType="ws:AssetInst" IsVisible="{Binding $parent[UserControl].((docs:AssetDocumentViewModel)DataContext).LoadContainers}"/>
+                    <DataGridTextColumn Header="Bundle Name" MinWidth="120" Width="150" Binding="{Binding BundleName}" x:DataType="ws:AssetInst" IsVisible="False"/>
+                    <DataGridTextColumn Header="File Name"  MinWidth="120" Width="150" Binding="{Binding FileName}" x:DataType="ws:AssetInst"/>
+                    <DataGridTextColumn Header="Path ID" MinWidth="130" Width="160" Binding="{Binding PathId}" x:DataType="ws:AssetInst"/>
                     <!--<DataGridTextColumn Header="Offset" Binding="{Binding ByteOffset}" x:DataType="ws:AssetInst"/>-->
-                    <DataGridTextColumn Header="Size" MinWidth ="80" Width="80" Binding="{Binding ByteSizeModified}" x:DataType="ws:AssetInst"/>
+                    <DataGridTextColumn Header="Size" MinWidth="80" Width="80" Binding="{Binding ByteSizeModified}" x:DataType="ws:AssetInst"/>
                     <DataGridTextColumn Header="Modified" MinWidth="80" Width="80" Binding="{Binding ModifiedString}" x:DataType="ws:AssetInst"/>
                 </DataGrid.Columns>
             </DataGrid>
