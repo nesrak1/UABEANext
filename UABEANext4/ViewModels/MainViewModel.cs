@@ -228,14 +228,19 @@ public partial class MainViewModel : ViewModelBase
         };
 
         Workspace.SetProgressThreadSafe(0f, "Loading files...");
-        var errorSb = new StringBuilder();
+
+        var duplicateFilesList = new List<DuplicateLoadInfo>();
+        var stackTraceSb = new StringBuilder();
+
         await Task.Run(() =>
         {
             Workspace.ModifyMutex.WaitOne();
             Workspace.ProgressValue = 0;
+
             var startLoadOrder = Workspace.NextLoadIndex;
             var currentCount = 0;
             var anyLoaded = false;
+
             Parallel.ForEach(filePaths, options, (fileName, state, index) =>
             {
                 if (fileName is not null)
@@ -243,20 +248,29 @@ public partial class MainViewModel : ViewModelBase
                     try
                     {
                         var fileStream = File.Open(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-                        var file = Workspace.LoadAnyFile(fileStream, startLoadOrder + (int)index);
+                        Workspace.LoadAnyFile(fileStream, startLoadOrder + (int)index);
+
                         var currentCountNow = Interlocked.Increment(ref currentCount);
                         var currentProgress = currentCountNow / (float)totalCount;
                         anyLoaded = true;
                         Workspace.SetProgressThreadSafe(currentProgress, "Loaded " + Path.GetFileName(fileName));
+                    }
+                    catch (DuplicateWorkspaceFileException dupEx)
+                    {
+                        lock (duplicateFilesList)
+                        {
+                            duplicateFilesList.Add(dupEx.Info);
+                        }
                     }
                     catch (Exception ex)
                     {
                         var currentCountNow = Interlocked.Increment(ref currentCount);
                         var currentProgress = currentCountNow / (float)totalCount;
                         Workspace.SetProgressThreadSafe(currentProgress, "Skipping " + Path.GetFileName(fileName));
-                        lock (errorSb)
+
+                        lock (stackTraceSb)
                         {
-                            errorSb.AppendLine(ex.ToString());
+                            stackTraceSb.AppendLine(ex.ToString());
                         }
                     }
                 }
@@ -270,11 +284,28 @@ public partial class MainViewModel : ViewModelBase
             Workspace.ModifyMutex.ReleaseMutex();
         });
 
-        if (errorSb.Length > 0)
+        if (duplicateFilesList.Count > 0 || stackTraceSb.Length > 0)
         {
-            await MessageBoxUtil.ShowDialog("Failed to load some files", errorSb.ToString());
+            var fullErrorSb = new StringBuilder();
+            if (duplicateFilesList.Count > 0)
+            {
+                fullErrorSb.AppendLine("Duplicate files skipped:");
+                foreach (var duplicateFileInfo in duplicateFilesList)
+                {
+                    fullErrorSb.AppendLine($"- {duplicateFileInfo.DisplayLine}");
+                }
+            }
+
+            if (stackTraceSb.Length > 0)
+            {
+                fullErrorSb.AppendLine("Exceptions from files that failed to load:");
+                fullErrorSb.Append(stackTraceSb);
+            }
+
+            await MessageBoxUtil.ShowDialog("Some files failed to load", fullErrorSb.ToString());
         }
 
+        // load class database for these files (or request user to provide one)
         if (Workspace.Manager.ClassDatabase is null)
         {
             var anySerializedItems = false;
@@ -307,7 +338,7 @@ public partial class MainViewModel : ViewModelBase
             {
                 var dialogService = Ioc.Default.GetRequiredService<IDialogService>();
                 var version = await dialogService.ShowDialog(new VersionSelectViewModel());
-                if (version != null)
+                if (version is not null)
                 {
                     Workspace.Manager.LoadClassDatabaseFromPackage(version);
                 }

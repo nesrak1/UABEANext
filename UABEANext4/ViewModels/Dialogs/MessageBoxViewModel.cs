@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using UABEANext4.Interfaces;
 
 namespace UABEANext4.ViewModels.Dialogs;
+
 public partial class MessageBoxViewModel : ViewModelBase, IDialogAware<MessageBoxResult?>
 {
     [ObservableProperty]
@@ -26,7 +27,7 @@ public partial class MessageBoxViewModel : ViewModelBase, IDialogAware<MessageBo
     public int Width => 400;
     public int Height => 160;
 
-    public bool IsModal => true;
+    public bool IsModal => false;
 
     public event Action<MessageBoxResult?>? RequestClose;
 
