@@ -62,8 +62,12 @@ public class ExportFontOption : IUavPluginOption
             }
 
             var name = textBaseField["m_Name"].AsString;
-            var byteData = textBaseField["m_FontData.Array"].AsByteArray;
-
+            byte[]? byteData = textBaseField["m_FontData.Array"].AsByteArray;
+            if (byteData == null || byteData.Length == 0)
+            {
+                errorBuilder.AppendLine($"[{errorAssetName}]: failed to read font data");
+                continue;
+            }
             var isOtf = FontHelper.IsDataOtf(byteData);
             var extension = isOtf ? ".otf" : ".ttf";
 
@@ -94,8 +98,12 @@ public class ExportFontOption : IUavPluginOption
         }
 
         var name = textBaseField["m_Name"].AsString;
-        var byteData = textBaseField["m_FontData.Array"].AsByteArray;
-
+        byte[]? byteData = textBaseField["m_FontData.Array"].AsByteArray;
+        if (byteData == null || byteData.Length == 0)
+        {
+            await funcs.ShowMessageDialog("Error", "Failed to read Font Data");
+            return false;
+        }
         var isOtf = FontHelper.IsDataOtf(byteData);
         var extension = isOtf ? "otf" : "ttf";
 

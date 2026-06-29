@@ -11,7 +11,7 @@ public partial class SelectDumpViewModel : ViewModelBase, IDialogAware<SelectedD
 
     public List<string> DropdownItems { get; }
 
-    public string Title => "Batch Import";
+    public string Title => "Batch Export";
     public int Width => 350;
     public int Height => 120;
     public bool IsModal => true;
