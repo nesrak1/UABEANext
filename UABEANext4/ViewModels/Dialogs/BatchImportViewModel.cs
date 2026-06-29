@@ -55,6 +55,56 @@ public partial class BatchImportViewModel : ViewModelBase, IDialogAware<List<Imp
         else
             filesInDir = Directory.GetFiles(directory).ToList();
 
+        // Build a suffix index for O(1) lookup of EndsWith matches.
+        //
+        // The original code did filesInDir.Where(f => f.EndsWith(matchName)) per asset,
+        // which is O(F) per asset — prohibitive for 100k+ files.
+        //
+        // Key insight: the match name (when !importJustNames) always starts with '-':
+        //   GetMatchName(ext) = "-{File}-{PathId}.{ext}"
+        //
+        // For each file name, we generate all suffixes starting from each '-'
+        // position and add them to a dictionary. A match name starting with '-'
+        // will match one of these suffixes, giving O(1) lookup.
+        //
+        // Example: "Texture2D-CAB-1234-5678.json" generates suffixes:
+        //   "Texture2D-CAB-1234-5678.json" (full name, for exact match)
+        //   "-CAB-1234-5678.json" (from '-' at position 9)
+        //   "-1234-5678.json" (from '-' at position 13)
+        //   "-5678.json" (from '-' at position 22)
+        //
+        // Match name "-CAB-1234-5678.json" finds the file via the second suffix.
+        // This preserves the original EndsWith semantics exactly, including for
+        // files with asset-name prefixes.
+        var suffixIndex = new Dictionary<string, List<string>>(filesInDir.Count * 4, StringComparer.Ordinal);
+        var allFileNames = new List<string>(filesInDir.Count);
+        foreach (var f in filesInDir)
+        {
+            var fileName = Path.GetFileName(f);
+            allFileNames.Add(fileName);
+
+            // Add full file name (for exact match and importJustNames case)
+            if (!suffixIndex.TryGetValue(fileName, out var bucket))
+                suffixIndex[fileName] = bucket = new List<string>();
+            bucket.Add(fileName);
+
+            // Add suffixes starting from each '-' position (skip if same as full name)
+            int start = 0;
+            while (start < fileName.Length)
+            {
+                int dashPos = fileName.IndexOf('-', start);
+                if (dashPos < 0) break;
+                var suffix = fileName.Substring(dashPos);
+                if (suffix != fileName)
+                {
+                    if (!suffixIndex.TryGetValue(suffix, out var bucket2))
+                        suffixIndex[suffix] = bucket2 = new List<string>();
+                    bucket2.Add(fileName);
+                }
+                start = dashPos + 1;
+            }
+        }
+
         List<ImportBatchDataGridItem> gridItems = new();
         int maxNameLen = ConfigurationManager.Settings.ExportNameLength;
         bool importJustNames = ConfigurationManager.Settings.ExportImportJustNames;
@@ -69,40 +119,54 @@ public partial class BatchImportViewModel : ViewModelBase, IDialogAware<List<Imp
                     asset, Path.GetFileName(asset.FileInstance.path), assetName, asset.PathId)
             );
 
-            // todo: is there a reason we are filtering with full paths?
-            // I'm too afraid to change it in case there was a good reason.
             List<string> matchingFiles;
-            if (!importJustNames)
+            if (!importJustNames && !anyExtension)
             {
-                // compare file against *-filename-pathid.validextension
-                if (!anyExtension)
+                // Fast path: suffix index lookup for match names starting with '-'
+                matchingFiles = new List<string>();
+                foreach (var ext in extensions)
                 {
-                    matchingFiles = filesInDir
-                        .Where(f => extensions.Any(x => f.EndsWith(gridItem.GetMatchName(x))))
-                        .Select(f => Path.GetFileName(f)).ToList();
-                }
-                else
-                {
-                    matchingFiles = filesInDir
-                        .Where(f => PathUtils.GetFilePathWithoutExtension(f).EndsWith(gridItem.GetMatchName("*")))
-                        .Select(f => Path.GetFileName(f)).ToList();
+                    if (suffixIndex.TryGetValue(gridItem.GetMatchName(ext), out var matches))
+                        matchingFiles.AddRange(matches);
                 }
             }
-            else
+            else if (!importJustNames && anyExtension)
             {
-                // compare file against assetname.validextension
-                if (!anyExtension)
+                // anyExtension: match name has no extension. Brute force on stems.
+                var matchStem = gridItem.GetMatchName("*");
+                matchingFiles = allFileNames
+                    .Where(f => Path.GetFileNameWithoutExtension(f).EndsWith(matchStem))
+                    .ToList();
+            }
+            else if (importJustNames && !anyExtension)
+            {
+                // importJustNames: match name is "AssetName.ext", doesn't start with '-'.
+                // Try exact match first, then brute force for prefixed files.
+                matchingFiles = new List<string>();
+                foreach (var ext in extensions)
                 {
-                    matchingFiles = filesInDir
-                        .Where(f => extensions.Any(x => f.EndsWith(gridItem.Description + "." + x)))
-                        .Select(f => Path.GetFileName(f)).ToList();
+                    var matchName = gridItem.Description + "." + ext;
+                    if (suffixIndex.TryGetValue(matchName, out var matches))
+                        matchingFiles.AddRange(matches);
                 }
-                else
+                if (matchingFiles.Count == 0)
                 {
-                    matchingFiles = filesInDir
-                        .Where(f => PathUtils.GetFilePathWithoutExtension(f).EndsWith(gridItem.Description))
-                        .Select(f => Path.GetFileName(f)).ToList();
+                    foreach (var ext in extensions)
+                    {
+                        var matchName = gridItem.Description + "." + ext;
+                        foreach (var fn in allFileNames)
+                        {
+                            if (fn.EndsWith(matchName))
+                                matchingFiles.Add(fn);
+                        }
+                    }
                 }
+            }
+            else // importJustNames && anyExtension
+            {
+                matchingFiles = allFileNames
+                    .Where(f => Path.GetFileNameWithoutExtension(f).EndsWith(gridItem.Description))
+                    .ToList();
             }
 
             gridItem.MatchingFiles = matchingFiles;

@@ -64,6 +64,8 @@ public partial class AssetDocumentViewModel : Document
 
     [ObservableProperty]
     private bool _isBusy;
+    [ObservableProperty]
+    private string? _busyMessage;
 
     public event Action? ShowPluginsContextMenuAction;
     public event Action<List<AssetInst>>? SetSelectedItemsAction;
@@ -75,6 +77,7 @@ public partial class AssetDocumentViewModel : Document
 
     private IDisposable? _disposableLastList;
     private CancellationTokenSource? _loadCtSrc;
+    private CancellationTokenSource? _importCts;
 
     [Obsolete("This constructor is for the designer only and should not be used directly.", true)]
     public AssetDocumentViewModel()
@@ -413,25 +416,61 @@ public partial class AssetDocumentViewModel : Document
         var exts = new List<string> { "json", "txt", "dat" };
         var dialogService = Ioc.Default.GetRequiredService<IDialogService>();
 
-        var batchInfos = await dialogService.ShowDialog(new BatchImportViewModel(Workspace, assets, folders[0], exts));
+        // Construct the ViewModel off the UI thread. Scanning the directory and
+        // matching files against assets can take a few seconds; doing it on the
+        // UI thread freezes the window.
+        IsBusy = true;
+        BusyMessage = "Scanning directory for matching files...";
+        BatchImportViewModel vm;
+        try
+        {
+            vm = await Task.Run(() => new BatchImportViewModel(Workspace, assets, folders[0], exts));
+        }
+        finally
+        {
+            IsBusy = false;
+            BusyMessage = null;
+        }
+
+        var batchInfos = await dialogService.ShowDialog(vm);
         if (batchInfos == null)
+        {
+            IsBusy = false;
             return;
+        }
 
         var fileNamesToDirty = new HashSet<string>();
 
         try
         {
             IsBusy = true;
+            var total = batchInfos.Count;
+            var progress = new Progress<(int done, string current)>(p =>
+            {
+                BusyMessage = $"Importing {p.done}/{total}: {p.current}";
+            });
+            var iProgress = (IProgress<(int, string)>)progress;
+
+            _importCts = new CancellationTokenSource();
+            var token = _importCts.Token;
 
             await Task.Run(async () =>
             {
+                int done = 0;
                 foreach (var batchInfo in batchInfos)
                 {
+                    token.ThrowIfCancellationRequested();
+
                     var selectedFilePath = batchInfo.ImportFile;
                     if (selectedFilePath == null) continue;
 
                     var selectedAsset = batchInfo.Asset;
                     var selectedInst = selectedAsset.FileInstance;
+                    var fileNameOnly = Path.GetFileName(selectedFilePath);
+
+                    // Report progress before the work; cheap and lets the user see
+                    // movement even on slow files.
+                    iProgress.Report((done, fileNameOnly));
 
                     Workspace.CheckAndSetMonoTempGenerators(selectedInst, selectedAsset);
 
@@ -461,7 +500,7 @@ public partial class AssetDocumentViewModel : Document
                         await Dispatcher.UIThread.InvokeAsync(async () =>
                         {
                             await MessageBoxUtil.ShowDialog("Parse error",
-                                $"Error in file {Path.GetFileName(selectedFilePath)}:\n{exceptionMessage}");
+                                $"Error in file {fileNameOnly}:\n{exceptionMessage}");
                         });
                         continue;
                     }
@@ -472,8 +511,15 @@ public partial class AssetDocumentViewModel : Document
                     {
                         fileNamesToDirty.Add(selectedAsset.FileInstance.name);
                     }
+
+                    done++;
                 }
-            });
+            }, token);
+        }
+        catch (OperationCanceledException)
+        {
+            // User cancelled. Already-imported files still need their dirty bits set,
+            // which the finally block below will do.
         }
         catch (Exception ex)
         {
@@ -481,6 +527,7 @@ public partial class AssetDocumentViewModel : Document
         }
         finally
         {
+            _importCts = null;
             foreach (var fileName in fileNamesToDirty)
             {
                 if (Workspace.ItemLookup.TryGetValue(fileName, out var fileToDirty))
@@ -489,6 +536,7 @@ public partial class AssetDocumentViewModel : Document
                 }
             }
             IsBusy = false;
+            BusyMessage = null;
         }
     }
 
