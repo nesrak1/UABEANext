@@ -48,7 +48,8 @@ public partial class WorkspaceExplorerToolView : UserControl
             return;
 
         var treeViewItem = (TreeViewItem?)SolutionTreeView.TreeContainerFromItem(SolutionTreeView.SelectedItem);
-        treeViewItem?.IsExpanded = true;
+        if (treeViewItem != null)
+            treeViewItem.IsExpanded = true;
     }
 
     private void MenuFlyout_Opening(object? sender, EventArgs e)
