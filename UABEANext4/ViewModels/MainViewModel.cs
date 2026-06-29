@@ -229,7 +229,6 @@ public partial class MainViewModel : ViewModelBase
 
         Workspace.SetProgressThreadSafe(0f, "Loading files...");
 
-        var duplicateFilesList = new List<DuplicateLoadInfo>();
         var stackTraceSb = new StringBuilder();
 
         await Task.Run(() =>
@@ -255,13 +254,6 @@ public partial class MainViewModel : ViewModelBase
                         anyLoaded = true;
                         Workspace.SetProgressThreadSafe(currentProgress, "Loaded " + Path.GetFileName(fileName));
                     }
-                    catch (DuplicateWorkspaceFileException dupEx)
-                    {
-                        lock (duplicateFilesList)
-                        {
-                            duplicateFilesList.Add(dupEx.Info);
-                        }
-                    }
                     catch (Exception ex)
                     {
                         var currentCountNow = Interlocked.Increment(ref currentCount);
@@ -284,23 +276,11 @@ public partial class MainViewModel : ViewModelBase
             Workspace.ModifyMutex.ReleaseMutex();
         });
 
-        if (duplicateFilesList.Count > 0 || stackTraceSb.Length > 0)
+        if (stackTraceSb.Length > 0)
         {
             var fullErrorSb = new StringBuilder();
-            if (duplicateFilesList.Count > 0)
-            {
-                fullErrorSb.AppendLine("Duplicate files skipped:");
-                foreach (var duplicateFileInfo in duplicateFilesList)
-                {
-                    fullErrorSb.AppendLine($"- {duplicateFileInfo.DisplayLine}");
-                }
-            }
-
-            if (stackTraceSb.Length > 0)
-            {
-                fullErrorSb.AppendLine("Exceptions from files that failed to load:");
-                fullErrorSb.Append(stackTraceSb);
-            }
+            fullErrorSb.AppendLine("Exceptions from files that failed to load:");
+            fullErrorSb.Append(stackTraceSb);
 
             await MessageBoxUtil.ShowDialog("Some files failed to load", fullErrorSb.ToString());
         }

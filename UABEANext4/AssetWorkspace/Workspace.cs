@@ -103,52 +103,10 @@ public partial class Workspace : ObservableObject
             bunInst = Manager.LoadBundleFile(stream, name);
         }
 
-        // keys we'll add to workingKeys to "lock" them
-        var ourWorkingKeys = new List<string>();
+        TryLoadClassDatabase(bunInst.file);
 
-        // check for duplicate files
-        // we stop at the first one since any duplicates are bad
-        lock (_workingKeys)
-        {
-            var dirInfs = bunInst.file.BlockAndDirInfo.DirectoryInfos;
-            foreach (var dirInf in dirInfs)
-            {
-                var dirInfKey = AssetsManager.GetFileLookupKey(dirInf.Name);
-                if (Manager.FileLookup.ContainsKey(dirInfKey) || _workingKeys.Contains(dirInfKey))
-                {
-                    throw new DuplicateWorkspaceFileException(dirInfKey, bunInst.path);
-                }
-
-                ourWorkingKeys.Add(dirInfKey);
-            }
-
-            // no exception, so we're free to lock in these files now
-            foreach (var keyToAdd in ourWorkingKeys)
-            {
-                _workingKeys.Add(keyToAdd);
-            }
-        }
-
-        WorkspaceItem item;
-        try
-        {
-            TryLoadClassDatabase(bunInst.file);
-
-            item = new WorkspaceItem(this, bunInst, loadOrder);
-            AddRootItemThreadSafe(item, bunInst.name);
-        }
-        finally
-        {
-            // done with files, they are now part of AssetsManager
-            // so we should let it handle things from now on
-            lock (_workingKeys)
-            {
-                foreach (var keyToRemove in ourWorkingKeys)
-                {
-                    _workingKeys.Remove(keyToRemove);
-                }
-            }
-        }
+        var item = new WorkspaceItem(this, bunInst, loadOrder);
+        AddRootItemThreadSafe(item, bunInst.name);
 
         return item;
     }
@@ -165,38 +123,12 @@ public partial class Workspace : ObservableObject
             fileInst = Manager.LoadAssetsFile(stream, name);
         }
 
-        // check if file is duplicate
-        var fileKey = AssetsManager.GetFileLookupKey(fileInst.path);
+        TryLoadClassDatabase(fileInst.file);
 
-        lock (_workingKeys)
-        {
-            if (Manager.FileLookup.ContainsKey(fileKey) || _workingKeys.Contains(fileKey))
-            {
-                throw new DuplicateWorkspaceFileException(fileInst.path);
-            }
+        FixupAssetsFile(fileInst);
 
-            // no exception, so we're free to lock in this file
-
-            _workingKeys.Add(fileKey);
-        }
-
-        WorkspaceItem item;
-        try
-        {
-            TryLoadClassDatabase(fileInst.file);
-
-            FixupAssetsFile(fileInst);
-
-            item = new WorkspaceItem(fileInst, loadOrder);
-            AddRootItemThreadSafe(item, fileInst.name);
-        }
-        finally
-        {
-            lock (_workingKeys)
-            {
-                _workingKeys.Remove(fileKey);
-            }
-        }
+        var item = new WorkspaceItem(fileInst, loadOrder);
+        AddRootItemThreadSafe(item, fileInst.name);
 
         return item;
     }
