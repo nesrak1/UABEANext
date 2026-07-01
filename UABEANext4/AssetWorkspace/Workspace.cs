@@ -155,34 +155,34 @@ public partial class Workspace : ObservableObject
 
     public WorkspaceItem LoadAssets(Stream stream, int loadOrder = -1, string name = "")
     {
-        AssetsFileInstance fileInst;
-        if (stream is FileStream fs)
-        {
-            fileInst = Manager.LoadAssetsFile(fs);
-        }
-        else
-        {
-            fileInst = Manager.LoadAssetsFile(stream, name);
-        }
-
         // check if file is duplicate
-        var fileKey = AssetsManager.GetFileLookupKey(fileInst.path);
+        var fileVirtualPath = (stream is FileStream fkfs) ? fkfs.Name : name;
+        var fileKey = AssetsManager.GetFileLookupKey(fileVirtualPath);
 
         lock (_workingKeys)
         {
             if (Manager.FileLookup.ContainsKey(fileKey) || _workingKeys.Contains(fileKey))
             {
-                throw new DuplicateWorkspaceFileException(fileInst.path);
+                throw new DuplicateWorkspaceFileException(fileVirtualPath);
             }
 
             // no exception, so we're free to lock in this file
-
             _workingKeys.Add(fileKey);
         }
 
         WorkspaceItem item;
         try
         {
+            AssetsFileInstance fileInst;
+            if (stream is FileStream fs)
+            {
+                fileInst = Manager.LoadAssetsFile(fs);
+            }
+            else
+            {
+                fileInst = Manager.LoadAssetsFile(stream, name);
+            }
+
             TryLoadClassDatabase(fileInst.file);
 
             FixupAssetsFile(fileInst);
