@@ -26,7 +26,7 @@
                        VerticalAlignment="Center" />
                 <TextBox Grid.Column="1"
                          Name="defaultBox"
-
+                         Text="{Binding Version}"
                          Watermark="e.g. 2019.4.0f1"
                          VerticalContentAlignment="Center"
                          Height="32" />
