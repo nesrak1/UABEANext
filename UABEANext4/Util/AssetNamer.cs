@@ -174,7 +174,8 @@ public class AssetNamer
 
                         while (iterator.ReadNext())
                         {
-                            if (iterator.TempField.Name == "m_Name" && iterator.TempField.Type == "string" && iterator.TempFieldStack[1].Name == "m_ParsedForm")
+                            if (iterator.TempField.Name == "m_Name" && iterator.TempField.Type == "string" &&
+                                iterator.TempFieldStack.Count >= 2 && iterator.TempFieldStack[1].Name == "m_ParsedForm")
                             {
                                 var valueField = iterator.ReadValueField();
                                 assetName = valueField.AsString;
