@@ -302,7 +302,8 @@ public partial class MainViewModel : ViewModelBase
                 fullErrorSb.Append(stackTraceSb);
             }
 
-            await MessageBoxUtil.ShowDialog("Some files failed to load", fullErrorSb.ToString());
+            var fullErrorStr = fullErrorSb.ToString().TrimEnd('\r', '\n');
+            await MessageBoxUtil.ShowDialog("Some files failed to load", fullErrorStr);
         }
 
         // load class database for these files (or request user to provide one)
