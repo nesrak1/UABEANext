@@ -14,6 +14,7 @@ using DynamicData.Binding;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
@@ -292,8 +293,7 @@ public partial class AssetDocumentViewModel : Document
                 var contToolMan = new ContainerToolManager(Workspace);
                 foreach (var fileInst in fileInsts)
                 {
-                    if (loadCt.IsCancellationRequested)
-                        loadCt.ThrowIfCancellationRequested();
+                    loadCt.ThrowIfCancellationRequested();
 
                     var infosObsCol = (RangeObservableCollection<AssetFileInfo>)fileInst.file.Metadata.AssetInfos;
                     sourceList.Add(infosObsCol);
@@ -819,6 +819,14 @@ public partial class AssetDocumentViewModel : Document
         }
     }
 
+    public async void FindReferences()
+    {
+        if (SelectedItems.Count == 1)
+        {
+            WeakReferenceMessenger.Default.Send(new RequestFindReferencesMessage(SelectedItems[0]));
+        }
+    }
+
     public async void SetTypeFilter()
     {
         var dialogService = Ioc.Default.GetRequiredService<IDialogService>();
@@ -934,6 +942,10 @@ public partial class AssetDocumentViewModel : Document
 
         ContextMenuItems.Add(new MenuOptionViewModel("Remove",
             new RelayCommand(RemoveAsset), null, ApplicationExtensions.GetIconPath("action-remove-asset.png")));
+        ContextMenuItems.Add(new MenuOptionViewModel("-"));
+
+        ContextMenuItems.Add(new MenuOptionViewModel("Find References",
+            new RelayCommand(FindReferences), null, null));
     }
 
     private async Task OnWorkspaceClosing(object recipient, WorkspaceClosingMessage message)

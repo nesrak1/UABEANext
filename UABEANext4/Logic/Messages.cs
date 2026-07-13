@@ -14,6 +14,11 @@ public class RequestEditAssetMessage(AssetInst value)
 {
 }
 
+public class RequestFindReferencesMessage(AssetInst value)
+    : ValueChangedMessage<AssetInst>(value)
+{
+}
+
 public class RequestVisitAssetMessage(AssetInst value)
     : ValueChangedMessage<AssetInst>(value)
 {
