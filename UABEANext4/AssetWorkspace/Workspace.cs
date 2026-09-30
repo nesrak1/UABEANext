@@ -103,6 +103,8 @@ public partial class Workspace : ObservableObject
             bunInst = Manager.LoadBundleFile(stream, name);
         }
 
+        FixKnownUnityFsDataPadding(bunInst);
+
         // keys we'll add to workingKeys to "lock" them
         var ourWorkingKeys = new List<string>();
 
@@ -151,6 +153,40 @@ public partial class Workspace : ObservableObject
         }
 
         return item;
+    }
+
+    private static void FixKnownUnityFsDataPadding(BundleFileInstance bunInst)
+    {
+        var bundle = bunInst.file;
+        var header = bundle.Header;
+        var fileStreamHeader = header.FileStreamHeader;
+        var baseStream = bundle.Reader.BaseStream;
+
+        if (header.Signature != "UnityFS" ||
+            (fileStreamHeader.Flags & AssetBundleFSHeaderFlags.BlockInfoNeedPaddingAtStart) == 0 ||
+            bundle.GetCompressionType() != AssetBundleCompressionType.LZ4 ||
+            !baseStream.CanSeek)
+        {
+            return;
+        }
+
+        var blockInfos = bundle.BlockAndDirInfo.BlockInfos;
+        var compressedBlocksSize = blockInfos.Sum(block => (long)block.CompressedSize);
+        var dataOffset = header.GetFileDataOffset();
+
+        if (!UnityFsBundlePadding.TryGetAdjustedDataOffset(
+                fileStreamHeader.TotalFileSize,
+                baseStream.Length,
+                dataOffset,
+                compressedBlocksSize,
+                out var adjustedDataOffset))
+        {
+            return;
+        }
+
+        bundle.DataReader = new AssetsFileReader(
+            new LZ4BlockStream(baseStream, adjustedDataOffset, blockInfos));
+        bundle.DataIsCompressed = false;
     }
 
     public WorkspaceItem LoadAssets(Stream stream, int loadOrder = -1, string name = "")
