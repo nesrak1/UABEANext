@@ -3,12 +3,20 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:tools="using:UABEANext4.ViewModels.Tools"
+             xmlns:plugins="using:UABEANext4.Plugins"
              d:DesignWidth="400" d:DesignHeight="450"
              x:Class="UABEANext4.Views.Tools.ImagePreviewView"
              x:DataType="tools:PreviewerToolViewModel">
 
-    <Grid RowDefinitions="*, Auto">
-        <ScrollViewer Grid.Row="0"
+    <Grid RowDefinitions="Auto, *, Auto, Auto">
+        <StackPanel Grid.Row="0" Margin="6,2">
+            <CheckBox Content="Show original swizzled texture"
+                      IsVisible="{Binding ImagePreview.CanShowSwizzled}"
+                      IsChecked="{Binding ImagePreview.ShowSwizzled}"
+                      ToolTip.Tip="Show stored pixel/block order without deswizzling. Preview only; does not modify the asset." />
+            <TextBlock Text="{Binding ImagePreview.PreviewError}" TextWrapping="Wrap" />
+        </StackPanel>
+        <ScrollViewer Grid.Row="1"
                       Name="ImageScroll"
                       HorizontalScrollBarVisibility="Auto"
                       VerticalScrollBarVisibility="Auto">
@@ -30,7 +38,36 @@
             </Panel>
         </ScrollViewer>
 
-        <Border Grid.Row="1" Background="{DynamicResource DockThemeBackgroundBrush}"
+        <Expander Grid.Row="2" Margin="6,2" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
+                  Header="{Binding ImagePreview.MipmapHeader}"
+                  IsVisible="{Binding ImagePreview.HasMipmaps}"
+                  IsExpanded="{Binding ImagePreview.ShowMipmaps, Mode=TwoWay}"
+                  ToolTip.Tip="Stored lower mip levels, always decoded. Preview only; no mipmaps are generated or modified.">
+            <StackPanel>
+                <TextBlock Text="{Binding ImagePreview.MipmapError}" TextWrapping="Wrap" />
+                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled"
+                              MaxHeight="210">
+                    <ItemsControl ItemsSource="{Binding ImagePreview.Mipmaps}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate><StackPanel Orientation="Horizontal" Spacing="12" /></ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="plugins:MipmapPreview">
+                                <StackPanel Spacing="4" Margin="2,4">
+                                    <TextBlock Text="{Binding Label}" FontSize="11" />
+                                    <Image Source="{Binding Image}" Width="{Binding Width}" Height="{Binding Height}"
+                                           HorizontalAlignment="Left" RenderTransformOrigin="50%,50%">
+                                        <Image.RenderTransform><ScaleTransform ScaleY="-1" /></Image.RenderTransform>
+                                    </Image>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </StackPanel>
+        </Expander>
+
+        <Border Grid.Row="3" Background="{DynamicResource DockThemeBackgroundBrush}"
                 BorderBrush="{DynamicResource DockThemeBorderLowBrush}" BorderThickness="0,1,0,0" Padding="6,2">
             <Grid ColumnDefinitions="*, Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="15">

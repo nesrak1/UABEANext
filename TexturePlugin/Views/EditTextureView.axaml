@@ -49,7 +49,7 @@
 
         <ScrollViewer Grid.Row="0" Margin="0,0,0,10">
             <Grid ColumnDefinitions="150, *, 30"
-                  RowDefinitions="32,32,32,32,32,32,32,32,32,32,32,32">
+                  RowDefinitions="32,32,32,32,32,32,32,32,32,32,32,32,32">
 
                 <Label Grid.Row="0" Grid.Column="0">Name</Label>
                 <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding Name}" Watermark="{Binding NameWatermark}" />
@@ -125,6 +125,12 @@
                     <PathIcon Data="{DynamicResource DockToolIconCloseGeometry}" />
                 </Button>
 
+                <Label Grid.Row="12" Grid.Column="0">Is preprocessed</Label>
+                <CheckBox Grid.Row="12" Grid.Column="1" IsChecked="{Binding IsPreProcessed}" IsThreeState="{Binding IsPreProcessedThreeOn}"
+                          ToolTip.Tip="Convert texture storage for PS4, PS5 or Switch. Switch supports one mip." />
+                <Button Grid.Row="12" Grid.Column="2" Classes="reset" Command="{Binding ResetToDefault}" CommandParameter="12">
+                    <PathIcon Data="{DynamicResource DockToolIconCloseGeometry}" />
+                </Button>
             </Grid>
         </ScrollViewer>
 

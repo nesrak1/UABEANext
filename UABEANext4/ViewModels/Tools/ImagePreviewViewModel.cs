@@ -5,6 +5,9 @@ using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using UABEANext4.Plugins;
 
 namespace UABEANext4.ViewModels.Tools;
 public partial class ImagePreviewViewModel : ViewModelBase
@@ -22,6 +25,89 @@ public partial class ImagePreviewViewModel : ViewModelBase
     private string _textureFormat = string.Empty;
     [ObservableProperty]
     private string _currentBgLabel = "A";
+
+    [ObservableProperty]
+    private bool _canShowSwizzled;
+    [ObservableProperty]
+    private bool _showSwizzled;
+    [ObservableProperty]
+    private string? _previewError;
+
+    private Func<bool, (Bitmap? Image, int Format, string? Error)>? _texturePreview;
+
+    public ObservableCollection<MipmapPreview> Mipmaps { get; } = new();
+    [ObservableProperty]
+    private bool _hasMipmaps;
+    [ObservableProperty]
+    private bool _showMipmaps;
+    [ObservableProperty]
+    private string _mipmapHeader = "Mipmaps";
+    [ObservableProperty]
+    private string? _mipmapError;
+    private Func<IReadOnlyList<MipmapPreview>>? _mipmapPreview;
+    private bool _mipmapsLoaded;
+
+    public void ConfigureMipmaps(int count, Func<IReadOnlyList<MipmapPreview>>? preview)
+    {
+        foreach (var mip in Mipmaps)
+            mip.Dispose();
+        Mipmaps.Clear();
+        _mipmapsLoaded = false;
+        MipmapError = null;
+        _mipmapPreview = preview;
+        HasMipmaps = count > 1 && preview != null;
+        MipmapHeader = $"Mipmaps ({Math.Max(0, count - 1)} lower levels)";
+        LoadMipmaps();
+    }
+
+    partial void OnShowMipmapsChanged(bool value) => LoadMipmaps();
+
+    private void LoadMipmaps()
+    {
+        if (!HasMipmaps || !ShowMipmaps || _mipmapsLoaded || _mipmapPreview == null)
+            return;
+        try
+        {
+            MipmapError = null;
+            foreach (var mip in _mipmapPreview())
+                Mipmaps.Add(mip);
+            _mipmapsLoaded = true;
+        }
+        catch (Exception ex)
+        {
+            MipmapError = ex.Message;
+        }
+    }
+
+    public void ConfigureTexturePreview(Func<bool, (Bitmap?, int, string?)>? preview)
+    {
+        _texturePreview = null;
+        // Keep the preview preference when switching textures.
+        PreviewError = null;
+        CanShowSwizzled = preview != null;
+        _texturePreview = preview;
+        if (preview != null)
+            ReloadTexturePreview();
+    }
+
+    partial void OnShowSwizzledChanged(bool value) => ReloadTexturePreview();
+
+    private void ReloadTexturePreview()
+    {
+        if (_texturePreview == null)
+            return;
+        try
+        {
+            var (image, format, error) = _texturePreview(ShowSwizzled);
+            UpdateImage(image, (AssetsTools.NET.Texture.TextureFormat)format);
+            PreviewError = image == null ? error ?? "Texture preview failed." : null;
+        }
+        catch (Exception ex)
+        {
+            UpdateImage(null, null);
+            PreviewError = ex.Message;
+        }
+    }
 
     private readonly string[] _bgLabels = ["A", "C", "B", "W", "G"];
     public double ZoomLevelY => -ZoomLevel;
@@ -60,6 +146,8 @@ public partial class ImagePreviewViewModel : ViewModelBase
         }
 
         Image = bitmap;
+        OnPropertyChanged(nameof(DisplayWidth));
+        OnPropertyChanged(nameof(DisplayHeight));
         if (bitmap != null)
         {
             ImageInfo = $"{bitmap.PixelSize.Width} x {bitmap.PixelSize.Height} px";

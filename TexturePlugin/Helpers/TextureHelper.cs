@@ -7,6 +7,17 @@ using UABEANext4.Logic.AssetInfo;
 namespace TexturePlugin.Helpers;
 public static class TextureHelper
 {
+    public static byte[]? FillPictureData(TextureFile texture, AssetsFileInstance file, AssetsManager manager)
+    {
+        if (texture.swizzleType == SwizzleType.PS5 && file.file.Metadata.TargetPlatform == (uint)BuildTarget.PS5)
+        {
+            var data = Ps5ResourceCompatibility.TryFillPictureData(texture, file, manager);
+            if (data != null)
+                return data;
+        }
+        return texture.FillPictureData(file);
+    }
+
     public static AssetTypeValueField? GetByteArrayTexture(Workspace workspace, AssetInst tex)
     {
         var textureTemp = workspace.GetTemplateField(tex);
@@ -87,11 +98,6 @@ public static class TextureHelper
 
     public static void SwizzleOptIn(TextureFile texture, AssetsFile file)
     {
-        // note: this means "swizzle if it seems enabled" not "always enable swizzle"
-        // for switch, if platformblob isn't present, this value is pretty much ignored
-        if (file.Metadata.TargetPlatform == (uint)BuildTarget.Switch)
-        {
-            texture.swizzleType = SwizzleType.Switch;
-        }
+        texture.swizzleType = TexturePlatform.GetSwizzleType(texture, file.Metadata.TargetPlatform);
     }
 }

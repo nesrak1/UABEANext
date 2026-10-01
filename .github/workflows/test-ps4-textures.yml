@@ -1,0 +1,23 @@
+name: Build PS4 texture plugin
+
+on:
+  push:
+    branches: [master, 'feature/ps4-*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          submodules: recursive
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 9.0.x
+      - name: Build texture plugin
+        run: dotnet build TexturePlugin/TexturePlugin.csproj -c Release

@@ -1,4 +1,4 @@
-﻿using AssetsTools.NET.Extra;
+using AssetsTools.NET.Extra;
 using AssetsTools.NET.Texture;
 using Avalonia.Platform.Storage;
 using System.Text;
@@ -79,10 +79,7 @@ public class ImportBatchTextureOption : IUavPluginOption
             }
 
             var tex = TextureFile.ReadTextureFile(baseField);
-            if (tex.m_PlatformBlob.Length != 0)
-            {
-                TextureHelper.SwizzleOptIn(tex, asset.FileInstance.file);
-            }
+            TextureHelper.SwizzleOptIn(tex, asset.FileInstance.file);
 
             if (info.ImportFile == null || !File.Exists(info.ImportFile))
             {
@@ -91,10 +88,15 @@ public class ImportBatchTextureOption : IUavPluginOption
             }
 
             var singleMip = tex.m_MipCount == 1;
-            var mipCount = singleMip ? 1 : int.MinValue;
+            var consolePreprocessed = tex.swizzleType is SwizzleType.PS4 or SwizzleType.PS5;
+            var mipCount = consolePreprocessed ? tex.m_MipCount
+                : singleMip ? 1 : int.MinValue;
 
             try
             {
+                // Keep original console padding available to the swizzler.
+                if (consolePreprocessed)
+                    TextureHelper.FillPictureData(tex, asset.FileInstance, workspace.Manager);
                 tex.EncodeTextureImage(info.ImportFile, mipCount: mipCount);
                 tex.WriteTo(baseField);
                 asset.UpdateAssetDataAndRow(workspace, baseField);

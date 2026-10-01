@@ -1,4 +1,4 @@
-﻿using AssetsTools.NET;
+using AssetsTools.NET;
 using AssetsTools.NET.Texture;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -70,6 +70,13 @@ public partial class EditTextureViewModel : ViewModelBaseValidator, IDialogAware
 
     private IUavPluginFunctions _pluginFuncs;
 
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsPreProcessedThreeOn))]
+    public bool? _isPreProcessed = false;
+
+    public bool IsPreProcessedThreeOn => IsPreProcessed is null;
+    private bool? _defaultIsPreProcessed;
+
     // default fields
     private string? _defaultName;
     private TextureFormatEnm? _defaultTextureFormat;
@@ -137,6 +144,7 @@ public partial class EditTextureViewModel : ViewModelBaseValidator, IDialogAware
         TextureFormatEnm? textureFormat;
         bool? usingMips;
         bool? isReadable;
+        bool? isPreProcessed;
         FilterModeEnm? filterMode;
         int? filtering;
         float? mipBias;
@@ -156,6 +164,7 @@ public partial class EditTextureViewModel : ViewModelBaseValidator, IDialogAware
         textureFormat = (TextureFormatEnm)firstTextureFile.m_TextureFormat;
         usingMips = firstTextureFile.m_MipMap;
         isReadable = firstTextureFile.m_IsReadable;
+        isPreProcessed = firstTextureFile.m_IsPreProcessed;
         filterMode = (FilterModeEnm)firstTextureSettings.m_FilterMode;
         filtering = firstTextureSettings.m_Aniso;
         mipBias = firstTextureSettings.m_MipBias;
@@ -178,6 +187,8 @@ public partial class EditTextureViewModel : ViewModelBaseValidator, IDialogAware
                     textureFormat = null;
                 if (usingMips != textureFile.m_MipMap)
                     usingMips = null;
+                if (isPreProcessed != textureFile.m_IsPreProcessed)
+                    isPreProcessed = null;
                 if (isReadable != textureFile.m_IsReadable)
                     isReadable = null;
                 if (filterMode != (FilterModeEnm)textureSettings.m_FilterMode)
@@ -201,6 +212,7 @@ public partial class EditTextureViewModel : ViewModelBaseValidator, IDialogAware
         _defaultTextureFormat = TextureFormat = textureFormat;
         _defaultUsingMips = UsingMips = usingMips;
         _defaultIsReadable = IsReadable = isReadable;
+        _defaultIsPreProcessed = IsPreProcessed = isPreProcessed;
         _defaultFilterMode = FilterMode = filterMode;
         _defaultFilteringString = FilteringString = filtering?.ToString();
         _defaultMipBiasString = MipBiasString = mipBias?.ToString();
@@ -230,6 +242,7 @@ public partial class EditTextureViewModel : ViewModelBaseValidator, IDialogAware
             case 9: LightMapFormatString = _defaultLightMapFormatString; break;
             case 10: ColorSpace = _defaultColorSpace; break;
             case 11: LoadTexturePath = null; break;
+            case 12: IsPreProcessed = _defaultIsPreProcessed; break;
         }
     }
 
@@ -310,7 +323,8 @@ public partial class EditTextureViewModel : ViewModelBaseValidator, IDialogAware
                 WrapModeV,
                 lightMapFormat,
                 ColorSpace,
-                LoadTexturePath
+                LoadTexturePath,
+                IsPreProcessed
             )
         );
     }
@@ -348,7 +362,8 @@ public readonly struct EditTextureResult(
     WrapModeEnm? wrapModeV,
     int? lightMapFormat,
     ColorSpaceEnm? colorSpace,
-    string? loadTexturePath)
+    string? loadTexturePath,
+    bool? isPreProcessed)
 {
     public readonly string? Name = name;
     public readonly TextureFormatEnm? TextureFormat = textureFormat;
@@ -362,4 +377,5 @@ public readonly struct EditTextureResult(
     public readonly int? LightMapFormat = lightMapFormat;
     public readonly ColorSpaceEnm? ColorSpace = colorSpace;
     public readonly string? LoadTexturePath = loadTexturePath;
+    public readonly bool? IsPreProcessed = isPreProcessed;
 }

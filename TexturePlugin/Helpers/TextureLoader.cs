@@ -1,4 +1,4 @@
-﻿using AssetsTools.NET;
+using AssetsTools.NET;
 using AssetsTools.NET.Extra;
 using AssetsTools.NET.Texture;
 using Avalonia;
@@ -120,12 +120,9 @@ public class TextureLoader
             var texture = TextureFile.ReadTextureFile(textureEditBf);
             format = (TextureFormat)texture.m_TextureFormat;
 
-            if (texture.m_PlatformBlob.Length != 0)
-            {
-                TextureHelper.SwizzleOptIn(texture, textureAsset.FileInstance.file);
-            }
+            TextureHelper.SwizzleOptIn(texture, textureAsset.FileInstance.file);
 
-            var encTextureData = texture.FillPictureData(textureAsset.FileInstance);
+            var encTextureData = TextureHelper.FillPictureData(texture, textureAsset.FileInstance, workspace.Manager);
             var textureData = texture.DecodeTextureRaw(encTextureData);
             if (textureData == null)
             {
@@ -366,18 +363,28 @@ public class TextureLoader
         return atlasNameLookup;
     }
 
-    public static Bitmap? GetTexture2DBitmap(Workspace workspace, AssetInst asset, out TextureFormat format)
+    public static Bitmap? GetTexture2DBitmap(Workspace workspace, AssetInst asset, out TextureFormat format, bool showSwizzled = false)
     {
         var textureEditBf = TextureHelper.GetByteArrayTexture(workspace, asset);
         var texture = TextureFile.ReadTextureFile(textureEditBf);
         format = (TextureFormat)texture.m_TextureFormat;
 
-        if (texture.m_PlatformBlob.Length != 0)
+        TextureHelper.SwizzleOptIn(texture, asset.FileInstance.file);
+
+        var encTextureData = TextureHelper.FillPictureData(texture, asset.FileInstance, workspace.Manager);
+
+        if (showSwizzled)
         {
-            TextureHelper.SwizzleOptIn(texture, asset.FileInstance.file);
+            // Decode stored order directly on this temporary TextureFile only.
+            if (texture.swizzleType == SwizzleType.Switch)
+                texture.m_TextureFormat = (int)SwitchSwizzle.GetCorrectedSwitchTextureFormat(format);
+            if (texture.swizzleType == SwizzleType.PS4)
+                texture.m_TextureFormat = (int)Ps4MortonLayout.GetStorageFormat(format);
+            if (texture.swizzleType == SwizzleType.PS5)
+                texture.m_TextureFormat = (int)Ps5GfxLayout.GetStorageFormat(format);
+            texture.swizzleType = SwizzleType.None;
         }
 
-        var encTextureData = texture.FillPictureData(asset.FileInstance);
         // rare, but sometimes we see large textures with 0 texture data size
         if (encTextureData is null || encTextureData.Length == 0 || (texture.m_Width == 0 && texture.m_Height == 0))
         {

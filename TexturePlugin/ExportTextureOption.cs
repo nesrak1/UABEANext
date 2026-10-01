@@ -1,4 +1,4 @@
-﻿using AssetsTools.NET;
+using AssetsTools.NET;
 using AssetsTools.NET.Extra;
 using AssetsTools.NET.Texture;
 using Avalonia.Platform.Storage;
@@ -88,10 +88,7 @@ public class ExportTextureOption : IUavPluginOption
                 }
 
                 var texFile = TextureFile.ReadTextureFile(texBaseField);
-                if (texFile.m_PlatformBlob.Length != 0)
-                {
-                    TextureHelper.SwizzleOptIn(texFile, asset.FileInstance.file);
-                }
+                TextureHelper.SwizzleOptIn(texFile, asset.FileInstance.file);
 
                 // 0x0 texture, usually called like Font Texture or something
                 if (texFile.m_Width == 0 && texFile.m_Height == 0)
@@ -103,12 +100,13 @@ public class ExportTextureOption : IUavPluginOption
                 string assetName = PathUtils.ReplaceInvalidPathChars(asset.AssetName ?? "Texture2D");
                 string filePath = AssetNamer.GetAssetFileName(asset, assetName, fileExtension, exportJustNames);
 
-                using FileStream outputStream = File.OpenWrite(Path.Combine(dir, filePath));
-                byte[] encTextureData = texFile.FillPictureData(asset.FileInstance);
-                bool success = texFile.DecodeTextureImage(encTextureData, outputStream, exportType);
-                if (!success)
+                try
                 {
-                    errorBuilder.AppendLine($"[{errorAssetName}]: failed to decode or write image to disk (missing resS, invalid texture format, etc.)");
+                    WriteTextureImage(workspace, texFile, asset, Path.Combine(dir, filePath), exportType);
+                }
+                catch (Exception ex)
+                {
+                    errorBuilder.AppendLine($"[{errorAssetName}]: {ex.Message}");
                 }
             }
             else if (asset.Type == AssetClassID.Sprite)
@@ -170,11 +168,13 @@ public class ExportTextureOption : IUavPluginOption
     private async Task<bool> SingleExportTexture2D(Workspace workspace, IUavPluginFunctions funcs, AssetInst asset)
     {
         AssetTypeValueField? texBaseField = TextureHelper.GetByteArrayTexture(workspace, asset);
-        TextureFile texFile = TextureFile.ReadTextureFile(texBaseField);
-        if (texFile.m_PlatformBlob.Length != 0)
+        if (texBaseField == null)
         {
-            TextureHelper.SwizzleOptIn(texFile, asset.FileInstance.file);
+            await funcs.ShowMessageDialog("Error", "Failed to read texture.");
+            return false;
         }
+        TextureFile texFile = TextureFile.ReadTextureFile(texBaseField);
+        TextureHelper.SwizzleOptIn(texFile, asset.FileInstance.file);
 
         // 0x0 texture, usually called like Font Texture or something
         if (texFile.m_Width == 0 && texFile.m_Height == 0)
@@ -192,12 +192,14 @@ public class ExportTextureOption : IUavPluginOption
 
         ImageExportType exportType = ExportTypeFromFileName(filePath);
 
-        using FileStream outputStream = File.OpenWrite(filePath);
-        byte[] encTextureData = texFile.FillPictureData(asset.FileInstance);
-        if (!texFile.DecodeTextureImage(encTextureData, outputStream, exportType))
+        try
+        {
+            WriteTextureImage(workspace, texFile, asset, filePath, exportType);
+        }
+        catch (Exception ex)
         {
             string errorAssetName = $"{Path.GetFileName(asset.FileInstance.path)}/{asset.PathId}";
-            await funcs.ShowMessageDialog("Error", $"[{errorAssetName}]: failed to decode (missing resS, invalid texture format, etc.)");
+            await funcs.ShowMessageDialog("Error", $"[{errorAssetName}]: {ex.Message}");
             return false;
         }
 
@@ -240,6 +242,16 @@ public class ExportTextureOption : IUavPluginOption
         }
 
         return true;
+    }
+
+    private static void WriteTextureImage(Workspace workspace, TextureFile texture, AssetInst asset, string path, ImageExportType type)
+    {
+        // Decode first so a failed export leaves the existing file alone.
+        using var output = new MemoryStream();
+        byte[]? data = TextureHelper.FillPictureData(texture, asset.FileInstance, workspace.Manager);
+        if (!texture.DecodeTextureImage(data, output, type))
+            throw new InvalidDataException("Failed to decode texture (missing resS or unsupported format).");
+        File.WriteAllBytes(path, output.ToArray());
     }
 
     private static Task<string?> ShowImageSaveFileDialog(IUavPluginFunctions funcs, AssetInst asset, string assetName)

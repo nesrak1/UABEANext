@@ -73,6 +73,9 @@ public partial class PreviewerToolViewModel : Tool
 
     private void HandleAssetPreview(AssetInst? asset)
     {
+        ImagePreview.ConfigureTexturePreview(null);
+        ImagePreview.ConfigureMipmaps(0, null);
+        ImagePreview.UpdateImage(null, null);
         if (asset is null)
         {
             SetDisplayText(string.Empty);
@@ -95,6 +98,27 @@ public partial class PreviewerToolViewModel : Tool
             case UavPluginPreviewerType.Image:
             {
                 ActivePreviewType = PreviewerToolPreviewType.Image;
+
+                if (prev is IUavMipTexturePreviewer mipPreviewer)
+                {
+                    try
+                    {
+                        ImagePreview.ConfigureMipmaps(mipPreviewer.GetMipCount(Workspace, asset),
+                            () => mipPreviewer.ExecuteMipmaps(Workspace, asset));
+                    }
+                    catch (Exception ex) { ImagePreview.MipmapError = ex.Message; }
+                }
+
+                if (prev is IUavRawTexturePreviewer rawPreviewer && rawPreviewer.SupportsRawPreview(Workspace, asset))
+                {
+                    ImagePreview.ConfigureTexturePreview(showSwizzled =>
+                    {
+                        var (bitmap, textureFormat) = rawPreviewer.ExecuteImage(Workspace, _uavPluginFuncs.Value,
+                            asset, showSwizzled, out var previewError);
+                        return (bitmap, textureFormat, previewError);
+                    });
+                    break;
+                }
 
                 var (image, format) = prev.ExecuteImage(Workspace, _uavPluginFuncs.Value, asset, out string? error);
                 if (image != null)

@@ -16,10 +16,11 @@ public partial class ImagePreviewView : UserControl
     {
         InitializeComponent();
 
-        AddHandler(PointerWheelChangedEvent, OnPointerWheelChanged, RoutingStrategies.Tunnel);
-        PointerPressed += OnPointerPressed;
-        PointerMoved += OnPointerMoved;
-        PointerReleased += OnPointerReleased;
+        ImageScroll.AddHandler(PointerWheelChangedEvent, OnPointerWheelChanged, RoutingStrategies.Tunnel);
+        ImageScroll.PointerPressed += OnPointerPressed;
+        ImageScroll.PointerMoved += OnPointerMoved;
+        ImageScroll.PointerReleased += OnPointerReleased;
+        ImageScroll.SizeChanged += (_, _) => TriggerFit();
 
         DataContextChanged += (s, e) =>
         {

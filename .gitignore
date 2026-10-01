@@ -328,3 +328,6 @@ ASALocalRun/
 
 # Free "ignore folder" for whatever you want
 ignore/
+
+# Local validation tools (not published)
+/Tests/
