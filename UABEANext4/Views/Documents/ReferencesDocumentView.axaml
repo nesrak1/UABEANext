@@ -1,0 +1,82 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             xmlns:docs="using:UABEANext4.ViewModels.Documents"
+             xmlns:menu="using:UABEANext4.ViewModels.Menu"
+             xmlns:plugins="using:UABEANext4.Plugins"
+             xmlns:serialization="using:System.Text.Json.Serialization"
+             xmlns:uac="using:UABEANext4.Converters"
+             xmlns:ws="using:UABEANext4.AssetWorkspace"
+             x:Class="UABEANext4.Views.Documents.ReferencesDocumentView"
+             x:DataType="docs:ReferencesDocumentViewModel"
+             Background="{DynamicResource DockThemeBackgroundBrush}">
+    <Design.DataContext>
+        <docs:ReferencesDocumentViewModel IsBusy="False" />
+    </Design.DataContext>
+
+    <Grid RowDefinitions="*" Background="Transparent">
+        <Grid.Resources>
+            <uac:AssetTypeIconConverter x:Key="AssetTypeIconConverter" />
+            <uac:AssetClassIDConverter x:Key="AssetClassIDConverter" />
+            <uac:BitmapAssetValueConverter x:Key="BitmapAssetValueConverter" />
+        </Grid.Resources>
+
+        <Panel Grid.Row="0">
+            <DataGrid
+                AutoGenerateColumns="False"
+                CanUserResizeColumns="True"
+                CanUserReorderColumns="True"
+                IsReadOnly="True"
+                ItemsSource="{Binding CollectionView}"
+                SelectionChanged="DataGrid_SelectionChanged"
+                Margin="0"
+                Name="dataGrid"
+                Background="Transparent"
+                RowBackground="Transparent"
+                GridLinesVisibility="Horizontal"
+                HorizontalScrollBarVisibility="Auto"
+                HorizontalGridLinesBrush="{DynamicResource DockThemeBorderLowBrush}">
+                <DataGrid.Columns>
+                    <DataGridTemplateColumn Header=" ">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate x:DataType="ws:AssetInst">
+                                <Image Source="{Binding Type, Converter={StaticResource AssetTypeIconConverter}}" Width="16" Height="16" HorizontalAlignment="Center" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTextColumn Header="Name" MinWidth="150" Width="200" Binding="{Binding Asset.DisplayName}" x:DataType="docs:ReferenceSearchResult"/>
+                    <DataGridTextColumn Header="Type" MinWidth="120" Width="120" Binding="{Binding Asset.Type, Converter={StaticResource AssetClassIDConverter}}" x:DataType="docs:ReferenceSearchResult"/>
+                    <DataGridTextColumn Header="Reference Path" MinWidth="150" Width="200" Binding="{Binding ReferenceFieldPath}" x:DataType="docs:ReferenceSearchResult"/>
+                    <DataGridTextColumn Header="Container" MinWidth="100" Width="100" Binding="{Binding Asset.DisplayContainer}" x:DataType="docs:ReferenceSearchResult" IsVisible="{Binding $parent[UserControl].((docs:ReferencesDocumentViewModel)DataContext).LoadContainers}"/>
+                    <DataGridTextColumn Header="Bundle Name" MinWidth="120" Width="150" Binding="{Binding Asset.BundleName}" x:DataType="docs:ReferenceSearchResult" IsVisible="False"/>
+                    <DataGridTextColumn Header="File Name"  MinWidth="120" Width="150" Binding="{Binding Asset.FileName}" x:DataType="docs:ReferenceSearchResult"/>
+                    <DataGridTextColumn Header="Path ID" MinWidth="130" Width="160" Binding="{Binding Asset.PathId}" x:DataType="docs:ReferenceSearchResult"/>
+                    <DataGridTextColumn Header="Size" MinWidth="80" Width="80" Binding="{Binding Asset.ByteSizeModified}" x:DataType="docs:ReferenceSearchResult"/>
+                    <DataGridTextColumn Header="Modified" MinWidth="80" Width="80" Binding="{Binding Asset.ModifiedString}" x:DataType="docs:ReferenceSearchResult"/>
+                </DataGrid.Columns>
+            </DataGrid>
+
+            <Panel IsVisible="{Binding IsBusy}" >
+                <Border Background="{DynamicResource DockThemeBackgroundBrush}"
+                        Opacity="0.8" />
+                <StackPanel VerticalAlignment="Center"
+                            HorizontalAlignment="Center"
+                            Spacing="15">
+
+                    <ProgressBar IsIndeterminate="True"
+                                 Width="250"
+                                 Height="4"
+                                 Foreground="{DynamicResource SystemAccentColor}" />
+
+                    <TextBlock Text="Searching for references..."
+                               FontSize="14"
+                               HorizontalAlignment="Center"
+                               Foreground="{DynamicResource DockThemeForegroundBrush}">
+                    </TextBlock>
+                </StackPanel>
+            </Panel>
+        </Panel>
+    </Grid>
+</UserControl>

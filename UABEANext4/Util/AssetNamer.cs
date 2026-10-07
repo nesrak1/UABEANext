@@ -77,7 +77,7 @@ public class AssetNamer
                 var firstChild = tempBaseField.Children[0];
                 if (firstChild.Name == "m_Name" && firstChild.Type == "string" && asset.TypeId != (int)AssetClassID.Shader)
                 {
-                    GetLockObjAndReader(asset, out object lockObj, out AssetsFileReader reader, out long pos);
+                    AssetReaderFactory.GetLockObjAndReader(asset, out object lockObj, out AssetsFileReader reader, out long pos);
 
                     lock (lockObj)
                     {
@@ -107,7 +107,7 @@ public class AssetNamer
                     if (nro == NameReadOptimization.UseOptimized)
                     {
                         var headerVer = fileInst.file.Header.Version;
-                        GetLockObjAndReader(asset, out object lockObj, out AssetsFileReader reader, out long pos);
+                        AssetReaderFactory.GetLockObjAndReader(asset, out object lockObj, out AssetsFileReader reader, out long pos);
 
                         lock (lockObj)
                         {
@@ -140,7 +140,7 @@ public class AssetNamer
 
                     if (nro == NameReadOptimization.UseOptimized)
                     {
-                        GetLockObjAndReader(asset, out object lockObj, out AssetsFileReader reader, out long pos);
+                        AssetReaderFactory.GetLockObjAndReader(asset, out object lockObj, out AssetsFileReader reader, out long pos);
 
                         lock (lockObj)
                         {
@@ -161,7 +161,7 @@ public class AssetNamer
                 }
                 else if (asset.TypeId == (int)AssetClassID.Shader)
                 {
-                    GetLockObjAndReader(asset, out object lockObj, out AssetsFileReader reader, out long pos);
+                    AssetReaderFactory.GetLockObjAndReader(asset, out object lockObj, out AssetsFileReader reader, out long pos);
 
                     lock (lockObj)
                     {
@@ -193,7 +193,7 @@ public class AssetNamer
                 }
                 else if (nro == NameReadOptimization.UseIterator)
                 {
-                    GetLockObjAndReader(asset, out object lockObj, out AssetsFileReader reader, out long pos);
+                    AssetReaderFactory.GetLockObjAndReader(asset, out object lockObj, out AssetsFileReader reader, out long pos);
 
                     lock (lockObj)
                     {
@@ -288,27 +288,6 @@ public class AssetNamer
         return justName
             ? assetName + ext
             : $"{assetName}-{Path.GetFileName(asset.FileInstance.path)}-{asset.PathId}{ext}";
-    }
-
-    private static void GetLockObjAndReader(
-        AssetInst asset, out object lockObj, out AssetsFileReader reader, out long pos)
-    {
-        var fileInst = asset.FileInstance;
-        if (asset.IsReplacerPreviewable)
-        {
-            var stream = asset.Replacer.GetPreviewStream();
-            lockObj = stream;
-            reader = new AssetsFileReader(stream);
-            pos = 0;
-        }
-        else
-        {
-            lockObj = fileInst.LockReader;
-            var baseStream = asset.FileInstance.file.Reader.BaseStream;
-            var segStream = new SegmentStream(baseStream, asset.AbsoluteByteStart, asset.ByteSize);
-            reader = new AssetsFileReader(segStream);
-            pos = 0;
-        }
     }
 
     private static NameReadOptimization GetGameObjectNro(AssetTypeTemplateField tempField)

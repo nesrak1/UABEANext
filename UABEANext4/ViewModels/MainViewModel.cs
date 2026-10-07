@@ -74,6 +74,7 @@ public partial class MainViewModel : ViewModelBase
         WeakReferenceMessenger.Default.Register<RequestEditAssetMessage>(this, (r, h) => ShowEditAssetDialog(h.Value));
         WeakReferenceMessenger.Default.Register<RequestCloseFileMessage>(this, OnRequestCloseFile);
         WeakReferenceMessenger.Default.Register<RequestVisitAssetMessage>(this, (r, h) => _ = OnRequestVisitAsset(r, h));
+        WeakReferenceMessenger.Default.Register<RequestFindReferencesMessage>(this, (r, h) => _ = OnRequestFindReferences(r, h));
 
         _factory.DockableAdded += FactoryDockableAdded;
         _factory.DockableClosed += FactoryDockableClosed;
@@ -812,6 +813,30 @@ public partial class MainViewModel : ViewModelBase
                 _factory.SetFocusedDockable(files, foundAssetDocVm);
             }
         }
+    }
+
+    private async Task OnRequestFindReferences(object recipient, RequestFindReferencesMessage message)
+    {
+        var asset = message.Value;
+        var loadContainers = ConfigurationManager.Settings.LoadContainerPaths;
+
+        // lazy way for now, always open a new tab for the search
+        var document = new ReferencesDocumentViewModel(Workspace, loadContainers)
+        {
+            Title = $"References for {asset.DisplayName} in {asset.FileName}"
+        };
+
+        var files = _factory.GetDockable<IDocumentDock>("Files");
+        if (Layout is not null && files is not null)
+        {
+            _factory.AddDockable(files, document);
+            _factory.SetActiveDockable(document);
+            _factory.SetFocusedDockable(files, document);
+            _factory.DocMan.Documents.Add(document);
+            _factory.DocMan.LastFocusedDocument = document;
+        }
+
+        await document.Load(asset);
     }
 
     public void ShowAssetInfoDialog()
