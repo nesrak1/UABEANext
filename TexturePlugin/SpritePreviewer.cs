@@ -25,26 +25,19 @@ public class SpritePreviewer : IUavPluginPreviewer
         return previewType;
     }
 
-    public (Bitmap?, int) ExecuteImage(Workspace workspace, IUavPluginFunctions funcs, AssetInst selection, out string? error)
+    public PreviewResult Execute(Workspace workspace, IUavPluginFunctions funcs, AssetInst selection)
     {
         var image = _textureLoader.GetSpriteAvaloniaBitmap(workspace, selection, ConfigurationManager.Settings.FullCropSprites, out TextureFormat format);
         if (image != null)
         {
-            error = null;
-            return (image, (int)format);
+            return new PreviewResult.Image(image, (int)format);
         }
         else
         {
-            error = $"Sprite texture failed to decode. The image format may not be supported or the texture is not valid. ({format})";
-            return (null, -1);
+            string error = $"Sprite texture failed to decode. The image format may not be supported or the texture is not valid. ({format})";
+            return new PreviewResult.Error(error);
         }
     }
-
-    public MeshObj? ExecuteMesh(Workspace workspace, IUavPluginFunctions funcs, AssetInst selection, out string? error)
-        => throw new InvalidOperationException();
-
-    public string? ExecuteText(Workspace workspace, IUavPluginFunctions funcs, AssetInst selection, out string? error)
-        => throw new InvalidOperationException();
 
     public void Cleanup() => _textureLoader.Cleanup();
 }

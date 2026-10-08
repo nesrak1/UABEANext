@@ -1,7 +1,4 @@
-﻿using AssetsTools.NET.Texture;
-using Avalonia.Media.Imaging;
-using UABEANext4.AssetWorkspace;
-using UABEANext4.Logic.Mesh;
+﻿using UABEANext4.AssetWorkspace;
 
 namespace UABEANext4.Plugins;
 public interface IUavPluginPreviewer
@@ -11,9 +8,7 @@ public interface IUavPluginPreviewer
 
     // this only supports one previewer per plugin, but that's probably fine for now
     UavPluginPreviewerType SupportsPreview(Workspace workspace, AssetInst selection);
-    string? ExecuteText(Workspace workspace, IUavPluginFunctions funcs, AssetInst selection, out string? error);
-    (Bitmap?, int) ExecuteImage(Workspace workspace, IUavPluginFunctions funcs, AssetInst selection, out string? error);
-    MeshObj? ExecuteMesh(Workspace workspace, IUavPluginFunctions funcs, AssetInst selection, out string? error);
+    PreviewResult Execute(Workspace workspace, IUavPluginFunctions funcs, AssetInst selection);
 
     // called when the workspace is closing/resetting
     void Cleanup();
