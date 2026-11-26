@@ -19,9 +19,9 @@ jobs:
         submodules: recursive
 
     - name: Install .NET Core
-      uses: actions/setup-dotnet@v5
+      uses: actions/setup-dotnet@v6
       with:
-        dotnet-version: 8.0.x
+        dotnet-version: 10.0.x
 
     - name: Setup MSBuild.exe
       uses: microsoft/setup-msbuild@v2
@@ -31,7 +31,7 @@ jobs:
     
     - name: Remove unused platforms
       run: |
-        Get-ChildItem -Path "UABEANext4.Desktop\bin\Release\net8.0\runtimes" -Directory | 
+        Get-ChildItem -Path "UABEANext4.Desktop\bin\Release\net10.0\runtimes" -Directory | 
         Where-Object { $_.Name -notin @("win-x64", "win7-x64", "win") } | 
         Remove-Item -Recurse -Force
 
@@ -39,4 +39,4 @@ jobs:
       uses: actions/upload-artifact@v6
       with:
         name: uabea-windows
-        path: UABEANext4.Desktop/bin/Release/net8.0
+        path: UABEANext4.Desktop/bin/Release/net10.0
