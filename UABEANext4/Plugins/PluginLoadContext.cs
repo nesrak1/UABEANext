@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Runtime.Loader;
 
 namespace UABEANext4.Plugins;
+
 class PluginLoadContext : AssemblyLoadContext
 {
     private readonly AssemblyDependencyResolver _resolver;

@@ -1,9 +1,9 @@
-﻿using AssetsTools.NET.Texture;
-using Avalonia.Media.Imaging;
+﻿using Avalonia.Media.Imaging;
 using UABEANext4.AssetWorkspace;
 using UABEANext4.Logic.Mesh;
 
 namespace UABEANext4.Plugins;
+
 public interface IUavPluginPreviewer
 {
     string Name { get; }

@@ -102,7 +102,7 @@
         </Border>
 
         <Grid Grid.Row="1" ColumnDefinitions="*,Auto" Margin="4" Height="30" IsEnabled="{Binding !IsBusy}">
-            <TextBox Grid.Column="0" Text="{Binding SearchText}" Watermark="Asset name search" VerticalContentAlignment="Center" />
+            <TextBox Grid.Column="0" Text="{Binding SearchText}" PlaceholderText="Asset name search" VerticalContentAlignment="Center" />
             <Button Grid.Column="1" Margin="4,0,0,0" Padding="10,0">
                 <StackPanel Orientation="Horizontal">
                     <Image Source="avares://UABEANext4/Assets/Icons/action-filter.png" Width="14" Height="14" Margin="0,0,5,0" />

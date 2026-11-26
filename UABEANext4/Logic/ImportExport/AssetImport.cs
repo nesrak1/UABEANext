@@ -7,6 +7,7 @@ using System.IO;
 using System.Text;
 
 namespace UABEANext4.Logic.ImportExport;
+
 public class AssetImport
 {
     private readonly Stream _stream;

@@ -50,10 +50,10 @@ public class AssetInst : AssetFileInfo, INotifyPropertyChanged
     public void UpdateAssetDataAndRow(Workspace workspace, byte[] data)
     {
         SetNewData(data);
-        
+
         var maxNameLen = ConfigurationManager.Settings.ListingNameLength;
         AssetName = workspace.Namer.GetAssetName(this, true, maxNameLen);
-        
+
         Update(nameof(DisplayName));
         Update(nameof(ByteSizeModified));
         Update(nameof(ModifiedString));

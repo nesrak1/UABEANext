@@ -2,6 +2,7 @@
 using UABEANext4.Interfaces;
 
 namespace UABEANext4.Services;
+
 internal class DummyDialogService : IDialogService
 {
     public void Show(IDialogAware viewModel)

@@ -11,11 +11,12 @@ using UABEANext4.Logic.ImportExport;
 using UABEANext4.Util;
 
 namespace UABEANext4.ViewModels.Dialogs;
+
 public partial class EditDataViewModel : ViewModelBase, IDialogAware<byte[]?>
 {
-    [ObservableProperty] 
+    [ObservableProperty]
     private TextDocument? _document;
-    [ObservableProperty] 
+    [ObservableProperty]
     private bool _isBusy;
 
     private readonly AssetTypeValueField _baseField;

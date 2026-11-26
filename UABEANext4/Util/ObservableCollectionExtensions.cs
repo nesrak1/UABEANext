@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
 namespace UABEANext4.Util;
+
 public static class ObservableCollectionExtensions
 {
     public static int BinarySearch<T>(this ObservableCollection<T> collection, T item, Func<T, T, int>? compare = null)

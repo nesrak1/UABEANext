@@ -17,12 +17,11 @@
         <Grid Grid.Row="0" ColumnDefinitions="*, Auto, Auto"
               Margin="0,0,0,10"
               IsEnabled="{Binding !IsBusy}">
-            <TextBox
-                Text="{Binding SearchText}"
-                Name="defaultBox"
-                Watermark="Enter value to search..."
-                VerticalContentAlignment="Center"
-                Margin="0,0,8,0"/>
+            <TextBox Text="{Binding SearchText}"
+                     Name="defaultBox"
+                     PlaceholderText="Enter value to search..."
+                     VerticalContentAlignment="Center"
+                     Margin="0,0,8,0"/>
             <Button Grid.Column="1"
                     Command="{Binding SetTypeFilterCommand}"
                     Margin="0,0,8,0">
@@ -53,6 +52,7 @@
                   Background="{DynamicResource DockThemeListBackgroundBrush}">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="File" Binding="{Binding FileName, Mode=OneTime}" Width="150" />
+              <DataGridTextColumn Header="Bundle Name" Binding="{Binding BundleName, Mode=OneTime}" Width="200" MinWidth="150" />
                 <DataGridTextColumn Header="Asset Name" Binding="{Binding AssetName, Mode=OneTime}" Width="200" MinWidth="150" />
                 <DataGridTextColumn Header="Type" Width="120" Binding="{Binding Type, Converter={StaticResource AssetClassIDConverter}}" />
                 <DataGridTextColumn Header="Path ID" Binding="{Binding PathId, Mode=OneTime}" Width="160" />

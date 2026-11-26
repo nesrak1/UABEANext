@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.Windows.Input;
 
 namespace UABEANext4.ViewModels.Menu;
+
 public partial class MenuOptionViewModel : ViewModelBase
 {
     [ObservableProperty] private string _header;

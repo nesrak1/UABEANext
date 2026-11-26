@@ -2,9 +2,9 @@ using System;
 using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using UABEANext4.Util;
 
 namespace UABEANext4.Logic.Configuration;
+
 public static class ConfigurationManager
 {
     public const string CONFIG_FILENAME = "config.json";
@@ -27,9 +27,9 @@ public static class ConfigurationManager
         else
         {
             var configText = File.ReadAllText(configPath);
-            Settings = JsonSerializer.Deserialize<ConfigurationValues>(configText, OPTIONS) 
+            Settings = JsonSerializer.Deserialize<ConfigurationValues>(configText, OPTIONS)
                 ?? new ConfigurationValues();
-            
+
             IsInitialized = true;
         }
     }
@@ -38,7 +38,7 @@ public static class ConfigurationManager
     {
         if (!IsInitialized)
             return;
-        
+
         var configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, CONFIG_FILENAME);
         var configText = JsonSerializer.Serialize(Settings, OPTIONS);
         File.WriteAllText(configPath, configText);

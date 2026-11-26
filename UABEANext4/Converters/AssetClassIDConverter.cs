@@ -11,8 +11,7 @@ namespace UABEANext4.Converters;
 public class AssetClassIDConverter : IValueConverter
 {
     private Dictionary<AssetClassID, string> _nameLookup = Enum
-        .GetValues(typeof(AssetClassID))
-        .Cast<AssetClassID>()
+        .GetValues<AssetClassID>()
         .ToDictionary(enm => enm, enm => enm.ToString());
 
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)

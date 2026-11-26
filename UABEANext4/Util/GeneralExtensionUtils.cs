@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 
 namespace UABEANext4.Util;
+
 public static class GeneralExtensionUtils
 {
     // https://stackoverflow.com/a/50481101

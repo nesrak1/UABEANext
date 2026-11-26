@@ -21,6 +21,7 @@ using UABEANext4.Services;
 using UABEANext4.Util;
 
 namespace UABEANext4.ViewModels.Dialogs;
+
 public partial class AssetDataSearchViewModel : ViewModelBase, IDialogAware<string?>
 {
     [ObservableProperty]
@@ -77,7 +78,6 @@ public partial class AssetDataSearchViewModel : ViewModelBase, IDialogAware<stri
         if (result != null)
         {
             _selectedFilterEntries = result.ToHashSet();
-
         }
     }
 
@@ -129,11 +129,11 @@ public partial class AssetDataSearchViewModel : ViewModelBase, IDialogAware<stri
                                     }
                                 }
 
-                                var currentEntry = new TypeFilterTypeEntry 
-                                { 
+                                var currentEntry = new TypeFilterTypeEntry
+                                {
                                     TypeId = info.TypeId,
-                                    ScriptRef = sRef, 
-                                    DisplayText = "" 
+                                    ScriptRef = sRef,
+                                    DisplayText = ""
                                 };
 
                                 if (!_selectedFilterEntries.Contains(currentEntry))
@@ -143,7 +143,7 @@ public partial class AssetDataSearchViewModel : ViewModelBase, IDialogAware<stri
 
                                 byte[] assetData = new byte[info.ByteSize];
                                 stream.Position = info.ByteOffset + dataOffset;
-                                stream.Read(assetData, 0, (int)info.ByteSize);
+                                stream.ReadExactly(assetData, 0, (int)info.ByteSize);
 
                                 int matchIdx = SearchLogic.IndexOfBytes(assetData, searchBytes);
                                 if (matchIdx != -1)
@@ -151,6 +151,7 @@ public partial class AssetDataSearchViewModel : ViewModelBase, IDialogAware<stri
                                     allFound.Add(new SearchResultItem
                                     {
                                         FileName = fileInst.name,
+                                        BundleName = fileInst.parentBundle?.name ?? "",
                                         AssetName = (info is AssetInst a) ? a.DisplayName : $"{info.TypeId} asset",
                                         PathId = info.PathId,
                                         Type = (AssetClassID)info.TypeId,
@@ -177,8 +178,8 @@ public partial class AssetDataSearchViewModel : ViewModelBase, IDialogAware<stri
 
                                 int searchIdx = assetInfos.BinarySearch(new AssetFileInfo
                                 {
-                                    ByteOffset = relativeOffset 
-                                }, 
+                                    ByteOffset = relativeOffset
+                                },
                                 (i, j) => i.ByteOffset.CompareTo(j.ByteOffset));
                                 AssetFileInfo? info = null;
                                 if (searchIdx >= 0)
@@ -197,6 +198,7 @@ public partial class AssetDataSearchViewModel : ViewModelBase, IDialogAware<stri
                                         allFound.Add(new SearchResultItem
                                         {
                                             FileName = fileInst.name,
+                                            BundleName = fileInst.parentBundle?.name ?? "",
                                             AssetName = (info is AssetInst a) ? a.DisplayName : $"{info.TypeId} asset",
                                             PathId = info.PathId,
                                             Type = (AssetClassID)info.TypeId,

@@ -17,6 +17,7 @@ using UABEANext4.Logic;
 using UABEANext4.Util;
 
 namespace UABEANext4.Controls;
+
 public class AssetDataTreeView : TreeView
 {
     protected override Type StyleKeyOverride => typeof(TreeView);

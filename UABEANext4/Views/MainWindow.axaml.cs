@@ -1,14 +1,10 @@
 ﻿using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Platform.Storage;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using UABEANext4.ViewModels;
-using System.IO;
-#if DEBUG
-using Avalonia.Diagnostics;
-using UABEANext4.Logic.DevTools;
-#endif
 
 namespace UABEANext4.Views;
 
@@ -17,8 +13,7 @@ public partial class MainWindow : Window
     public MainWindow()
     {
 #if DEBUG
-        InitializeComponent(attachDevTools: false);
-        DevToolsAdblock.Attach(this, new DevToolsOptions());
+        InitializeComponent(attachDevTools: true);
 #else
         InitializeComponent();
 #endif

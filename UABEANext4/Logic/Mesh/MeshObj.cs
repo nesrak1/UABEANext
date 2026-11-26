@@ -236,7 +236,7 @@ public class MeshObj
                 var stream = File.OpenRead(fixedStreamPath);
                 stream.Position = offset;
                 var data = new byte[size];
-                stream.Read(data, 0, (int)size);
+                stream.ReadExactly(data, 0, (int)size);
                 return data;
             }
             // we still haven't found it yet. maybe a data.unity3d bundle?

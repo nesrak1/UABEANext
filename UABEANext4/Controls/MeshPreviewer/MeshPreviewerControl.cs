@@ -11,6 +11,7 @@ using System.Runtime.InteropServices;
 using UABEANext4.Logic.Mesh;
 
 namespace UABEANext4.Controls.MeshPreviewer;
+
 public class MeshPreviewerControl : OpenGlControlBase, ICustomHitTest
 {
     private GL? _gl;

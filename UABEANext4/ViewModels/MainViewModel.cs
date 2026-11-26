@@ -1,5 +1,4 @@
 ﻿using AssetsTools.NET.Extra;
-using Avalonia.Platform;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.DependencyInjection;
@@ -52,10 +51,8 @@ public partial class MainViewModel : ViewModelBase
     [ObservableProperty]
     private string _windowTitle = DefaultWindowTitle;
 
+    // note: client side decorations still only experimental for linux
     public bool UsesChrome => OperatingSystem.IsWindows();
-    public ExtendClientAreaChromeHints ChromeHints => UsesChrome
-        ? ExtendClientAreaChromeHints.PreferSystemChrome
-        : ExtendClientAreaChromeHints.Default;
 
     // state
     private List<AssetsFileInstance> _lastLoadedFiles = [];

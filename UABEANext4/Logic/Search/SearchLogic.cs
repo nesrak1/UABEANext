@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 
 namespace UABEANext4.Logic.Search;
+
 internal class SearchLogic
 {
     public static IEnumerable<long> FindAllSubstringsInStream(Stream fs, byte[] patternBytes)

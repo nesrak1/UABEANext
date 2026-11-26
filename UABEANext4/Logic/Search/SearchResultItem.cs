@@ -8,9 +8,9 @@ public class SearchResultItem
     public AssetInst? Asset { get; init; }
 
     public string FileName { get; init; } = string.Empty;
+    public string BundleName { get; init; } = string.Empty;
     public string AssetName { get; init; } = string.Empty;
     public long PathId { get; init; }
     public string Offset { get; init; } = string.Empty;
     public AssetClassID Type { get; init; }
-
 }

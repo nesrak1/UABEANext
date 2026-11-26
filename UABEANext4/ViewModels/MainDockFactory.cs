@@ -12,6 +12,7 @@ using UABEANext4.ViewModels.Documents;
 using UABEANext4.ViewModels.Tools;
 
 namespace UABEANext4.ViewModels;
+
 internal class MainDockFactory : Factory
 {
     public ProportionalDock? MainPane;

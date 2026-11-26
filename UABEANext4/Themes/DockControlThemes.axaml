@@ -1,0 +1,499 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:controls="clr-namespace:Dock.Avalonia.Controls;assembly=Dock.Avalonia"
+                    xmlns:converters="clr-namespace:Dock.Avalonia.Converters;assembly=Dock.Avalonia"
+                    xmlns:dmc="clr-namespace:Dock.Model.Controls;assembly=Dock.Model"
+                    xmlns:core="clr-namespace:Dock.Model.Core;assembly=Dock.Model"
+                    x:CompileBindings="True">
+  <Design.PreviewWith>
+    <DockControl Width="600" Height="400" />
+  </Design.PreviewWith>
+
+  <ControlTheme x:Key="{x:Type DockControl}" TargetType="DockControl" x:DataType="core:IDock">
+
+    <Setter Property="(AutomationProperties.AutomationId)" Value="{Binding $self.Layout.Id, FallbackValue={x:Null}}" />
+    <Setter Property="(AutomationProperties.Name)" Value="{Binding $self.Layout.Title, FallbackValue={x:Null}}" />
+
+    <Setter Property="(DockProperties.IsDragEnabled)" Value="{Binding $self.Layout.CanDrag, FallbackValue={x:True}}" />
+    <Setter Property="(DockProperties.IsDropEnabled)" Value="{Binding $self.Layout.CanDrop, FallbackValue={x:True}}"  />
+    <Setter Property="(DockProperties.DockGroup)" Value="{Binding $self.Layout.DockGroup, FallbackValue={x:Null}}" />
+
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Grid RowDefinitions="Auto,*">
+          <controls:DockCommandBarHost x:Name="PART_CommandBarHost"
+                                       Grid.Row="0" />
+          <!-- Models derived from StyledElement must not become logical template children. -->
+          <ContentPresenter x:Name="PART_ContentControl"
+                            Grid.Row="1"
+                            Content="{TemplateBinding Layout}" />
+          <controls:ManagedWindowLayer x:Name="PART_ManagedWindowLayer"
+                                       Grid.Row="1"
+                                       IsVisible="False" />
+          <controls:DockSelectorOverlay x:Name="PART_SelectorOverlay"
+                                        Grid.Row="0"
+                                        Grid.RowSpan="2"
+                                        HorizontalAlignment="Stretch"
+                                        VerticalAlignment="Stretch" />
+        </Grid>
+      </ControlTemplate>
+    </Setter>
+
+  </ControlTheme>
+
+  <ControlTheme x:Key="{x:Type RootDockControl}" TargetType="RootDockControl" x:DataType="dmc:IRootDock">
+
+    <Setter Property="(AutomationProperties.AutomationId)" Value="{Binding Id}" />
+    <Setter Property="(AutomationProperties.Name)" Value="{Binding Title}" />
+
+    <Setter Property="(DockProperties.IsDragEnabled)" Value="{Binding CanDrag}" />
+    <Setter Property="(DockProperties.IsDropEnabled)" Value="{Binding CanDrop}" />
+    <Setter Property="(DockProperties.DockGroup)" Value="{Binding DockGroup}" />
+
+    <Setter Property="Template">
+      <ControlTemplate>
+        <DockableControl TrackingMode="Visible">
+          <DockPanel Background="Transparent"
+                     DockProperties.IsDropArea="False">
+            <ToolPinnedControl DockPanel.Dock="Left" 
+                               Orientation="Vertical"
+                               ItemsSource="{Binding LeftPinnedDockables}"
+                               IsVisible="{Binding !!LeftPinnedDockables?.Count, TargetNullValue={x:False}, FallbackValue={x:False}}" />
+            <ToolPinnedControl DockPanel.Dock="Right" 
+                               Orientation="Vertical"
+                               ItemsSource="{Binding RightPinnedDockables}"
+                               IsVisible="{Binding !!RightPinnedDockables?.Count, TargetNullValue={x:False}, FallbackValue={x:False}}" />
+            <ToolPinnedControl DockPanel.Dock="Top" 
+                               Orientation="Horizontal"
+                               ItemsSource="{Binding TopPinnedDockables}"
+                               IsVisible="{Binding !!TopPinnedDockables?.Count, TargetNullValue={x:False}, FallbackValue={x:False}}" />
+            <ToolPinnedControl DockPanel.Dock="Bottom" 
+                               Orientation="Horizontal"
+                               ItemsSource="{Binding BottomPinnedDockables}"
+                               IsVisible="{Binding !!BottomPinnedDockables?.Count, TargetNullValue={x:False}, FallbackValue={x:False}}" />
+            <controls:PinnedDockHostPanel PinnedDockDisplayMode="{Binding PinnedDockDisplayMode}"
+                                          PinnedDockAlignment="{Binding PinnedDock?.Alignment, TargetNullValue={x:Static core:Alignment.Unset}, FallbackValue={x:Static core:Alignment.Unset}}">
+              <ContentControl Content="{Binding ActiveDockable}" Name="PART_MainContent" />
+              <PinnedDockControl />
+            </controls:PinnedDockHostPanel>
+          </DockPanel>
+        </DockableControl>
+      </ControlTemplate>
+    </Setter>
+
+  </ControlTheme>
+
+  <ControlTheme x:Key="{x:Type PinnedDockControl}" TargetType="PinnedDockControl" x:DataType="dmc:IRootDock">
+
+    <Setter Property="(AutomationProperties.AutomationId)" Value="{Binding Id}" />
+    <Setter Property="(AutomationProperties.Name)" Value="{Binding Title}" />
+
+    <Setter Property="(DockProperties.IsDragEnabled)" Value="{Binding CanDrag}" />
+    <Setter Property="(DockProperties.IsDropEnabled)" Value="{Binding CanDrop}" />
+    <Setter Property="(DockProperties.DockGroup)" Value="{Binding DockGroup}" />
+
+    <Setter Property="PinnedDockAlignment" Value="{Binding PinnedDock?.Alignment, TargetNullValue={x:Static core:Alignment.Unset}, FallbackValue={x:Static core:Alignment.Unset}}" />
+    <Setter Property="PinnedDockDisplayMode" Value="{Binding PinnedDockDisplayMode, FallbackValue={x:Static core:PinnedDockDisplayMode.Overlay}}" />
+
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Grid Name="PART_PinnedDockGrid"
+              IsVisible="{Binding !!PinnedDock?.VisibleDockables?.Count, TargetNullValue={x:False}, FallbackValue={x:False}}">
+          <ContentControl Content="{Binding PinnedDock}" Name="PART_PinnedDock">
+            <ContentControl.Styles>
+              <Style Selector="ToolDockControl">
+                <Setter Property="Background">
+                  <MultiBinding Converter="{x:Static EitherNotNullConverter.Instance}">
+                    <Binding Path="$parent[Window].Background" />
+                    <Binding Path="$parent[Window].TransparencyBackgroundFallback" />
+                  </MultiBinding>
+                </Setter>
+              </Style>
+              <Style Selector="ToolControl">
+                <Setter Property="IsHitTestVisible" Value="{Binding !$parent[DockControl].IsDraggingDock}" />
+              </Style>
+            </ContentControl.Styles>
+          </ContentControl>
+          <GridSplitter Name="PART_PinnedDockSplitter"
+                        Grid.Column="1" Grid.Row="1"
+                        Background="{Binding $parent[Window].Background, TargetNullValue={x:Static Brushes.Transparent}}" />
+        </Grid>
+      </ControlTemplate>
+    </Setter>
+  </ControlTheme>
+
+  <MenuFlyout x:Key="ToolChromeControlContextMenu" x:DataType="dmc:IToolDock">
+    <MenuItem Header="{DynamicResource ToolChromeControlFloatString}"
+              Command="{Binding Owner.Factory.FloatDockable}"
+              CommandParameter="{Binding ActiveDockable}">
+      <MenuItem.IsVisible>
+        <MultiBinding Converter="{x:Static BoolConverters.And}">
+          <MultiBinding Converter="{x:Static converters:DockCapabilityConverters.CanFloatMultiConverter}">
+            <Binding Path="ActiveDockable" />
+            <Binding Path="ActiveDockable.CanFloat" />
+            <Binding Path="ActiveDockable?.DockCapabilityOverrides?.CanFloat" Mode="OneWay" />
+            <Binding Path="DockCapabilityPolicy?.CanFloat" Mode="OneWay" />
+          </MultiBinding>
+          <MultiBinding Converter="{x:Static converters:CanRemoveDockableConverter.Instance}">
+            <Binding Path="(core:IDock).CanCloseLastDockable" FallbackValue="{x:True}" />
+            <Binding Path="(core:IDock).VisibleDockables.Count" FallbackValue="0" />
+          </MultiBinding>
+        </MultiBinding>
+      </MenuItem.IsVisible>
+    </MenuItem>
+    <MenuItem Header="{DynamicResource ToolChromeControlDockString}"
+              Command="{Binding Owner.Factory.PinDockable}"
+              CommandParameter="{Binding ActiveDockable}"
+              IsEnabled="{Binding ActiveDockable.OriginalOwner, Converter={x:Static ObjectConverters.IsNotNull}, FallbackValue=False}">
+      <MenuItem.IsVisible>
+        <MultiBinding Converter="{x:Static converters:DockCapabilityConverters.CanPinMultiConverter}">
+          <Binding Path="ActiveDockable" />
+          <Binding Path="ActiveDockable.CanPin" />
+          <Binding Path="ActiveDockable?.DockCapabilityOverrides?.CanPin" Mode="OneWay" />
+          <Binding Path="DockCapabilityPolicy?.CanPin" Mode="OneWay" />
+        </MultiBinding>
+      </MenuItem.IsVisible>
+    </MenuItem>
+    <MenuItem Header="{DynamicResource ToolChromeControlDockAsDocumentString}"
+              Command="{Binding Owner.Factory.DockAsDocument}"
+              CommandParameter="{Binding ActiveDockable}">
+      <MenuItem.IsVisible>
+        <MultiBinding Converter="{x:Static BoolConverters.And}">
+          <MultiBinding Converter="{x:Static converters:DockCapabilityConverters.CanDockAsDocumentMultiConverter}">
+            <Binding Path="ActiveDockable" />
+            <Binding Path="ActiveDockable.CanDockAsDocument" />
+            <Binding Path="ActiveDockable?.DockCapabilityOverrides?.CanDockAsDocument" Mode="OneWay" />
+            <Binding Path="DockCapabilityPolicy?.CanDockAsDocument" Mode="OneWay" />
+          </MultiBinding>
+          <Binding Path="ActiveDockable.Owner" Converter="{x:Static OwnerIsToolDockConverter.Instance}" />
+        </MultiBinding>
+      </MenuItem.IsVisible>
+    </MenuItem>
+    <MenuItem Header="{DynamicResource ToolChromeControlAutoHideString}"
+              Command="{Binding Owner.Factory.PinDockable}"
+              CommandParameter="{Binding ActiveDockable}"
+              IsEnabled="{Binding ActiveDockable.OriginalOwner, Converter={x:Static ObjectConverters.IsNull}, FallbackValue=False}">
+      <MenuItem.IsVisible>
+        <MultiBinding Converter="{x:Static BoolConverters.And}">
+          <MultiBinding Converter="{x:Static converters:DockCapabilityConverters.CanPinMultiConverter}">
+            <Binding Path="ActiveDockable" />
+            <Binding Path="ActiveDockable.CanPin" />
+            <Binding Path="ActiveDockable?.DockCapabilityOverrides?.CanPin" Mode="OneWay" />
+            <Binding Path="DockCapabilityPolicy?.CanPin" Mode="OneWay" />
+          </MultiBinding>
+          <Binding Path="$parent[ToolChromeControl].IsFloating" Converter="{x:Static BoolConverters.Not}" />
+        </MultiBinding>
+      </MenuItem.IsVisible>
+    </MenuItem>
+    <MenuItem Header="{DynamicResource ToolChromeControlCloseString}"
+              Command="{Binding Owner.Factory.CloseDockable}"
+              CommandParameter="{Binding ActiveDockable}">
+      <MenuItem.IsVisible>
+        <MultiBinding Converter="{x:Static BoolConverters.And}">
+          <MultiBinding Converter="{x:Static converters:DockCapabilityConverters.CanCloseMultiConverter}">
+            <Binding Path="ActiveDockable" />
+            <Binding Path="ActiveDockable.CanClose" />
+            <Binding Path="ActiveDockable?.DockCapabilityOverrides?.CanClose" Mode="OneWay" />
+            <Binding Path="DockCapabilityPolicy?.CanClose" Mode="OneWay" />
+          </MultiBinding>
+          <MultiBinding Converter="{x:Static converters:CanRemoveDockableConverter.Instance}">
+            <Binding Path="(core:IDock).CanCloseLastDockable" FallbackValue="{x:True}" />
+            <Binding Path="(core:IDock).VisibleDockables.Count" FallbackValue="0" />
+          </MultiBinding>
+        </MultiBinding>
+      </MenuItem.IsVisible>
+    </MenuItem>
+  </MenuFlyout>
+
+  <ControlTheme x:Key="ChromeButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+    <Setter Property="Margin" Value="{DynamicResource DockChromeButtonMargin}" />
+    <Setter Property="Padding" Value="{DynamicResource DockChromeButtonPadding}" />
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="Width" Value="{DynamicResource DockChromeButtonWidth}" />
+    <Setter Property="Height" Value="{DynamicResource DockChromeButtonHeight}" />
+    <Style Selector="^:pointerover">
+      <Setter Property="Background" Value="{DynamicResource DockChromeButtonHoverBackgroundBrush}" />
+    </Style>
+    <Style Selector="^:pressed">
+      <Setter Property="Background" Value="{DynamicResource DockChromeButtonPressedBackgroundBrush}" />
+    </Style>
+  </ControlTheme>
+
+  <ControlTheme x:Key="{x:Type ToolChromeControl}" TargetType="ToolChromeControl" x:DataType="dmc:IToolDock">
+
+    <Setter Property="(DockProperties.IsDragEnabled)">
+      <Setter.Value>
+        <MultiBinding Converter="{x:Static converters:DockCapabilityConverters.CanDragMultiConverter}">
+          <Binding />
+          <Binding Path="CanDrag" />
+          <Binding Path="DockCapabilityOverrides?.CanDrag" Mode="OneWay" />
+          <Binding Path="DockCapabilityPolicy?.CanDrag" Mode="OneWay" />
+        </MultiBinding>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="(DockProperties.IsDropEnabled)">
+      <Setter.Value>
+        <MultiBinding Converter="{x:Static converters:DockCapabilityConverters.CanDropMultiConverter}">
+          <Binding />
+          <Binding Path="CanDrop" />
+          <Binding Path="DockCapabilityOverrides?.CanDrop" Mode="OneWay" />
+          <Binding Path="DockCapabilityPolicy?.CanDrop" Mode="OneWay" />
+        </MultiBinding>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="(DockProperties.DockGroup)" Value="{Binding DockGroup}" />
+    <Setter Property="MinWidth" Value="{Binding MinWidth}" />
+    <Setter Property="MaxWidth" Value="{Binding MaxWidth}" />
+    <Setter Property="MinHeight" Value="{Binding MinHeight}" />
+    <Setter Property="MaxHeight" Value="{Binding MaxHeight}" />
+
+    <Setter Property="Background" Value="{DynamicResource DockSurfacePanelBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource DockBorderSubtleBrush}" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="Padding" Value="0" />
+    <Setter Property="IsPinned" Value="{Binding ActiveDockable.OriginalOwner, FallbackValue=False, Converter={x:Static ObjectConverters.IsNotNull}}" />
+    <Setter Property="IsMaximized" Value="{Binding $parent[Window].WindowState, FallbackValue=False, Converter={x:Static IsMaximizedConverter.Instance}}" />
+    <Setter Property="ToolFlyout" Value="{DynamicResource ToolChromeControlContextMenu}" />
+    <Setter Property="CloseButtonTheme" Value="{StaticResource ChromeButton}" />
+    <Setter Property="MaximizeButtonTheme" Value="{StaticResource ChromeButton}" />
+    <Setter Property="PinButtonTheme" Value="{StaticResource ChromeButton}" />
+    <Setter Property="MenuButtonTheme" Value="{StaticResource ChromeButton}" />
+
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Grid RowDefinitions="Auto,*">
+          <ContentPresenter x:Name="PART_ContentPresenter"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            Content="{TemplateBinding Content}"
+                            ContentTemplate="{TemplateBinding ContentTemplate}"
+                            Padding="{TemplateBinding Padding}"
+                            Grid.Row="1" />
+          <Border x:Name="PART_Border"
+                  BorderBrush="{TemplateBinding BorderBrush}"
+                  VerticalAlignment="Top"
+                  ContextFlyout="{TemplateBinding ToolFlyout}"
+                  Grid.Row="{Binding GripMode, Converter={x:Static GripModeConverters.GridRowAutoHideConverter}}">
+            <Grid x:Name="PART_Grip">
+              <Grid ColumnDefinitions="*,Auto,Auto"
+                    Margin="{DynamicResource DockToolChromeHeaderMargin}">
+                <Panel Grid.Column="0" HorizontalAlignment="Left">
+                  <TextBlock x:Name="PART_Title"
+                             TextTrimming="CharacterEllipsis"
+                             Text="{Binding ActiveDockable.Title, FallbackValue=TITLE}" />
+                </Panel>
+                <StackPanel Grid.Column="2" Orientation="Horizontal">
+                  <Button x:Name="PART_MenuButton"
+                          Theme="{TemplateBinding MenuButtonTheme}"
+                          Flyout="{TemplateBinding ToolFlyout}">
+                    <Viewbox Margin="{DynamicResource DockToolChromeMenuIconMargin}">
+                      <Path x:Name="PART_MenuPath" />
+                    </Viewbox>
+                  </Button>
+                  <Button x:Name="PART_PinButton"
+                          Command="{Binding Owner.Factory.PinDockable}"
+                          CommandParameter="{Binding ActiveDockable}"
+                          Theme="{TemplateBinding PinButtonTheme}">
+                    <Button.IsVisible>
+                      <MultiBinding Converter="{x:Static BoolConverters.And}">
+                        <MultiBinding Converter="{x:Static converters:DockCapabilityConverters.CanPinMultiConverter}">
+                          <Binding Path="ActiveDockable" />
+                          <Binding Path="ActiveDockable.CanPin" />
+                          <Binding Path="ActiveDockable?.DockCapabilityOverrides?.CanPin" Mode="OneWay" />
+                          <Binding Path="DockCapabilityPolicy?.CanPin" Mode="OneWay" />
+                        </MultiBinding>
+                        <TemplateBinding Property="IsFloating" Converter="{x:Static BoolConverters.Not}" />
+                      </MultiBinding>
+                    </Button.IsVisible>
+                    <Viewbox>
+                      <Path x:Name="PART_PinPath" />
+                    </Viewbox>
+                  </Button>
+                  <Button x:Name="PART_MaximizeRestoreButton"
+                          IsVisible="{TemplateBinding IsFloating}"
+                          Theme="{TemplateBinding MaximizeButtonTheme}">
+                    <Viewbox>
+                      <Path x:Name="PART_MaximizeRestorePath" />
+                    </Viewbox>
+                  </Button>
+                  <Button x:Name="PART_CloseButton"
+                          Command="{Binding Owner.Factory.CloseDockable}"
+                          CommandParameter="{Binding ActiveDockable}"
+                          Theme="{TemplateBinding CloseButtonTheme}">
+                    <Button.IsVisible>
+                      <MultiBinding Converter="{x:Static BoolConverters.And}">
+                        <MultiBinding Converter="{x:Static converters:DockCapabilityConverters.CanCloseMultiConverter}">
+                          <Binding Path="ActiveDockable" />
+                          <Binding Path="ActiveDockable.CanClose" />
+                          <Binding Path="ActiveDockable?.DockCapabilityOverrides?.CanClose" Mode="OneWay" />
+                          <Binding Path="DockCapabilityPolicy?.CanClose" Mode="OneWay" />
+                        </MultiBinding>
+                        <MultiBinding Converter="{x:Static converters:CanRemoveDockableConverter.Instance}">
+                          <Binding Path="(core:IDock).CanCloseLastDockable" FallbackValue="{x:True}" />
+                          <Binding Path="(core:IDock).VisibleDockables.Count" FallbackValue="0" />
+                        </MultiBinding>
+                      </MultiBinding>
+                    </Button.IsVisible>
+                    <Viewbox>
+                      <Path x:Name="PART_ClosePath" />
+                    </Viewbox>
+                  </Button>
+                </StackPanel>
+                <Grid x:Name="PART_Grid" Grid.Column="1" />
+              </Grid>
+            </Grid>
+          </Border>
+          <Panel x:Name="PART_Panel"
+                 Background="{TemplateBinding BorderBrush}"
+                 Height="{DynamicResource DockToolChromeDividerThickness}"
+                 VerticalAlignment="Top"
+                 Grid.Row="{Binding GripMode, Converter={x:Static GripModeConverters.GridRowAutoHideConverter}}" />
+        </Grid>
+      </ControlTemplate>
+    </Setter>
+
+    <Style Selector="^/template/ Border#PART_Border">
+      <Setter Property="BorderThickness" Value="1 1 1 0" />
+      <Setter Property="IsVisible"
+              Value="{Binding GripMode, Converter={x:Static GripModeConverters.IsVisibleVisibleConverter}}" />
+    </Style>
+
+    <Style Selector="^:pointerover /template/ Border#PART_Border">
+      <Setter Property="IsVisible"
+              Value="{Binding GripMode, Converter={x:Static GripModeConverters.IsVisibleAutoHideOrVisibleConverter}}" />
+    </Style>
+
+    <Style Selector="^:floating /template/ Border#PART_Border">
+      <Setter Property="BorderThickness" Value="0" />
+    </Style>
+
+    <Style Selector="^/template/ Panel#PART_Panel">
+      <Setter Property="IsVisible"
+              Value="{Binding GripMode, Converter={x:Static GripModeConverters.IsVisibleAutoHideOrHiddenConverter}}" />
+    </Style>
+
+    <Style Selector="^:pointerover /template/ Panel#PART_Panel">
+      <Setter Property="IsVisible"
+              Value="{Binding GripMode, Converter={x:Static GripModeConverters.IsVisibleVisibleOrHiddenConverter}}" />
+    </Style>
+
+    <Style Selector="^:floating:pointerover /template/ Panel#PART_Panel">
+      <Setter Property="Height" Value="0" />
+      <Setter Property="IsVisible" Value="False" />
+    </Style>
+
+    <Style Selector="^/template/ TextBlock#PART_Title">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="HorizontalAlignment" Value="Left" />
+      <Setter Property="TextAlignment" Value="Left" />
+      <Setter Property="VerticalAlignment" Value="Stretch" />
+      <Setter Property="Margin" Value="{DynamicResource DockToolChromeTitleMargin}" />
+      <Setter Property="(TextElement.FontSize)" Value="{DynamicResource DockFontSizeNormal}" />
+    </Style>
+
+    <Style Selector="^:active /template/ TextBlock#PART_Title">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="Foreground" Value="{DynamicResource DockTabActiveForegroundBrush}" />
+    </Style>
+
+    <Style Selector="^/template/ Grid#PART_Grip">
+      <Setter Property="Background" Value="{DynamicResource DockSurfacePanelBrush}" />
+    </Style>
+
+    <Style Selector="^/template/ Grid#PART_Grip">
+      <Setter Property="(DockProperties.IsDragArea)" Value="True" />
+    </Style>
+
+    <Style Selector="^:floating /template/ Grid#PART_Grip">
+      <Setter Property="(DockProperties.IsDragArea)" Value="{Binding $parent[HostWindow].ToolChromeControlsWholeWindow, Mode=OneWay, Converter={x:Static BoolConverters.Not}}" />
+    </Style>
+
+    <Style Selector="^:active /template/ Grid#PART_Grip">
+      <Setter Property="Background" Value="{DynamicResource DockSurfaceHeaderActiveBrush}" />
+    </Style>
+
+    <Style Selector="^/template/ Grid#PART_Grid">
+      <Setter Property="Height" Value="{DynamicResource DockChromeGripHeight}" />
+      <Setter Property="MinWidth" Value="12" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+      <Setter Property="Margin" Value="{DynamicResource DockChromeGripMargin}" />
+      <Setter Property="Background" Value="{DynamicResource DockChromeGripBrush}" />
+    </Style>
+
+    <Style Selector="^/template/ Path">
+      <Setter Property="Stretch" Value="UniformToFill" />
+      <Setter Property="Fill" Value="{DynamicResource DockChromeButtonForegroundBrush}" />
+    </Style>
+
+    <Style Selector="^/template/ Button#PART_CloseButton:pointerover">
+      <Setter Property="Background" Value="{DynamicResource DockChromeButtonDangerHoverBrush}" />
+    </Style>
+
+    <Style Selector="^/template/ Path#PART_ClosePath">
+      <Setter Property="Data" Value="{DynamicResource DockToolIconCloseGeometry}" />
+    </Style>
+
+    <Style Selector="^/template/ Path#PART_MaximizeRestorePath">
+      <Setter Property="Data" Value="{DynamicResource DockIconMaximizeGeometry}" />
+    </Style>
+
+    <Style Selector="^/template/ Path#PART_PinPath">
+      <Setter Property="Data" Value="{DynamicResource DockIconPinGeometry}" />
+    </Style>
+
+    <Style Selector="^/template/ Path#PART_MenuPath">
+      <Setter Property="Data" Value="{DynamicResource DockIconMenuGeometry}" />
+    </Style>
+
+    <Style Selector="^:pinned /template/ Path#PART_PinPath">
+      <Setter Property="Data" Value="{DynamicResource DockIconPinnedGeometry}" />
+    </Style>
+
+    <Style Selector="^:maximized /template/ Path#PART_MaximizeRestorePath">
+      <Setter Property="Data" Value="{DynamicResource DockIconRestoreGeometry}" />
+    </Style>
+
+    <Style Selector="^:active /template/ Path">
+      <Setter Property="Fill" Value="{DynamicResource DockTabActiveForegroundBrush}" />
+    </Style>
+  </ControlTheme>
+
+  <ControlTheme x:Key="{x:Type DocumentContentControl}" TargetType="DocumentContentControl" x:DataType="dmc:IDocumentContent">
+
+    <Setter Property="(DockProperties.IsDragEnabled)" Value="{Binding CanDrag}" />
+    <Setter Property="(DockProperties.IsDropEnabled)" Value="{Binding CanDrop}" />
+
+    <Setter Property="Template">
+      <ControlTemplate>
+        <DockableControl TrackingMode="Visible">
+          <ContentControl Content="{Binding}"
+                                  ContentTemplate="{Binding}" />
+        </DockableControl>
+      </ControlTemplate>
+    </Setter>
+
+  </ControlTheme>
+
+  <ControlTheme x:Key="{x:Type ToolContentControl}" TargetType="ToolContentControl" x:DataType="dmc:IToolContent">
+
+    <Setter Property="(DockProperties.IsDragEnabled)" Value="{Binding CanDrag}" />
+    <Setter Property="(DockProperties.IsDropEnabled)" Value="{Binding CanDrop}" />
+    <Setter Property="MinWidth" Value="{Binding MinWidth}" />
+    <Setter Property="MaxWidth" Value="{Binding MaxWidth}" />
+    <Setter Property="MinHeight" Value="{Binding MinHeight}" />
+    <Setter Property="MaxHeight" Value="{Binding MaxHeight}" />
+
+    <Setter Property="Template">
+      <ControlTemplate>
+        <DockableControl TrackingMode="Visible">
+          <ContentControl Content="{Binding}"
+                          ContentTemplate="{Binding}" />
+        </DockableControl>
+      </ControlTemplate>
+    </Setter>
+
+  </ControlTheme>
+
+</ResourceDictionary>

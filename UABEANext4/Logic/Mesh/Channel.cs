@@ -1,19 +1,18 @@
 ﻿using AssetsTools.NET;
 
-namespace UABEANext4.Logic.Mesh
+namespace UABEANext4.Logic.Mesh;
+
+public class Channel
 {
-    public class Channel
+    public byte stream;
+    public byte offset;
+    public byte format;
+    public byte dimension;
+    public Channel(AssetTypeValueField field)
     {
-        public byte stream;
-        public byte offset;
-        public byte format;
-        public byte dimension;
-        public Channel(AssetTypeValueField field)
-        {
-            stream = field["stream"].AsByte;
-            offset = field["offset"].AsByte;
-            format = field["format"].AsByte;
-            dimension = field["dimension"].AsByte;
-        }
+        stream = field["stream"].AsByte;
+        offset = field["offset"].AsByte;
+        format = field["format"].AsByte;
+        dimension = field["dimension"].AsByte;
     }
 }

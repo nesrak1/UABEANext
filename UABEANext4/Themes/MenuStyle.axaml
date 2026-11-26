@@ -1,0 +1,22 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <Design.PreviewWith>
+    <Border Width="300" Height="200">
+      <Menu>
+        <MenuItem Header="Test123">
+          <MenuItem Header="Test456" />
+        </MenuItem>
+      </Menu>
+    </Border>
+  </Design.PreviewWith>
+
+  <Style Selector="MenuItem">
+      <Setter Property="VerticalAlignment" Value="Center" />
+  </Style>
+
+  <Style Selector="Menu > MenuItem">
+      <Setter Property="Padding" Value="6,4" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+  </Style>
+
+</Styles>

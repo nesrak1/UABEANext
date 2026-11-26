@@ -27,7 +27,7 @@
                 <TextBox Grid.Column="1"
                          Name="defaultBox"
                          Text="{Binding Version}"
-                         Watermark="e.g. 2019.4.0f1"
+                         PlaceholderText="e.g. 2019.4.0f1"
                          VerticalContentAlignment="Center"
                          Height="32" />
             </Grid>

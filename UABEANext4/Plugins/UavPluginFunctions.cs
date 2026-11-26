@@ -8,6 +8,7 @@ using UABEANext4.Util;
 using UABEANext4.ViewModels.Dialogs;
 
 namespace UABEANext4.Plugins;
+
 public class UavPluginFunctions : IUavPluginFunctions
 {
     private readonly IDialogService _dialogService;

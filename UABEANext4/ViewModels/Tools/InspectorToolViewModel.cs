@@ -7,6 +7,7 @@ using UABEANext4.AssetWorkspace;
 using UABEANext4.Logic;
 
 namespace UABEANext4.ViewModels.Tools;
+
 public partial class InspectorToolViewModel : Tool
 {
     const string TOOL_TITLE = "Inspector";

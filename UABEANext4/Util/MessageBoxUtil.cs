@@ -5,6 +5,7 @@ using UABEANext4.Services;
 using UABEANext4.ViewModels.Dialogs;
 
 namespace UABEANext4.Util;
+
 public class MessageBoxUtil
 {
     public static async Task<MessageBoxResult> ShowDialog(string header, string message)

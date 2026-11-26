@@ -11,7 +11,7 @@
         <vm:MainViewModel />
     </Design.DataContext>
     <Grid RowDefinitions="Auto,*,22" Margin="4">
-        <Menu Grid.Row="0" Padding="0,6">
+        <Menu Grid.Row="0">
             <MenuItem Header="File">
                 <MenuItem
                     Header="Open" Command="{Binding FileOpen}"

@@ -5,6 +5,7 @@ using System;
 using System.Globalization;
 
 namespace UABEANext4.Converters;
+
 public class AssetsFileInstanceNameConverter : IValueConverter
 {
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)

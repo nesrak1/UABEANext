@@ -12,14 +12,15 @@
         Title="{Binding WindowTitle}"
         Name="MainWindowName"
         ExtendClientAreaToDecorationsHint="{Binding UsesChrome}"
-        ExtendClientAreaChromeHints="{Binding ChromeHints}"
+        ExtendClientAreaTitleBarHeightHint="30"
+        WindowDecorations="Full"
         DragDrop.AllowDrop="True">
   <Design.DataContext>
     <vm:MainViewModel/>
   </Design.DataContext>
 
   <Panel Margin="{Binding #MainWindowName.OffScreenMargin}">
-    <Panel Height="30" HorizontalAlignment="Center" VerticalAlignment="Top">
+    <Panel Height="30" HorizontalAlignment="Center" VerticalAlignment="Top" WindowDecorationProperties.ElementRole="TitleBar">
       <Label Content="{Binding Path=Title, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"
              Margin="4,8,4,0"
              FontSize="14"

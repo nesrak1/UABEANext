@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
@@ -12,34 +12,41 @@
   </ItemGroup>
 
   <ItemGroup>
+    <AvaloniaXaml Remove="Plugins\DefaultPlugins\**" />
+    <Compile Remove="Plugins\DefaultPlugins\**" />
+    <EmbeddedResource Remove="Plugins\DefaultPlugins\**" />
+    <None Remove="Plugins\DefaultPlugins\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="Assets\logo-new.ico" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="AssetRipper.TextureDecoder" Version="2.1.1" />
-    <PackageReference Include="Avalonia" Version="11.3.8" />
-    <PackageReference Include="Avalonia.AvaloniaEdit" Version="11.3.0" />
-    <PackageReference Include="Avalonia.Controls.DataGrid" Version="11.3.8" />
-    <PackageReference Include="Avalonia.Skia" Version="11.3.8" />
-    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.8" />
-    <PackageReference Include="Avalonia.Fonts.Inter" Version="11.3.8" />
-    <PackageReference Include="Avalonia.Themes.Simple" Version="11.3.8" />
-    <PackageReference Include="AvaloniaEdit.TextMate" Version="11.3.0" />
-    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+    <PackageReference Include="AssetRipper.TextureDecoder" Version="2.7.0" />
+    <PackageReference Include="Avalonia" Version="12.2.0" />
+    <PackageReference Include="Avalonia.AvaloniaEdit" Version="12.0.0" />
+    <PackageReference Include="Avalonia.Controls.DataGrid" Version="12.1.2" />
+    <PackageReference Include="Avalonia.Skia" Version="12.2.0" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="12.2.0" />
+    <PackageReference Include="Avalonia.Themes.Simple" Version="12.2.0" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="12.2.0" />
+    <PackageReference Include="AvaloniaEdit.TextMate" Version="12.0.0" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
 
-    <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
-    <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.3.8" />
-    <PackageReference Include="Dock.Avalonia" Version="11.3.6.5" />
-    <PackageReference Include="Dock.Avalonia.Themes.Simple" Version="11.3.6.5" />
-    <PackageReference Include="Dock.Model" Version="11.3.6.5" />
-    <PackageReference Include="Dock.Model.Mvvm" Version="11.3.6.5" />
-    <PackageReference Include="DynamicData" Version="9.4.1" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.10" />
-    <PackageReference Include="Mono.Cecil" Version="0.11.3" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <!--Condition below is needed to remove ProDiagnostics package from build output in Release configuration.-->
+    <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="ProDiagnostics" Version="12.2.0" />
+    <PackageReference Include="Dock.Avalonia" Version="12.2.0" />
+    <PackageReference Include="Dock.Avalonia.Themes.Simple" Version="12.2.0" />
+    <PackageReference Include="Dock.Model" Version="12.2.0" />
+    <PackageReference Include="Dock.Model.Mvvm" Version="12.2.0" />
+    <PackageReference Include="DynamicData" Version="9.5.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="11.0.0" />
+    <PackageReference Include="Mono.Cecil" Version="0.11.6" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
     <PackageReference Include="Samboy063.LibCpp2IL" Version="2022.1.0-pre-release.21" />
-    <PackageReference Include="Silk.NET.OpenGL" Version="2.22.0" />
-    <PackageReference Include="StbImageSharp" Version="2.30.15" />
+    <PackageReference Include="Silk.NET.OpenGL" Version="2.23.0" />
+    <PackageReference Include="StbImageSharp" Version="2.30.16" />
     <PackageReference Include="StbImageWriteSharp" Version="1.16.7" />
   </ItemGroup>
 
@@ -75,10 +82,6 @@
       <DependentUpon>SettingsView.axaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Plugins\DefaultPlugins\" />
   </ItemGroup>
 
   <ItemGroup>

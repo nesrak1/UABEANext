@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UABEANext4.Interfaces;
 
 namespace UABEANext4.ViewModels.Dialogs;
+
 public partial class SelectDumpViewModel : ViewModelBase, IDialogAware<SelectedDumpType?>
 {
     [ObservableProperty]

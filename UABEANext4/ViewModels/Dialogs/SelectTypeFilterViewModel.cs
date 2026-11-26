@@ -178,7 +178,7 @@ public partial class SelectTypeFilterViewModel : ViewModelBase, IDialogAware<IEn
         foreach (var ptr in uniqueScriptPtrs)
         {
             var scriptRef = GetAssetsFileScriptInfo(workspace.Manager, ptr);
-            if (scriptRef != null) 
+            if (scriptRef != null)
                 filterTypes.Add(TypeFilterTypeEntry.FromTypeReference(scriptRef));
         }
 

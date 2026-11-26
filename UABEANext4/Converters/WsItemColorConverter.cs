@@ -9,6 +9,7 @@ using System.Globalization;
 using UABEANext4.AssetWorkspace;
 
 namespace UABEANext4.Converters;
+
 public class WsItemColorConverter : IMultiValueConverter
 {
     public object? Convert(IList<object?> values, Type targetType, object? parameter, CultureInfo culture)

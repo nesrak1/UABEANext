@@ -13,7 +13,7 @@
         <TextBox Grid.Row="0"
                  Text="{Binding NewName}"
                  Name="defaultBox"
-                 Watermark="Enter new name..."
+                 PlaceholderText="Enter new name..."
                  VerticalContentAlignment="Center"
                  Height="32" />
 

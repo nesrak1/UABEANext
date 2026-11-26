@@ -1,4 +1,5 @@
 ﻿namespace UABEANext4.Plugins;
+
 public class PluginPreviewerTypePair(IUavPluginPreviewer previewer, UavPluginPreviewerType previewType)
 {
     public IUavPluginPreviewer Previewer { get; } = previewer;

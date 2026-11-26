@@ -3,6 +3,7 @@ using System;
 using UABEANext4.Interfaces;
 
 namespace UABEANext4.ViewModels.Dialogs;
+
 public partial class VersionSelectViewModel : ViewModelBase, IDialogAware<string?>
 {
     [ObservableProperty]

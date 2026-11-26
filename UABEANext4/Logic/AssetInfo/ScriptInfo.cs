@@ -8,6 +8,7 @@ using System.IO;
 using UABEANext4.AssetWorkspace;
 
 namespace UABEANext4.Logic.AssetInfo;
+
 public class ScriptInfo
 {
     public ObservableCollection<AssetPPtr> Scripts { get; set; } = [];

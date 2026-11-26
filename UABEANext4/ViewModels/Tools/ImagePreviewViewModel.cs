@@ -7,6 +7,7 @@ using CommunityToolkit.Mvvm.Input;
 using System;
 
 namespace UABEANext4.ViewModels.Tools;
+
 public partial class ImagePreviewViewModel : ViewModelBase
 {
     [ObservableProperty]
@@ -55,7 +56,8 @@ public partial class ImagePreviewViewModel : ViewModelBase
 
     public void UpdateImage(Bitmap? bitmap, TextureFormat? textureFormat)
     {
-        if (Image != null) {
+        if (Image != null)
+        {
             Image.Dispose();
         }
 

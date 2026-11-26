@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using UABEANext4.AssetWorkspace;
 
 namespace UABEANext4.Plugins;
+
 public interface IUavPluginOption
 {
     string Name { get; }

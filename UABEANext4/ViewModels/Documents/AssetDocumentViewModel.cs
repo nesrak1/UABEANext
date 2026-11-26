@@ -83,8 +83,7 @@ public partial class AssetDocumentViewModel : Document
         LoadContainers = false;
 
         ClassIdToString = Enum
-            .GetValues(typeof(AssetClassID))
-            .Cast<AssetClassID>()
+            .GetValues<AssetClassID>()
             .ToDictionary(enm => enm, enm => enm.ToString());
 
         Id = TOOL_TITLE.Replace(" ", "");
@@ -101,8 +100,7 @@ public partial class AssetDocumentViewModel : Document
         Workspace = workspace;
         LoadContainers = loadContainers;
         ClassIdToString = Enum
-            .GetValues(typeof(AssetClassID))
-            .Cast<AssetClassID>()
+            .GetValues<AssetClassID>()
             .ToDictionary(enm => enm, enm => enm.ToString());
 
         Id = TOOL_TITLE.Replace(" ", "");

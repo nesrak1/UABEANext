@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Globalization;
 
 namespace UABEANext4.Converters;
+
 public class AssetTypeIconConverter : IValueConverter
 {
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)

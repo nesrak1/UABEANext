@@ -2,16 +2,16 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:sys="clr-namespace:System;assembly=netstandard"
              xmlns:local="using:UABEANext4"
+             xmlns:chrome="using:Avalonia.Controls.Chrome"
              x:Class="UABEANext4.App"
              RequestedThemeVariant="Default">
     <Application.DataTemplates>
         <local:ViewLocator/>
     </Application.DataTemplates>
-    <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
 
     <Application.Styles>
         <SimpleTheme />
-        <StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Simple.xaml"/>
+        <StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Simple.xaml" />
         <StyleInclude Source="avares://AvaloniaEdit/Themes/Simple/AvaloniaEdit.xaml" />
         <StyleInclude Source="avares://UABEANext4/Themes/DockSimpleThemeEdit.axaml" />
         <StyleInclude Source="avares://UABEANext4/Themes/HeaderedContentControlStyle.axaml" />
@@ -19,27 +19,33 @@
         <StyleInclude Source="avares://UABEANext4/Themes/SliderStyle.axaml" />
         <StyleInclude Source="avares://UABEANext4/Themes/DataValidationStyle.axaml" />
         <StyleInclude Source="avares://UABEANext4/Themes/RadioButtonListBoxStyle.axaml" />
-        <StyleInclude Source="avares://UABEANext4/Themes/ScrollBarStyle.axaml"/>
-        <StyleInclude Source="avares://UABEANext4/Themes/DataGridStyle.axaml"/>
-        <StyleInclude Source="avares://UABEANext4/Themes/ButtonStyle.axaml"/>
-        <StyleInclude Source="avares://UABEANext4/Themes/ListBoxItemStyle.axaml"/>
-        <StyleInclude Source="avares://UABEANext4/Themes/ComboBoxStyle.axaml"/>
-        <StyleInclude Source="avares://UABEANext4/Themes/TreeViewItemStyle.axaml"/>
-        <StyleInclude Source="avares://UABEANext4/Themes/TextBoxStyle.axaml"/>
-        <StyleInclude Source="avares://UABEANext4/Themes/NumericUpDownStyle.axaml"/>
+        <StyleInclude Source="avares://UABEANext4/Themes/ScrollBarStyle.axaml" />
+        <StyleInclude Source="avares://UABEANext4/Themes/DataGridStyle.axaml" />
+        <StyleInclude Source="avares://UABEANext4/Themes/ButtonStyle.axaml" />
+        <StyleInclude Source="avares://UABEANext4/Themes/ListBoxItemStyle.axaml" />
+        <StyleInclude Source="avares://UABEANext4/Themes/ComboBoxStyle.axaml" />
+        <StyleInclude Source="avares://UABEANext4/Themes/TreeViewItemStyle.axaml" />
+        <StyleInclude Source="avares://UABEANext4/Themes/TextBoxStyle.axaml" />
+        <StyleInclude Source="avares://UABEANext4/Themes/NumericUpDownStyle.axaml" />
+        <StyleInclude Source="avares://UABEANext4/Themes/MenuStyle.axaml" />
 
-        <Style Selector="CaptionButtons Button">
+        <Style Selector="chrome|WindowDrawnDecorations /template/ Button">
             <Setter Property="Foreground" Value="{DynamicResource CaptionButtonForeground}" />
         </Style>
-        <Style Selector="CaptionButtons Button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Style Selector="chrome|WindowDrawnDecorations /template/ Button:pointerover">
+            <Setter Property="Foreground" Value="{DynamicResource CaptionButtonForeground}" />
+        </Style>
+        <Style Selector="chrome|WindowDrawnDecorations /template/ Button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
             <Setter Property="Background" Value="{DynamicResource CaptionButtonHoverBg}" />
         </Style>
-        <Style Selector="CaptionButtons Button#PART_CloseButton:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Style Selector="chrome|WindowDrawnDecorations /template/ Button#PART_CloseButton:pointerover /template/ ContentPresenter#PART_ContentPresenter">
             <Setter Property="Background" Value="{DynamicResource CaptionButtonCloseHoverBg}" />
         </Style>
-        <Style Selector="CaptionButtons Button:pointerover">
-            <Setter Property="Foreground" Value="{DynamicResource CaptionButtonForeground}" />
-        </Style>
 
+        <!-- WindowDrawnDecorations.TitleBarDecorations isn't working,
+             so hiding the second title text is the next best thing. -->
+        <Style Selector="chrome|WindowDrawnDecorations /template/ Panel#PART_TitleTextPanel TextBlock">
+            <Setter Property="IsVisible" Value="False" />
+        </Style>
     </Application.Styles>
 </Application>

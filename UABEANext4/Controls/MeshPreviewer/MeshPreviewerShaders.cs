@@ -1,4 +1,5 @@
 ﻿namespace UABEANext4.Controls.MeshPreviewer;
+
 public static class MeshPreviewerShaders
 {
     public const string VERTEX_SOURCE = @"#version 300 es

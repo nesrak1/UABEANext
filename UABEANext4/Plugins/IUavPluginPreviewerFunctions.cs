@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using UABEANext4.Logic.Mesh;
 
 namespace UABEANext4.Plugins;
+
 public interface IUavPluginPreviewerFunctions
 {
     public Task SetPreviewText(TextDocument document);

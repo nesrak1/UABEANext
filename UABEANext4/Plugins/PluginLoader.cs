@@ -6,6 +6,7 @@ using UABEANext4.AssetWorkspace;
 using UABEANext4.Util;
 
 namespace UABEANext4.Plugins;
+
 public class PluginLoader
 {
     private readonly List<IUavPluginOption> _pluginOptions = [];

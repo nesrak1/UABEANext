@@ -6,6 +6,7 @@ using System.Linq;
 using UABEANext4.AssetWorkspace;
 
 namespace UABEANext4.Logic.Hierarchy;
+
 public partial class HierarchyItem : ObservableObject
 {
     // todo events for things like name changes
